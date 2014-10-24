@@ -1,0 +1,6 @@
+language: java
+script: "mvn clean test -T4"
+jdk:
+- openjdk7
+- oraclejdk7
+- oraclejdk8
