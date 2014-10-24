@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changelog>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
+                parse="xml" xpointer="id('first-changelog')"
+                href="includes/included.xml" />
+</changelog>
