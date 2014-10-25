@@ -1,6 +1,5 @@
 package com.liquigraph.core.api;
 
-import com.google.common.collect.FluentIterable;
 import com.liquigraph.core.configuration.Configuration;
 import com.liquigraph.core.graph.ChangelogReader;
 import com.liquigraph.core.graph.ChangelogWriter;
@@ -19,6 +18,7 @@ class MigrationRunner {
     private final ChangelogParser changelogParser;
     private final ChangelogReader changelogReader;
     private final ChangelogWriter changelogWriter;
+    private final ChangelogDiffMaker changelogDiffMaker;
     private final DeclaredChangesetValidator declaredChangesetValidator;
     private final PersistedChangesetValidator persistedChangesetValidator;
 
@@ -26,12 +26,15 @@ class MigrationRunner {
                            ChangelogParser changelogParser,
                            ChangelogReader changelogReader,
                            ChangelogWriter changelogWriter,
+                           ChangelogDiffMaker changelogDiffMaker,
                            DeclaredChangesetValidator declaredChangesetValidator,
                            PersistedChangesetValidator persistedChangesetValidator) {
+
         this.connector = connector;
         this.changelogParser = changelogParser;
         this.changelogReader = changelogReader;
         this.changelogWriter = changelogWriter;
+        this.changelogDiffMaker = changelogDiffMaker;
         this.declaredChangesetValidator = declaredChangesetValidator;
         this.persistedChangesetValidator = persistedChangesetValidator;
     }
@@ -44,14 +47,12 @@ class MigrationRunner {
         Collection<Changeset> persistedChangesets = changelogReader.read(graphDatabase);
         persistedChangesetValidator.validate(declaredChangesets, persistedChangesets);
 
-        Collection<Changeset> changelogsToInsert = getChangelogsToInsert(declaredChangesets, persistedChangesets);
+        Collection<Changeset> changelogsToInsert = changelogDiffMaker.computeChangesetsToInsert(
+            configuration.executionContexts(),
+            declaredChangesets,
+            persistedChangesets
+        );
+
         changelogWriter.write(graphDatabase, changelogsToInsert);
-
-    }
-
-    private Collection<Changeset> getChangelogsToInsert(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
-        return FluentIterable.from(declaredChangesets)
-            .skip(persistedChangesets.size())
-            .toList();
     }
 }
