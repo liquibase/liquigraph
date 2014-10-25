@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changelog>
+    <changeset id="first-changelog" author="fbiville" contexts="foo,bar">
+        <query><![CDATA[MATCH n RETURN n]]></query>
+    </changeset>
+    <changeset id="second-changelog" author="team" contexts="baz">
+        <query><![CDATA[MATCH m RETURN m]]></query>
+    </changeset>
+    <changeset id="second-changelog" author="team">
+        <query><![CDATA[MATCH m RETURN m]]></query>
+    </changeset>
+</changelog>

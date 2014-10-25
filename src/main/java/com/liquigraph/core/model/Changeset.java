@@ -1,7 +1,11 @@
 package com.liquigraph.core.model;
 
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+
 import javax.xml.bind.annotation.*;
+import java.util.Collection;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -14,8 +18,9 @@ public class Changeset {
     private String author;
     private String query;
     private String checksum;
+    private Collection<String> executionsContexts;
 
-    @XmlAttribute(name = "id")
+    @XmlAttribute(name = "id", required = true)
     public String getId() {
         return id;
     }
@@ -24,7 +29,7 @@ public class Changeset {
         this.id = id;
     }
 
-    @XmlAttribute(name = "author")
+    @XmlAttribute(name = "author", required = true)
     public String getAuthor() {
         return author;
     }
@@ -33,7 +38,7 @@ public class Changeset {
         this.author = author;
     }
 
-    @XmlElement(name = "query")
+    @XmlElement(name = "query", required = true)
     public String getQuery() {
         return query;
     }
@@ -52,6 +57,23 @@ public class Changeset {
         checkArgument(checksum != null);
         checkArgument(checksum.equals(checksum(query)));
         this.checksum = checksum;
+    }
+
+    @XmlTransient
+    public Collection<String> getExecutionsContexts() {
+        return executionsContexts;
+    }
+
+    @XmlAttribute(name = "contexts", required = false)
+    String getContexts() {
+        return executionsContexts == null ? "" : Joiner.on(',').join(executionsContexts);
+    }
+
+    public void setContexts(String executionsContexts) {
+        this.executionsContexts = Splitter.on(',')
+            .omitEmptyStrings()
+            .trimResults()
+            .splitToList(executionsContexts);
     }
 
     @Override
