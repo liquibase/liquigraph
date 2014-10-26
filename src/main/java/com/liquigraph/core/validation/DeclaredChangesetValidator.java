@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Multiset;
-import com.google.common.collect.Multisets;
 import com.liquigraph.core.model.Changeset;
 
 import java.util.Collection;
@@ -13,6 +12,7 @@ import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.collect.LinkedHashMultiset.create;
 import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.collect.Multisets.filter;
 import static com.liquigraph.core.model.functions.ChangesetToId.INTO_ID;
 import static java.lang.String.format;
 
@@ -53,7 +53,7 @@ public class DeclaredChangesetValidator {
 
     private Collection<String> repeatedIds(Collection<Changeset> declaredChangesets) {
         final Multiset<String> ids = create(changesetIds(declaredChangesets));
-        return Multisets.filter(ids, new Predicate<String>() {
+        return filter(ids, new Predicate<String>() {
             @Override
             public boolean apply(String input) {
                 return ids.count(input) > 1;

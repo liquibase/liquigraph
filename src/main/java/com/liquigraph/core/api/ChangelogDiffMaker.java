@@ -1,13 +1,16 @@
 package com.liquigraph.core.api;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.liquigraph.core.configuration.ExecutionContexts;
 import com.liquigraph.core.model.Changeset;
 
 import java.util.Collection;
 
-import static com.google.common.base.Optional.fromNullable;
+import static com.google.common.base.Predicates.*;
+import static com.google.common.collect.FluentIterable.from;
+import static com.liquigraph.core.model.predicates.ChangesetChecksumHasChanged.CHECKSUM_HAS_CHANGED;
+import static com.liquigraph.core.model.predicates.ChangesetMatchAnyExecutionContexts.BY_ANY_EXECUTION_CONTEXT;
+import static com.liquigraph.core.model.predicates.ChangesetRunAlways.RUN_ALWAYS;
+import static com.liquigraph.core.model.predicates.ChangesetRunOnChange.RUN_ON_CHANGE;
 
 class ChangelogDiffMaker {
 
@@ -18,18 +21,22 @@ class ChangelogDiffMaker {
         return diff(executionContexts, declaredChangesets, persistedChangesets);
     }
 
-    private Collection<Changeset> diff(final ExecutionContexts executionContexts,
+    private Collection<Changeset> diff(ExecutionContexts executionContexts,
                                        Collection<Changeset> declaredChangesets,
                                        Collection<Changeset> persistedChangesets) {
 
-        return FluentIterable.from(declaredChangesets)
-            .skip(persistedChangesets.size())
-            .filter(new Predicate<Changeset>() {
-                @Override
-                public boolean apply(Changeset input) {
-                    return executionContexts.matches(fromNullable(input.getExecutionsContexts()));
-                }
-            })
+        return from(declaredChangesets)
+            .filter(BY_ANY_EXECUTION_CONTEXT(executionContexts))
+            .filter(
+                or(
+                    not(in(persistedChangesets)),
+                    and(
+                        RUN_ON_CHANGE,
+                        CHECKSUM_HAS_CHANGED(persistedChangesets)
+                    ),
+                    RUN_ALWAYS
+                )
+            )
             .toList();
     }
 }

@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.nullToEmpty;
 import static com.liquigraph.core.model.Checksums.checksum;
 
 @XmlAccessorType(XmlAccessType.PROPERTY)
@@ -19,6 +20,8 @@ public class Changeset {
     private String query;
     private String checksum;
     private Collection<String> executionsContexts;
+    private boolean runOnChange;
+    private boolean runAlways;
 
     @XmlAttribute(name = "id", required = true)
     public String getId() {
@@ -73,7 +76,25 @@ public class Changeset {
         this.executionsContexts = Splitter.on(',')
             .omitEmptyStrings()
             .trimResults()
-            .splitToList(executionsContexts);
+            .splitToList(nullToEmpty(executionsContexts));
+    }
+
+    @XmlAttribute(name = "run_on_change")
+    public boolean isRunOnChange() {
+        return runOnChange;
+    }
+
+    public void setRunOnChange(boolean runOnChange) {
+        this.runOnChange = runOnChange;
+    }
+
+    @XmlAttribute(name = "run_always")
+    public boolean isRunAlways() {
+        return runAlways;
+    }
+
+    public void setRunAlways(boolean runAlways) {
+        this.runAlways = runAlways;
     }
 
     @Override

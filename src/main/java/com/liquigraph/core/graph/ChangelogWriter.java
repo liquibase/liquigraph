@@ -20,13 +20,14 @@ public class ChangelogWriter {
         "OPTIONAL MATCH (changelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(:__LiquigraphChangeset)" +
         "RETURN COALESCE(MAX(exec.order), 0) AS lastIndex";
 
-    private static final String NEW_CHANGESET = "MATCH (changelog:__LiquigraphChangelog) " +
-        "CREATE (changelog)<-[:EXECUTED_WITHIN_CHANGELOG {order: {index}}]-(:__LiquigraphChangeset {" +
-        "   id: {id}," +
-        "   author: {author}," +
-        "   query: {query}," +
-        "   checksum: {checksum}" +
-        "})";
+    private static final String CHANGESET_UPSERT =
+        "MATCH (changelog:__LiquigraphChangelog) " +
+        "MERGE (changelog)<-[:EXECUTED_WITHIN_CHANGELOG {order: {index}}]-(changeset:__LiquigraphChangeset {id: {id}}) " +
+        "ON MATCH SET  changeset.checksum = {checksum}, " +
+        "              changeset.query = {query}" +
+        "ON CREATE SET changeset.author = {author}, " +
+        "              changeset.query = {query}, " +
+        "              changeset.checksum = {checksum}";
 
     public void write(GraphDatabaseService graphDatabase, Collection<Changeset> changelogsToInsert) {
         try (Transaction transaction = graphDatabase.beginTx()) {
@@ -35,7 +36,7 @@ public class ChangelogWriter {
 
             for (Changeset changeset : changelogsToInsert) {
                 cypherEngine.execute(changeset.getQuery());
-                cypherEngine.execute(NEW_CHANGESET, parameters(changeset, index));
+                cypherEngine.execute(CHANGESET_UPSERT, parameters(changeset, index));
                 index++;
             }
 

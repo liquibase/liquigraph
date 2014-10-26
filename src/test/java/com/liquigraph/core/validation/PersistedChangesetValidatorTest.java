@@ -1,5 +1,6 @@
 package com.liquigraph.core.validation;
 
+import com.google.common.collect.Lists;
 import com.liquigraph.core.model.Changeset;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,10 +18,26 @@ public class PersistedChangesetValidatorTest {
     private PersistedChangesetValidator validator = new PersistedChangesetValidator();
 
     @Test
+    public void passes_if_nothing_persisted_yet() {
+        validator.validate(
+            newArrayList(changeset("identifier", "author", "MATCH m RETURN m")),
+            Lists.<Changeset>newArrayList()
+        );
+    }
+
+    @Test
     public void passes_if_all_existing_changesets_have_not_changed_checksum() {
         validator.validate(
             newArrayList(changeset("identifier", "author", "MATCH m RETURN m")),
             newArrayList(changeset("identifier", "author2", "MATCH m RETURN m"))
+        );
+    }
+
+    @Test
+    public void passes_if_changesets_have_modified_checksums_but_run_on_change() {
+        validator.validate(
+            newArrayList(changeset("identifier", "author", "MATCH m2 RETURN m2", true)),
+            newArrayList(changeset("identifier", "author", "MATCH m RETURN m"))
         );
     }
 
@@ -71,6 +88,12 @@ public class PersistedChangesetValidatorTest {
                 changeset("identifier2", "author", "MATCH n RETURN n")
             )
         );
+    }
+
+    private Changeset changeset(String identifier, String author, String query, boolean runOnChange) {
+        Changeset changeset = changeset(identifier, author, query);
+        changeset.setRunOnChange(true);
+        return changeset;
     }
 
     private Changeset changeset(String id, String author, String query) {

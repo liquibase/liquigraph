@@ -8,15 +8,18 @@ import com.liquigraph.core.model.predicates.ChangesetById;
 
 import java.util.Collection;
 
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.Collections2.filter;
 import static com.google.common.collect.Iterables.get;
 import static com.google.common.collect.Lists.newLinkedList;
+import static com.liquigraph.core.model.predicates.ChangesetRunOnChange.RUN_ON_CHANGE;
 import static java.lang.String.format;
 
 public class PersistedChangesetValidator {
 
     public void validate(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
         Collection<String> errors = newLinkedList();
-        validateChecksums(declaredChangesets, persistedChangesets, errors);
+        validateChecksums(filter(declaredChangesets, not(RUN_ON_CHANGE)), persistedChangesets, errors);
         validateOrder(declaredChangesets, persistedChangesets, errors);
 
         if (!errors.isEmpty()) {
