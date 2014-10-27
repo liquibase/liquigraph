@@ -79,7 +79,7 @@ public class Changeset {
             .splitToList(nullToEmpty(executionsContexts));
     }
 
-    @XmlAttribute(name = "run_on_change")
+    @XmlAttribute(name = "run-on-change")
     public boolean isRunOnChange() {
         return runOnChange;
     }
@@ -88,7 +88,7 @@ public class Changeset {
         this.runOnChange = runOnChange;
     }
 
-    @XmlAttribute(name = "run_always")
+    @XmlAttribute(name = "run-always")
     public boolean isRunAlways() {
         return runAlways;
     }

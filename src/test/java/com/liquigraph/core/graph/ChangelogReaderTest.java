@@ -1,4 +1,4 @@
-package com.liquigraph.core;
+package com.liquigraph.core.graph;
 
 import com.liquigraph.core.graph.ChangelogReader;
 import com.liquigraph.core.model.Changeset;

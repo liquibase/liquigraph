@@ -1,7 +1,6 @@
-package com.liquigraph.core;
+package com.liquigraph.core.parser;
 
 import com.liquigraph.core.model.Changeset;
-import com.liquigraph.core.parser.ChangelogParser;
 import org.assertj.core.api.iterable.Extractor;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -61,6 +60,20 @@ public class ChangelogParserTest {
                 newArrayList("foo", "bar"),
                 newArrayList("baz"),
                 null
+            );
+    }
+
+    @Test
+    public void parses_changelog_with_run_always_and_run_on_change_attributes() {
+        Collection<Changeset> changesets = parser.parse("/changelog-with-run-modes.xml");
+
+        assertThat(changesets)
+            .extracting("id", "runAlways", "runOnChange")
+            .containsExactly(
+                tuple("first-changelog", true, true),
+                tuple("second-changelog", false, true),
+                tuple("third-changelog", true, false),
+                tuple("fourth-changelog", false, false)
             );
     }
 }
