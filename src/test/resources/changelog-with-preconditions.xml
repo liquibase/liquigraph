@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changelog>
+    <changeset id="first-changelog" author="fbiville">
+        <precondition if-not-met="FAIL">
+            <query><![CDATA[MATCH npre RETURN npre]]></query>
+        </precondition>
+        <query><![CDATA[MATCH n RETURN n]]></query>
+    </changeset>
+    <changeset id="second-changelog" author="team">
+        <precondition if-not-met="MARK_AS_EXECUTED">
+            <query><![CDATA[MATCH mpre RETURN mpre]]></query>
+        </precondition>
+        <query><![CDATA[MATCH m RETURN m]]></query>
+    </changeset>
+    <changeset id="third-changelog" author="team">
+        <query><![CDATA[MATCH m RETURN m]]></query>
+    </changeset>
+</changelog>

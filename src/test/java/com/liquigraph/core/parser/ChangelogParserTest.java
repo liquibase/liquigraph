@@ -1,6 +1,8 @@
 package com.liquigraph.core.parser;
 
 import com.liquigraph.core.model.Changeset;
+import com.liquigraph.core.model.Precondition;
+import com.liquigraph.core.model.PreconditionErrorPolicy;
 import org.assertj.core.api.iterable.Extractor;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -10,6 +12,8 @@ import org.junit.rules.ExpectedException;
 import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.liquigraph.core.model.PreconditionErrorPolicy.FAIL;
+import static com.liquigraph.core.model.PreconditionErrorPolicy.MARK_AS_EXECUTED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
@@ -75,5 +79,25 @@ public class ChangelogParserTest {
                 tuple("third-changelog", true, false),
                 tuple("fourth-changelog", false, false)
             );
+    }
+
+    @Test
+    public void parses_changelog_with_preconditions() {
+        Collection<Changeset> changesets = parser.parse("/changelog-with-preconditions.xml");
+
+        assertThat(changesets)
+            .extracting("id", "precondition")
+            .containsExactly(
+                tuple("first-changelog", precondition(FAIL, "MATCH npre RETURN npre")),
+                tuple("second-changelog", precondition(MARK_AS_EXECUTED, "MATCH mpre RETURN mpre")),
+                tuple("third-changelog", null)
+            );
+    }
+
+    private Precondition precondition(PreconditionErrorPolicy errorPolicy, String query) {
+        Precondition precondition = new Precondition();
+        precondition.setPolicy(errorPolicy);
+        precondition.setQuery(query);
+        return precondition;
     }
 }

@@ -22,6 +22,7 @@ public class Changeset {
     private Collection<String> executionsContexts;
     private boolean runOnChange;
     private boolean runAlways;
+    private Precondition precondition;
 
     @XmlAttribute(name = "id", required = true)
     public String getId() {
@@ -79,7 +80,7 @@ public class Changeset {
             .splitToList(nullToEmpty(executionsContexts));
     }
 
-    @XmlAttribute(name = "run-on-change")
+    @XmlAttribute(name = "run-on-change", required = false)
     public boolean isRunOnChange() {
         return runOnChange;
     }
@@ -88,13 +89,22 @@ public class Changeset {
         this.runOnChange = runOnChange;
     }
 
-    @XmlAttribute(name = "run-always")
+    @XmlAttribute(name = "run-always", required = false)
     public boolean isRunAlways() {
         return runAlways;
     }
 
     public void setRunAlways(boolean runAlways) {
         this.runAlways = runAlways;
+    }
+
+    @XmlElement(name = "precondition", required = false)
+    public Precondition getPrecondition() {
+        return precondition;
+    }
+
+    public void setPrecondition(Precondition precondition) {
+        this.precondition = precondition;
     }
 
     @Override
