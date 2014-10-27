@@ -1,5 +1,5 @@
 language: java
-script: "mvn clean test -T4"
+script: "mvn -T4 clean test"
 jdk:
 - openjdk7
 - oraclejdk7
