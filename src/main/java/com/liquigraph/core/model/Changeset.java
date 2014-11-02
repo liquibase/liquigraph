@@ -4,7 +4,9 @@ package com.liquigraph.core.model;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -12,7 +14,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.liquigraph.core.model.Checksums.checksum;
 
-@XmlAccessorType(XmlAccessType.PROPERTY)
 public class Changeset {
 
     private String id;

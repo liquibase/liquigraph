@@ -5,6 +5,7 @@ import com.liquigraph.core.configuration.ConfigurationBuilder;
 import com.liquigraph.core.graph.ChangelogReader;
 import com.liquigraph.core.graph.ChangelogWriter;
 import com.liquigraph.core.graph.GraphConnector;
+import com.liquigraph.core.graph.PreconditionExecutor;
 import com.liquigraph.core.parser.ChangelogParser;
 import com.liquigraph.core.validation.DeclaredChangesetValidator;
 import com.liquigraph.core.validation.PersistedChangesetValidator;
@@ -23,6 +24,7 @@ public final class Liquigraph {
             new ChangelogReader(),
             new ChangelogWriter(),
             new ChangelogDiffMaker(),
+            new PreconditionExecutor(),
             new DeclaredChangesetValidator(),
             new PersistedChangesetValidator()
         );

@@ -4,6 +4,7 @@ import com.liquigraph.core.exception.PreconditionNotMetException;
 import com.liquigraph.core.model.Changeset;
 import com.liquigraph.core.model.Precondition;
 import com.liquigraph.core.model.PreconditionErrorPolicy;
+import com.liquigraph.core.model.SimpleQuery;
 import com.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +32,11 @@ public class ChangelogWriterTest {
 
     @Test
     public void persists_changesets_in_graph() {
-        writer.write(graph.graphDatabase(), newArrayList(changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})")));
+        writer.write(
+            graph.graphDatabase(),
+            new PreconditionExecutor(),
+            newArrayList(changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})"))
+        );
 
         try (Transaction transaction = graph.graphDatabase().beginTx();
             ResourceIterator<Map<String, Object>> iterator = graph.cypherEngine().execute(
@@ -60,7 +65,11 @@ public class ChangelogWriterTest {
         Precondition precondition = precondition(PreconditionErrorPolicy.FAIL, "RETURN true AS result");
         Changeset changeset = changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})", precondition);
 
-        writer.write(graph.graphDatabase(), newArrayList(changeset));
+        writer.write(
+            graph.graphDatabase(),
+            new PreconditionExecutor(),
+            newArrayList(changeset)
+        );
 
         try (Transaction transaction = graph.graphDatabase().beginTx();
              ResourceIterator<Map<String, Object>> iterator = graph.cypherEngine().execute(
@@ -92,7 +101,11 @@ public class ChangelogWriterTest {
         Precondition precondition = precondition(PreconditionErrorPolicy.FAIL, "RETURN false AS result");
         Changeset changeset = changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})", precondition);
 
-        writer.write(graph.graphDatabase(), newArrayList(changeset));
+        writer.write(
+            graph.graphDatabase(),
+            new PreconditionExecutor(),
+            newArrayList(changeset)
+        );
     }
 
     @Test
@@ -100,7 +113,11 @@ public class ChangelogWriterTest {
         Precondition precondition = precondition(PreconditionErrorPolicy.CONTINUE, "RETURN false AS result");
         Changeset changeset = changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})", precondition);
 
-        writer.write(graph.graphDatabase(), newArrayList(changeset));
+        writer.write(
+            graph.graphDatabase(),
+            new PreconditionExecutor(),
+            newArrayList(changeset)
+        );
 
         try (Transaction transaction = graph.graphDatabase().beginTx();
              ResourceIterator<Map<String, Object>> iterator = graph.cypherEngine().execute(
@@ -119,7 +136,11 @@ public class ChangelogWriterTest {
         Precondition precondition = precondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "RETURN false AS result");
         Changeset changeset = changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})", precondition);
 
-        writer.write(graph.graphDatabase(), newArrayList(changeset));
+        writer.write(
+            graph.graphDatabase(),
+            new PreconditionExecutor(),
+            newArrayList(changeset)
+        );
 
         try (Transaction transaction = graph.graphDatabase().beginTx();
              ResourceIterator<Map<String, Object>> iterator = graph.cypherEngine().execute(
@@ -145,7 +166,9 @@ public class ChangelogWriterTest {
     private Precondition precondition(PreconditionErrorPolicy policy, String query) {
         Precondition precondition = new Precondition();
         precondition.setPolicy(policy);
-        precondition.setQuery(query);
+        SimpleQuery simpleQuery = new SimpleQuery();
+        simpleQuery.setQuery(query);
+        precondition.setQuery(simpleQuery);
         return precondition;
     }
 

@@ -1,6 +1,5 @@
 package com.liquigraph.core.graph;
 
-import com.liquigraph.core.graph.ChangelogReader;
 import com.liquigraph.core.model.Changeset;
 import com.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 import org.junit.Rule;
