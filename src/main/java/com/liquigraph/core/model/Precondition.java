@@ -1,17 +1,15 @@
 package com.liquigraph.core.model;
 
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlElementRefs;
 import java.util.Objects;
 
-@XmlAccessorType(XmlAccessType.PROPERTY)
 public class Precondition {
 
     private PreconditionErrorPolicy policy;
-    private String query;
+    private PreconditionQuery query;
 
     @XmlAttribute(name = "if-not-met", required = true)
     public PreconditionErrorPolicy getPolicy() {
@@ -22,12 +20,16 @@ public class Precondition {
         this.policy = policy;
     }
 
-    @XmlElement(name = "query", required = true)
-    public String getQuery() {
+    @XmlElementRefs({
+        @XmlElementRef(name = "and", type = AndQuery.class),
+        @XmlElementRef(name = "or", type = OrQuery.class),
+        @XmlElementRef(name = "query", type = SimpleQuery.class)
+    })
+    public PreconditionQuery getQuery() {
         return query;
     }
 
-    public void setQuery(String query) {
+    public void setQuery(PreconditionQuery query) {
         this.query = query;
     }
 
@@ -51,8 +53,8 @@ public class Precondition {
     @Override
     public String toString() {
         return "Precondition{" +
-            "policy=" + policy +
-            ", query='" + query + '\'' +
-            '}';
+                "policy=" + policy +
+                ", query='" + query + '\'' +
+                '}';
     }
 }

@@ -1,8 +1,6 @@
 package com.liquigraph.core.parser;
 
-import com.liquigraph.core.model.Changeset;
-import com.liquigraph.core.model.Precondition;
-import com.liquigraph.core.model.PreconditionErrorPolicy;
+import com.liquigraph.core.model.*;
 import org.assertj.core.api.iterable.Extractor;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -94,10 +92,25 @@ public class ChangelogParserTest {
             );
     }
 
+    @Test
+    public void parses_changelog_with_nested_preconditions() {
+        Collection<Changeset> changesets = parser.parse("/changelog-with-nested-preconditions.xml");
+
+        assertThat(changesets).extracting("precondition.query.class")
+            .containsExactly(
+                SimpleQuery.class,
+                AndQuery.class,
+                OrQuery.class,
+                OrQuery.class
+            );
+    }
+
     private Precondition precondition(PreconditionErrorPolicy errorPolicy, String query) {
         Precondition precondition = new Precondition();
         precondition.setPolicy(errorPolicy);
-        precondition.setQuery(query);
+        SimpleQuery simpleQuery = new SimpleQuery();
+        simpleQuery.setQuery(query);
+        precondition.setQuery(simpleQuery);
         return precondition;
     }
 }

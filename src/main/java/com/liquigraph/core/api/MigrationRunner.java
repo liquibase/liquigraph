@@ -4,6 +4,7 @@ import com.liquigraph.core.configuration.Configuration;
 import com.liquigraph.core.graph.ChangelogReader;
 import com.liquigraph.core.graph.ChangelogWriter;
 import com.liquigraph.core.graph.GraphConnector;
+import com.liquigraph.core.graph.PreconditionExecutor;
 import com.liquigraph.core.model.Changeset;
 import com.liquigraph.core.parser.ChangelogParser;
 import com.liquigraph.core.validation.DeclaredChangesetValidator;
@@ -19,6 +20,7 @@ class MigrationRunner {
     private final ChangelogReader changelogReader;
     private final ChangelogWriter changelogWriter;
     private final ChangelogDiffMaker changelogDiffMaker;
+    private final PreconditionExecutor preconditionExecutor;
     private final DeclaredChangesetValidator declaredChangesetValidator;
     private final PersistedChangesetValidator persistedChangesetValidator;
 
@@ -27,6 +29,7 @@ class MigrationRunner {
                            ChangelogReader changelogReader,
                            ChangelogWriter changelogWriter,
                            ChangelogDiffMaker changelogDiffMaker,
+                           PreconditionExecutor preconditionExecutor,
                            DeclaredChangesetValidator declaredChangesetValidator,
                            PersistedChangesetValidator persistedChangesetValidator) {
 
@@ -35,6 +38,7 @@ class MigrationRunner {
         this.changelogReader = changelogReader;
         this.changelogWriter = changelogWriter;
         this.changelogDiffMaker = changelogDiffMaker;
+        this.preconditionExecutor = preconditionExecutor;
         this.declaredChangesetValidator = declaredChangesetValidator;
         this.persistedChangesetValidator = persistedChangesetValidator;
     }
@@ -53,6 +57,6 @@ class MigrationRunner {
             persistedChangesets
         );
 
-        changelogWriter.write(graphDatabase, changelogsToInsert);
+        changelogWriter.write(graphDatabase, preconditionExecutor, changelogsToInsert);
     }
 }

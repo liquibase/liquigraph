@@ -13,7 +13,7 @@ import static java.lang.String.format;
 
 public class GraphConnector {
 
-    public GraphDatabaseService connect(Configuration configuration) {
+    public final GraphDatabaseService connect(Configuration configuration) {
         String uri = configuration.uri();
         if (uri.startsWith("file://")) {
             return embeddedGraphDatabase(uri);

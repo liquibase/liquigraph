@@ -13,6 +13,4 @@ public final class Liquigraph {
     public void runMigrations(Configuration configuration) {
         migrationRunner.runMigrations(configuration);
     }
-
-
 }

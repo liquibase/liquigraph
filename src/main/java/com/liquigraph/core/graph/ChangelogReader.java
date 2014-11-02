@@ -19,7 +19,7 @@ public class ChangelogReader {
         "RETURN changeset " +
         "ORDER BY exec.order ASC";
 
-    public Collection<Changeset> read(GraphDatabaseService graphDatabase) {
+    public final Collection<Changeset> read(GraphDatabaseService graphDatabase) {
         Collection<Changeset> changesets = newLinkedList();
         ExecutionEngine engine = new ExecutionEngine(graphDatabase);
         try (Transaction transaction = graphDatabase.beginTx();
