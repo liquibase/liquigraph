@@ -11,36 +11,92 @@ import java.util.Collection;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static java.lang.String.format;
 
+/**
+ * Fluent {@link com.liquigraph.core.configuration.Configuration} builder.
+ * It also validates configuration parameters.
+ */
 public final class ConfigurationBuilder {
 
     private String masterChangelog;
     private String uri;
     private Optional<String> username = absent();
     private Optional<String> password = absent();
+    private ExecutionContexts executionContexts = ExecutionContexts.DEFAULT_CONTEXT;
 
+    /**
+     * Specifies the location of the master changelog file.
+     * Please note that this location should point to a readable Liquigraph changelog file.
+     * @param masterChangelog Liquigraph changelog
+     * @return itself for chaining purposes
+     */
     public ConfigurationBuilder withMasterChangelogLocation(String masterChangelog) {
         this.masterChangelog = masterChangelog;
         return this;
     }
 
+    /**
+     * Specifies the connection URI of the graph database instance.
+     * If the graph database is embedded, please use 'file://' as a prefix.
+     * Otherwise, only 'http://' and 'https://' are supported at the moment.
+     *
+     * @param uri connection URI
+     * @return itself for chaining purposes
+     */
     public ConfigurationBuilder withUri(String uri) {
         this.uri = uri;
         return this;
     }
 
+    /**
+     * Specifies the username allowed to connect to the remote graph database instance.
+     * @param username username
+     * @return itself for chaining purposes
+     */
     public ConfigurationBuilder withUsername(String username) {
         this.username = fromNullable(username);
         return this;
     }
 
+    /**
+     * Specifies the password allowed to connect to the remote graph database instance.
+     * @param password password
+     * @return itself for chaining purposes
+     */
     public ConfigurationBuilder withPassword(String password) {
         this.password = fromNullable(password);
         return this;
     }
 
+    /**
+     * @see com.liquigraph.core.configuration.ConfigurationBuilder#withExecutionContexts(java.util.Collection)
+     */
+    public ConfigurationBuilder withExecutionContexts(String... executionContexts) {
+        return withExecutionContexts(newArrayList(executionContexts));
+    }
+
+    /**
+     * Specifies one or more execution contexts.
+     * 
+     * @param executionContexts non-nullable execution contexts
+     * @return itself for chaining purposes
+     */
+    public ConfigurationBuilder withExecutionContexts(Collection<String> executionContexts) {
+        if (!executionContexts.isEmpty()) {
+            this.executionContexts = new ExecutionContexts(executionContexts);
+        }
+        return this;
+    }
+
+    /**
+     * Builds a {@link com.liquigraph.core.configuration.Configuration} instance after validating the specified
+     * parameters.
+     *
+     * @return Liquigraph configuration
+     */
     public Configuration build() {
         Collection<String> errors = newLinkedList();
         validateMasterChangelog(errors);
@@ -53,7 +109,8 @@ public final class ConfigurationBuilder {
             masterChangelog,
             uri,
             username,
-            password
+            password,
+            executionContexts
         );
     }
 
