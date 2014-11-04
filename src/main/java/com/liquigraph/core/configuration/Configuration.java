@@ -2,6 +2,13 @@ package com.liquigraph.core.configuration;
 
 import com.google.common.base.Optional;
 
+/**
+ * Immutable Liquigraph configuration settings.
+ * Please see {@link ConfigurationBuilder} to
+ * create a configuration instance tailored to your environment.
+ *
+ * @see ConfigurationBuilder
+ */
 public final class Configuration {
 
     private final String masterChangelog;
