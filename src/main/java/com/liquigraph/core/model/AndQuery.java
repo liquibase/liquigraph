@@ -48,6 +48,11 @@ public class AndQuery implements CompoundQuery {
     }
 
     @Override
+    public String compose(String firstQuery, String secondQuery) {
+        return format("((%s) AND (%s))", firstQuery, secondQuery);
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(preconditionQueries);
     }

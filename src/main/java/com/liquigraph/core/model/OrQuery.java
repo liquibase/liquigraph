@@ -48,6 +48,11 @@ public class OrQuery implements CompoundQuery {
     }
 
     @Override
+    public String compose(String firstQuery, String secondQuery) {
+        return format("((%s) OR (%s))", firstQuery, secondQuery);
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(preconditionQueries);
     }

@@ -1,4 +1,4 @@
-package com.liquigraph.core.graph;
+package com.liquigraph.core.writer;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -30,36 +30,6 @@ public class PreconditionExecutorTest {
         Optional<PreconditionResult> result = executor.executePrecondition(graphDatabaseRule.cypherEngine(), null);
 
         assertThat(result).isEqualTo(Optional.absent());
-    }
-
-    @Test
-    public void fails_with_invalid_cypher_query() {
-        thrown.expect(PreconditionSyntaxException.class);
-        thrown.expectMessage("\tQuery <toto> is invalid. Please check again its syntax.\n" +
-            "\tMore details:\n" +
-            "Invalid input 't': expected SingleStatement (line 1, column 1)\n" +
-            "\"toto\"\n" +
-            " ^");
-
-        try (Transaction transaction = graphDatabaseRule.graphDatabase().beginTx()) {
-            executor.executePrecondition(
-                graphDatabaseRule.cypherEngine(),
-                simplePrecondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "toto")
-            );
-        }
-    }
-
-    @Test
-    public void fails_with_badly_named_precondition_result_column() {
-        thrown.expect(PreconditionSyntaxException.class);
-        thrown.expectMessage("Query <RETURN true> should yield exactly one column named or aliased 'result'.");
-
-        try (Transaction transaction = graphDatabaseRule.graphDatabase().beginTx()) {
-            executor.executePrecondition(
-                graphDatabaseRule.cypherEngine(),
-                simplePrecondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "RETURN true")
-            );
-        }
     }
 
     @Test
@@ -128,6 +98,48 @@ public class PreconditionExecutorTest {
             assertThat(result.executedSuccessfully()).isTrue();
             transaction.success();
         }
+    }
+
+    @Test
+    public void fails_with_invalid_cypher_query() {
+        thrown.expect(PreconditionSyntaxException.class);
+        thrown.expectMessage("\tQuery <toto> is invalid. Please check again its syntax.\n" +
+            "\tMore details:\n" +
+            "Invalid input 't': expected SingleStatement (line 1, column 1)\n" +
+            "\"toto\"\n" +
+            " ^");
+
+        try (Transaction transaction = graphDatabaseRule.graphDatabase().beginTx()) {
+            executor.executePrecondition(
+                graphDatabaseRule.cypherEngine(),
+                simplePrecondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "toto")
+            );
+            transaction.success();
+        }
+    }
+
+    @Test
+    public void fails_with_badly_named_precondition_result_column() {
+        thrown.expect(PreconditionSyntaxException.class);
+        thrown.expectMessage("Query <RETURN true> should yield exactly one column named or aliased 'result'.");
+
+        try (Transaction transaction = graphDatabaseRule.graphDatabase().beginTx()) {
+            executor.executePrecondition(
+                graphDatabaseRule.cypherEngine(),
+                simplePrecondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "RETURN true")
+            );
+            transaction.success();
+        }
+    }
+
+    @Test
+    public void fails_with_unknown_query_type() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Unsupported query type <com.liquigraph.core.writer.PreconditionExecutorTest$1>");
+
+        Precondition precondition = new Precondition();
+        precondition.setQuery(new PreconditionQuery() {});
+        executor.executePrecondition(graphDatabaseRule.cypherEngine(), precondition);
     }
 
     private Precondition simplePrecondition(PreconditionErrorPolicy fail, String query) {

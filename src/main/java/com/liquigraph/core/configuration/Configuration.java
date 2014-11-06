@@ -1,6 +1,10 @@
 package com.liquigraph.core.configuration;
 
 import com.google.common.base.Optional;
+import com.liquigraph.core.writer.*;
+import org.neo4j.graphdb.GraphDatabaseService;
+
+import static com.liquigraph.core.configuration.RunMode.RUN_MODE;
 
 /**
  * Immutable Liquigraph configuration settings.
@@ -16,28 +20,21 @@ public final class Configuration {
     private final Optional<String> username;
     private final Optional<String> password;
     private final ExecutionContexts executionContexts;
-
-    Configuration(String masterChangelog, String uri, Optional<String> username, Optional<String> password) {
-        this(
-            masterChangelog,
-            uri,
-            username,
-            password,
-            ExecutionContexts.DEFAULT_CONTEXT
-        );
-    }
+    private final ExecutionMode executionMode;
 
     Configuration(String masterChangelog,
                   String uri,
                   Optional<String> username,
                   Optional<String> password,
-                  ExecutionContexts executionContexts) {
+                  ExecutionContexts executionContexts,
+                  ExecutionMode executionMode) {
 
         this.masterChangelog = masterChangelog;
         this.uri = uri;
         this.username = username;
         this.password = password;
         this.executionContexts = executionContexts;
+        this.executionMode = executionMode;
     }
 
 
@@ -59,5 +56,23 @@ public final class Configuration {
 
     public ExecutionContexts executionContexts() {
         return executionContexts;
+    }
+
+    public ExecutionMode executionMode() {
+        return  executionMode;
+    }
+
+    public ChangelogWriter resolveWriter(GraphDatabaseService graphDatabase,
+                                         PreconditionExecutor preconditionExecutor,
+                                         PreconditionPrinter preconditionPrinter) {
+        ExecutionMode executionMode = executionMode();
+        if (executionMode == RUN_MODE) {
+            return new ChangelogGraphWriter(graphDatabase, preconditionExecutor);
+        }
+        else if (executionMode instanceof DryRunMode) {
+            DryRunMode dryRunMode = (DryRunMode) executionMode;
+            return new ChangelogFileWriter(preconditionPrinter, dryRunMode.getOutputFile());
+        }
+        throw new IllegalStateException("Unsupported <executionMode>: " + executionMode);
     }
 }

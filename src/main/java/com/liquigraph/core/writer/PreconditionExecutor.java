@@ -1,4 +1,4 @@
-package com.liquigraph.core.graph;
+package com.liquigraph.core.writer;
 
 import com.google.common.base.Optional;
 import com.liquigraph.core.exception.PreconditionSyntaxException;

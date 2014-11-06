@@ -1,4 +1,4 @@
-package com.liquigraph.core.graph;
+package com.liquigraph.core.writer;
 
 import com.liquigraph.core.model.Changeset;
 import org.neo4j.cypher.javacompat.ExecutionEngine;

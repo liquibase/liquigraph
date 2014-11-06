@@ -2,13 +2,13 @@ package com.liquigraph.core.api;
 
 import com.liquigraph.core.configuration.Configuration;
 import com.liquigraph.core.configuration.ConfigurationBuilder;
-import com.liquigraph.core.graph.ChangelogReader;
-import com.liquigraph.core.graph.ChangelogWriter;
-import com.liquigraph.core.graph.GraphConnector;
-import com.liquigraph.core.graph.PreconditionExecutor;
 import com.liquigraph.core.parser.ChangelogParser;
 import com.liquigraph.core.validation.DeclaredChangesetValidator;
 import com.liquigraph.core.validation.PersistedChangesetValidator;
+import com.liquigraph.core.writer.ChangelogReader;
+import com.liquigraph.core.writer.GraphConnector;
+import com.liquigraph.core.writer.PreconditionExecutor;
+import com.liquigraph.core.writer.PreconditionPrinter;
 
 /**
  * Liquigraph facade in charge of migration execution.
@@ -22,9 +22,9 @@ public final class Liquigraph {
             new GraphConnector(),
             new ChangelogParser(),
             new ChangelogReader(),
-            new ChangelogWriter(),
             new ChangelogDiffMaker(),
             new PreconditionExecutor(),
+            new PreconditionPrinter(),
             new DeclaredChangesetValidator(),
             new PersistedChangesetValidator()
         );

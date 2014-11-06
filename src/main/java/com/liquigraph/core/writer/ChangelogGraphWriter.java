@@ -1,4 +1,4 @@
-package com.liquigraph.core.graph;
+package com.liquigraph.core.writer;
 
 import com.liquigraph.core.exception.PreconditionNotMetException;
 import com.liquigraph.core.model.Changeset;
@@ -15,7 +15,7 @@ import java.util.Map;
 import static com.google.common.collect.Iterators.getOnlyElement;
 import static java.lang.String.format;
 
-public class ChangelogWriter {
+public class ChangelogGraphWriter implements ChangelogWriter {
 
     private static final String LATEST_INDEX =
         "MERGE (changelog:__LiquigraphChangelog) " +
@@ -32,11 +32,16 @@ public class ChangelogWriter {
             "              changeset.query = {query}, " +
             "              changeset.checksum = {checksum}";
 
+    private final GraphDatabaseService graphDatabase;
+    private final PreconditionExecutor preconditionExecutor;
 
-    public final void write(GraphDatabaseService graphDatabase,
-                      PreconditionExecutor preconditionExecutor,
-                      Collection<Changeset> changelogsToInsert) {
+    public ChangelogGraphWriter(GraphDatabaseService graphDatabase, PreconditionExecutor preconditionExecutor) {
+        this.graphDatabase = graphDatabase;
+        this.preconditionExecutor = preconditionExecutor;
+    }
 
+    @Override
+    public void write(Collection<Changeset> changelogsToInsert) {
         ExecutionEngine cypherEngine = new ExecutionEngine(graphDatabase);
         long index = latestPersistedIndex(graphDatabase) + 1L;
 
@@ -47,7 +52,8 @@ public class ChangelogWriter {
                 if (result == null || result.executedSuccessfully()) {
                     cypherEngine.execute(changeset.getQuery());
                     upsertChangeset(cypherEngine, index, changeset);
-                } else {
+                }
+                else {
                     switch (result.errorPolicy()) {
                         case CONTINUE:
                             continue;
@@ -94,5 +100,4 @@ public class ChangelogWriter {
         parameters.put("checksum", changeset.getChecksum());
         return parameters;
     }
-
 }

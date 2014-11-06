@@ -12,6 +12,7 @@ import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.nullToEmpty;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.liquigraph.core.model.Checksums.checksum;
 
 public class Changeset {
@@ -20,7 +21,7 @@ public class Changeset {
     private String author;
     private String query;
     private String checksum;
-    private Collection<String> executionsContexts;
+    private Collection<String> executionsContexts = newArrayList();
     private boolean runOnChange;
     private boolean runAlways;
     private Precondition precondition;
@@ -123,5 +124,19 @@ public class Changeset {
         }
         final Changeset other = (Changeset) obj;
         return Objects.equals(this.id, other.id) && Objects.equals(this.checksum, other.checksum);
+    }
+
+    @Override
+    public String toString() {
+        return "Changeset{" +
+                "id='" + id + '\'' +
+                ", author='" + author + '\'' +
+                ", query='" + query + '\'' +
+                ", checksum='" + checksum + '\'' +
+                ", executionsContexts=" + executionsContexts +
+                ", runOnChange=" + runOnChange +
+                ", runAlways=" + runAlways +
+                ", precondition=" + precondition +
+                '}';
     }
 }

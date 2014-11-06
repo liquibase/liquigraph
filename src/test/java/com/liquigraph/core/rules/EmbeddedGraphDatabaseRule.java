@@ -26,6 +26,10 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource {
         return cypherEngine;
     }
 
+    public File graphDirectory() {
+        return graphDirectory;
+    }
+
     protected void before() throws IOException {
         graphDirectory = Files.createTempDirectory("neo").toFile();
         graphDatabase = new GraphDatabaseFactory().newEmbeddedDatabase(graphDirectory.getPath());

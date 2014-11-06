@@ -1,5 +1,6 @@
 package com.liquigraph.core.parser;
 
+import com.google.common.collect.Lists;
 import com.liquigraph.core.model.*;
 import org.assertj.core.api.iterable.Extractor;
 import org.junit.Ignore;
@@ -61,7 +62,7 @@ public class ChangelogParserTest {
             .containsExactly(
                 newArrayList("foo", "bar"),
                 newArrayList("baz"),
-                null
+                Lists.<String>newArrayList()
             );
     }
 

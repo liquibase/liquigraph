@@ -18,16 +18,15 @@ import static java.lang.String.format;
 
 public class DeclaredChangesetValidator {
 
-    public void validate(Collection<Changeset> changesets) {
+    public Collection<String> validate(Collection<Changeset> changesets) {
         Collection<String> errors = newLinkedList();
-        validateMandatoryAttributes(changesets, errors);
-        validateIdUniqueness(changesets, errors);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(formatErrorMessage(errors));
-        }
+        errors.addAll(validateMandatoryAttributes(changesets));
+        errors.addAll(validateIdUniqueness(changesets));
+        return errors;
     }
 
-    private void validateMandatoryAttributes(Collection<Changeset> changesets, Collection<String> errors) {
+    private Collection<String> validateMandatoryAttributes(Collection<Changeset> changesets) {
+        Collection<String> errors = newLinkedList();
         int i = 1;
         for (Changeset changeset : changesets) {
             if (emptyToNull(changeset.getId()) == null) {
@@ -41,14 +40,16 @@ public class DeclaredChangesetValidator {
             }
             i++;
         }
-
+        return errors;
     }
 
-    private void validateIdUniqueness(Collection<Changeset> declaredChangesets, Collection<String> errors) {
+    private Collection<String> validateIdUniqueness(Collection<Changeset> declaredChangesets) {
+        Collection<String> errors = newLinkedList();
         Collection<String> repeatedIds = repeatedIds(declaredChangesets);
         if (!repeatedIds.isEmpty()) {
             errors.add(format("<%s> is/are declared more than once.", Joiner.on(",").join(repeatedIds)));
         }
+        return errors;
     }
 
     private Collection<String> repeatedIds(Collection<Changeset> declaredChangesets) {
@@ -66,10 +67,5 @@ public class DeclaredChangesetValidator {
             .transform(INTO_ID)
             .filter(notNull())
             .toList();
-    }
-
-    private String formatErrorMessage(Collection<String> errors) {
-        String separator = "\n\t";
-        return separator + Joiner.on(separator).join(errors);
     }
 }

@@ -17,17 +17,15 @@ import static java.lang.String.format;
 
 public class PersistedChangesetValidator {
 
-    public void validate(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
+    public Collection<String> validate(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
         Collection<String> errors = newLinkedList();
-        validateChecksums(filter(declaredChangesets, not(RUN_ON_CHANGE)), persistedChangesets, errors);
-        validateOrder(declaredChangesets, persistedChangesets, errors);
-
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(formatErrorMessage(errors));
-        }
+        errors.addAll(validateChecksums(filter(declaredChangesets, not(RUN_ON_CHANGE)), persistedChangesets));
+        errors.addAll(validateOrder(declaredChangesets, persistedChangesets));
+        return errors;
     }
 
-    private void validateChecksums(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets, Collection<String> errors) {
+    private Collection<String> validateChecksums(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
+        Collection<String> errors = newLinkedList();
         for (Changeset declaredChangeset : declaredChangesets) {
             Optional<Changeset> maybePersistedChangeset = FluentIterable.from(persistedChangesets)
                 .firstMatch(ChangesetById.BY_ID(declaredChangeset.getId()));
@@ -45,14 +43,17 @@ public class PersistedChangesetValidator {
                 );
             }
         }
+        return errors;
 
     }
 
-    private void validateOrder(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets, Collection<String> errors) {
+    private Collection<String> validateOrder(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
+        Collection<String> errors = newLinkedList();
+
         int difference = declaredChangesets.size() - persistedChangesets.size();
         if (difference < 0) {
             errors.add(format("At least %d declared changeset(s) is/are missing.", Math.abs(difference)));
-            return;
+            return errors;
         }
         for (int i = 0; i < persistedChangesets.size(); i++) {
             Changeset declared = get(declaredChangesets, i);
@@ -64,6 +65,7 @@ public class PersistedChangesetValidator {
             }
         }
 
+        return errors;
     }
 
     private String checksumMismatchError(Changeset declaredChangeset, Changeset persistedChangeset) {
@@ -82,8 +84,4 @@ public class PersistedChangesetValidator {
         );
     }
 
-    private String formatErrorMessage(Collection<String> errors) {
-        String separator = "\n\t";
-        return separator + Joiner.on(separator).join(errors);
-    }
 }

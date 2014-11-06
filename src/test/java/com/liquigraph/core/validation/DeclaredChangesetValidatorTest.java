@@ -1,38 +1,47 @@
 package com.liquigraph.core.validation;
 
 import com.liquigraph.core.model.Changeset;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+
+import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeclaredChangesetValidatorTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private DeclaredChangesetValidator validator = new DeclaredChangesetValidator();
 
     @Test
-    public void fails_with_missing_attributes() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Changeset 1 - 'id' should not be missing/blank.");
-        thrown.expectMessage("Changeset 1 - 'author' should not be missing/blank.");
-        thrown.expectMessage("Changeset 1 - 'query' should not be missing/blank.");
+    public void passes_if_changeset_is_valid() {
+        Collection<String> errors = validator.validate(newArrayList(
+            changeset("identifier", "author", "MATCH n RETURN n")
+        ));
 
-        validator.validate(newArrayList(new Changeset()));
+        assertThat(errors).isEmpty();
+    }
+
+    @Test
+    public void fails_with_missing_attributes() {
+        Collection<String> errors = validator.validate(newArrayList(new Changeset()));
+
+        assertThat(errors).containsExactly(
+            "Changeset 1 - 'id' should not be missing/blank.",
+            "Changeset 1 - 'author' should not be missing/blank.",
+            "Changeset 1 - 'query' should not be missing/blank."
+        );
     }
 
     @Test
     public void fails_with_repeated_changeset_ids() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("<identifier> is/are declared more than once.");
-
-        validator.validate(newArrayList(
+        Collection<String> errors = validator.validate(newArrayList(
             changeset("identifier", "author", "MATCH n RETURN n"),
             changeset("identifier", "author2", "MATCH m RETURN m")
         ));
+
+        assertThat(errors).containsExactly(
+            "<identifier> is/are declared more than once."
+        );
     }
 
     private Changeset changeset(String id, String author, String query) {
