@@ -1,6 +1,5 @@
 package com.liquigraph.core.validation;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.liquigraph.core.model.Changeset;

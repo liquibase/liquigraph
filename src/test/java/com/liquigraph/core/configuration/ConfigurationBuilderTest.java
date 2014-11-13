@@ -51,7 +51,7 @@ public class ConfigurationBuilderTest {
     @Test
     public void fails_on_unsupported_protocol() {
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage("'uri' supports only 'file', 'http' and 'https' protocols. Given: ssh://sorry@buddy");
+        thrown.expectMessage("'uri' supports only 'http' and 'https' protocols. Given: ssh://sorry@buddy");
 
         new ConfigurationBuilder()
             .withMasterChangelogLocation("/changelog.xml")
@@ -62,11 +62,11 @@ public class ConfigurationBuilderTest {
     @Test
     public void fails_on_malformed_uri() {
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage("'uri' is malformed. Given: file:///im@èè ##/so/sorry");
+        thrown.expectMessage("'uri' is malformed. Given: http:///im@èè ##/so/sorry");
 
         new ConfigurationBuilder()
             .withMasterChangelogLocation("/changelog.xml")
-            .withUri("file:///im@èè ##/so/sorry")
+            .withUri("http:///im@èè ##/so/sorry")
             .build();
     }
 
@@ -105,7 +105,7 @@ public class ConfigurationBuilderTest {
 
         new ConfigurationBuilder()
                     .withMasterChangelogLocation("/changelog.xml")
-                    .withUri("file:///sorry@buddy")
+                    .withUri("http:///sorry@buddy")
                     .withDryRunMode(path)
                     .build();
     }

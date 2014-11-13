@@ -21,13 +21,15 @@ public final class Configuration {
     private final Optional<String> password;
     private final ExecutionContexts executionContexts;
     private final ExecutionMode executionMode;
+    private final GraphDatabaseService graphDatabaseService;
 
     Configuration(String masterChangelog,
                   String uri,
                   Optional<String> username,
                   Optional<String> password,
                   ExecutionContexts executionContexts,
-                  ExecutionMode executionMode) {
+                  ExecutionMode executionMode,
+                  GraphDatabaseService graphDatabaseService) {
 
         this.masterChangelog = masterChangelog;
         this.uri = uri;
@@ -35,7 +37,10 @@ public final class Configuration {
         this.password = password;
         this.executionContexts = executionContexts;
         this.executionMode = executionMode;
+        this.graphDatabaseService = graphDatabaseService;
     }
+
+
 
 
     public String masterChangelog() {
@@ -59,7 +64,11 @@ public final class Configuration {
     }
 
     public ExecutionMode executionMode() {
-        return  executionMode;
+        return executionMode;
+    }
+
+    public GraphDatabaseService graphDatabaseService() {
+        return graphDatabaseService;
     }
 
     public ChangelogWriter resolveWriter(GraphDatabaseService graphDatabase,

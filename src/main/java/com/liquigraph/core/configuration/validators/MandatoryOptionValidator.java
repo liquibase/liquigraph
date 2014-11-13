@@ -1,5 +1,7 @@
 package com.liquigraph.core.configuration.validators;
 
+import org.neo4j.graphdb.GraphDatabaseService;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -11,10 +13,10 @@ import static java.lang.String.format;
 
 public class MandatoryOptionValidator {
 
-    public Collection<String> validate(String masterChangelog, String uri) {
+    public Collection<String> validate(String masterChangelog, String uri, GraphDatabaseService graphDatabaseService) {
         Collection<String> errors = new LinkedList<>();
         errors.addAll(validateMasterChangelog(masterChangelog));
-        errors.addAll(validateUri(uri));
+        errors.addAll(validateGraphInstance(uri, graphDatabaseService));
         return errors;
     }
 
@@ -35,13 +37,24 @@ public class MandatoryOptionValidator {
         return errors;
     }
 
+    private static Collection<String> validateGraphInstance(String uri, GraphDatabaseService graphDatabaseService) {
+        Collection<String> errors = new LinkedList<>();
+        if (!(uri == null ^ graphDatabaseService == null)) {
+            errors.add("Ambiguous or incomplete configuration. Either 'uri' OR 'graphDatabaseService' should be specified.");
+        }
+        if (graphDatabaseService == null) {
+            errors.addAll(validateUri(uri));
+        }
+        return errors;
+    }
+
     private static Collection<String> validateUri(String uri) {
         Collection<String> errors = new LinkedList<>();
         if (uri == null) {
             errors.add("'uri' should not be null");
         }
-        else if (!uri.startsWith("file:") && !uri.startsWith("http://") && !uri.startsWith("https://")) {
-            errors.add(format("'uri' supports only 'file', 'http' and 'https' protocols. Given: %s", uri));
+        else if (!uri.startsWith("http://") && !uri.startsWith("https://")) {
+            errors.add(format("'uri' supports only 'http' and 'https' protocols. Given: %s", uri));
         }
         else {
             try {

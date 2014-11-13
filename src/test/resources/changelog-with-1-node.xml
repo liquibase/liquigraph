@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changelog>
+    <changeset id="insert-fbiville" author="fbiville">
+        <query><![CDATA[CREATE (:Human {name:'fbiville'})]]></query>
+    </changeset>
+    <changeset id="insert-fbiville-again" author="team">
+        <precondition if-not-met="MARK_AS_EXECUTED">
+            <query><![CDATA[MATCH n RETURN COUNT(n) > 42 AS result]]></query>
+        </precondition>
+        <query><![CDATA[CREATE (:Human {name:'fbiville'})]]></query>
+    </changeset>
+</changelog>
