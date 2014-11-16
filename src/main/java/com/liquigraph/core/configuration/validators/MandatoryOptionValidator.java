@@ -1,11 +1,9 @@
 package com.liquigraph.core.configuration.validators;
 
-import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.jdbc.Driver;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -13,10 +11,10 @@ import static java.lang.String.format;
 
 public class MandatoryOptionValidator {
 
-    public Collection<String> validate(String masterChangelog, String uri, GraphDatabaseService graphDatabaseService) {
+    public Collection<String> validate(String masterChangelog, String uri) {
         Collection<String> errors = new LinkedList<>();
         errors.addAll(validateMasterChangelog(masterChangelog));
-        errors.addAll(validateGraphInstance(uri, graphDatabaseService));
+        errors.addAll(validateGraphInstance(uri));
         return errors;
     }
 
@@ -37,32 +35,20 @@ public class MandatoryOptionValidator {
         return errors;
     }
 
-    private static Collection<String> validateGraphInstance(String uri, GraphDatabaseService graphDatabaseService) {
-        Collection<String> errors = new LinkedList<>();
-        if (!(uri == null ^ graphDatabaseService == null)) {
-            errors.add("Ambiguous or incomplete configuration. Either 'uri' OR 'graphDatabaseService' should be specified.");
-        }
-        if (graphDatabaseService == null) {
-            errors.addAll(validateUri(uri));
-        }
-        return errors;
-    }
-
-    private static Collection<String> validateUri(String uri) {
+    private static Collection<String> validateGraphInstance(String uri) {
         Collection<String> errors = new LinkedList<>();
         if (uri == null) {
             errors.add("'uri' should not be null");
         }
-        else if (!uri.startsWith("http://") && !uri.startsWith("https://")) {
-            errors.add(format("'uri' supports only 'http' and 'https' protocols. Given: %s", uri));
-        }
-        else {
-            try {
-                new URI(uri);
-            } catch (URISyntaxException e) {
-                errors.add(format("'uri' is malformed. Given: %s", uri));
-            }
+        else if (!uri.startsWith(Driver.CON_PREFIX)) {
+            errors.add(format("Invalid JDBC URI. Supported configurations:%n" +
+                "\t - jdbc:neo4j://<host>:<port>/%n" +
+                "\t - jdbc:neo4j:file:/path/to/db%n" +
+                "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.%n" +
+                "Given: %s", uri
+            ));
         }
         return errors;
     }
+
 }

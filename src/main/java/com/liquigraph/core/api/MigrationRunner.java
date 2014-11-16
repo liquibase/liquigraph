@@ -7,13 +7,13 @@ import com.liquigraph.core.parser.ChangelogParser;
 import com.liquigraph.core.validation.DeclaredChangesetValidator;
 import com.liquigraph.core.validation.PersistedChangesetValidator;
 import com.liquigraph.core.writer.*;
-import org.neo4j.graphdb.GraphDatabaseService;
 
+import java.sql.Connection;
 import java.util.Collection;
 
 class MigrationRunner {
 
-    private final GraphConnector connector;
+    private final GraphJdbcConnector connector;
     private final ChangelogParser changelogParser;
     private final ChangelogReader changelogReader;
     private final ChangelogDiffMaker changelogDiffMaker;
@@ -22,7 +22,7 @@ class MigrationRunner {
     private final DeclaredChangesetValidator declaredChangesetValidator;
     private final PersistedChangesetValidator persistedChangesetValidator;
 
-    public MigrationRunner(GraphConnector connector,
+    public MigrationRunner(GraphJdbcConnector connector,
                            ChangelogParser changelogParser,
                            ChangelogReader changelogReader,
                            ChangelogDiffMaker changelogDiffMaker,
@@ -44,15 +44,15 @@ class MigrationRunner {
     public void runMigrations(Configuration configuration) {
         Collection<Changeset> declaredChangesets = parseChangesets(configuration.masterChangelog());
 
-        GraphDatabaseService graphDatabase = connector.connect(configuration);
-        Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, graphDatabase);
+        Connection connection = connector.connect(configuration);
+        Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, connection);
 
         Collection<Changeset> changelogsToInsert = changelogDiffMaker.computeChangesetsToInsert(
             configuration.executionContexts(),
             declaredChangesets,
             persistedChangesets
         );
-        writeDiff(configuration, graphDatabase, changelogsToInsert);
+        writeDiff(configuration, connection, changelogsToInsert);
     }
 
     private Collection<Changeset> parseChangesets(String masterChangelog) {
@@ -64,7 +64,7 @@ class MigrationRunner {
         return declaredChangesets;
     }
 
-    private Collection<Changeset> readPersistedChangesets(Collection<Changeset> declaredChangesets, GraphDatabaseService graphDatabase) {
+    private Collection<Changeset> readPersistedChangesets(Collection<Changeset> declaredChangesets, Connection graphDatabase) {
         Collection<Changeset> persistedChangesets = changelogReader.read(graphDatabase);
         Collection<String> errors = persistedChangesetValidator.validate(declaredChangesets, persistedChangesets);
         if (!errors.isEmpty()) {
@@ -73,9 +73,9 @@ class MigrationRunner {
         return persistedChangesets;
     }
 
-    private void writeDiff(Configuration configuration, GraphDatabaseService graphDatabase, Collection<Changeset> changelogsToInsert) {
+    private void writeDiff(Configuration configuration, Connection connection, Collection<Changeset> changelogsToInsert) {
         ChangelogWriter changelogWriter = configuration.resolveWriter(
-            graphDatabase,
+            connection,
             preconditionExecutor,
             preconditionPrinter
         );

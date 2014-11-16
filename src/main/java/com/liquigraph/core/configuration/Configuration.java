@@ -2,7 +2,8 @@ package com.liquigraph.core.configuration;
 
 import com.google.common.base.Optional;
 import com.liquigraph.core.writer.*;
-import org.neo4j.graphdb.GraphDatabaseService;
+
+import java.sql.Connection;
 
 import static com.liquigraph.core.configuration.RunMode.RUN_MODE;
 
@@ -21,15 +22,13 @@ public final class Configuration {
     private final Optional<String> password;
     private final ExecutionContexts executionContexts;
     private final ExecutionMode executionMode;
-    private final GraphDatabaseService graphDatabaseService;
 
     Configuration(String masterChangelog,
                   String uri,
                   Optional<String> username,
                   Optional<String> password,
                   ExecutionContexts executionContexts,
-                  ExecutionMode executionMode,
-                  GraphDatabaseService graphDatabaseService) {
+                  ExecutionMode executionMode) {
 
         this.masterChangelog = masterChangelog;
         this.uri = uri;
@@ -37,11 +36,7 @@ public final class Configuration {
         this.password = password;
         this.executionContexts = executionContexts;
         this.executionMode = executionMode;
-        this.graphDatabaseService = graphDatabaseService;
     }
-
-
-
 
     public String masterChangelog() {
         return masterChangelog;
@@ -67,18 +62,15 @@ public final class Configuration {
         return executionMode;
     }
 
-    public GraphDatabaseService graphDatabaseService() {
-        return graphDatabaseService;
-    }
-
-    public ChangelogWriter resolveWriter(GraphDatabaseService graphDatabase,
+    public ChangelogWriter resolveWriter(Connection connection,
                                          PreconditionExecutor preconditionExecutor,
                                          PreconditionPrinter preconditionPrinter) {
+
         ExecutionMode executionMode = executionMode();
         if (executionMode == RUN_MODE) {
-            return new ChangelogGraphWriter(graphDatabase, preconditionExecutor);
+            return new ChangelogGraphWriter(connection, preconditionExecutor);
         }
-        else if (executionMode instanceof DryRunMode) {
+        if (executionMode instanceof DryRunMode) {
             DryRunMode dryRunMode = (DryRunMode) executionMode;
             return new ChangelogFileWriter(preconditionPrinter, dryRunMode.getOutputFile());
         }

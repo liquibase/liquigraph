@@ -4,14 +4,11 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.liquigraph.core.model.Changeset;
 import com.liquigraph.core.model.Precondition;
-import org.jboss.byteman.contrib.bmunit.BMRule;
-import org.jboss.byteman.contrib.bmunit.BMUnitRunner;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,12 +18,10 @@ import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.isA;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(BMUnitRunner.class)
 public class ChangelogFileWriterTest {
 
     @Rule
@@ -82,23 +77,6 @@ public class ChangelogFileWriterTest {
             "//Liquigraph changeset[executionContexts: preprod,prod]\n" +
             "CREATE (n2: SomeNode {text:'yeah'})"
         );
-    }
-
-    @BMRule(
-        name = "write failed",
-        targetClass = "java.nio.file.Files",
-        targetMethod = "write(Path,Iterable,Charset,OpenOption[])",
-        action = "throw new IOException(\"bazinga\")"
-    )
-    @Test
-    public void propagates_exception() {
-        thrown.expect(RuntimeException.class);
-        thrown.expectCause(isA(IOException.class));
-        thrown.expectMessage("bazinga");
-
-        writer.write(newArrayList(
-            changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})")
-        ));
     }
 
     private Changeset changeset(String identifier, String author, String query, String executionContexts) {

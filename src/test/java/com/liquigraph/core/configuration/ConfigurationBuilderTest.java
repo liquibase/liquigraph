@@ -51,22 +51,17 @@ public class ConfigurationBuilderTest {
     @Test
     public void fails_on_unsupported_protocol() {
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage("'uri' supports only 'http' and 'https' protocols. Given: ssh://sorry@buddy");
+        thrown.expectMessage(
+            "\t - Invalid JDBC URI. Supported configurations:\n" +
+            "\t - jdbc:neo4j://<host>:<port>/\n" +
+            "\t - jdbc:neo4j:file:/path/to/db\n" +
+            "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.\n" +
+            "Given: ssh://sorry@buddy"
+        );
 
         new ConfigurationBuilder()
             .withMasterChangelogLocation("/changelog.xml")
             .withUri("ssh://sorry@buddy")
-            .build();
-    }
-
-    @Test
-    public void fails_on_malformed_uri() {
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("'uri' is malformed. Given: http:///im@èè ##/so/sorry");
-
-        new ConfigurationBuilder()
-            .withMasterChangelogLocation("/changelog.xml")
-            .withUri("http:///im@èè ##/so/sorry")
             .build();
     }
 

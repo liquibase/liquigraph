@@ -1,51 +1,59 @@
 package com.liquigraph.core.rules;
 
 import org.junit.rules.ExternalResource;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 import static com.google.common.base.Throwables.propagate;
 import static java.nio.file.Files.walkFileTree;
 
 public class EmbeddedGraphDatabaseRule extends ExternalResource {
 
-    private GraphDatabaseService graphDatabase;
-    private ExecutionEngine cypherEngine;
-    private File graphDirectory;
+    private final Path path;
+    private final String uri;
+    private Connection connection;
 
-    public GraphDatabaseService graphDatabase() {
-        return graphDatabase;
+    public EmbeddedGraphDatabaseRule(String name) {
+        try {
+            this.path = Files.createTempDirectory(name);
+            this.uri = "jdbc:neo4j:file:" + path.toFile().getAbsolutePath();
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
     }
 
-    public ExecutionEngine cypherEngine() {
-        return cypherEngine;
+    public Connection jdbcConnection() {
+        return connection;
     }
 
-    public File graphDirectory() {
-        return graphDirectory;
+    public String uri() {
+        return uri;
     }
 
-    protected void before() throws IOException {
-        graphDirectory = Files.createTempDirectory("neo").toFile();
-        graphDatabase = new GraphDatabaseFactory().newEmbeddedDatabase(graphDirectory.getPath());
-        cypherEngine = new ExecutionEngine(graphDatabase);
+    protected void before() {
+        try {
+            Class.forName("org.neo4j.jdbc.Driver");
+            connection = DriverManager.getConnection(uri);
+            connection.setAutoCommit(false);
+        } catch (ClassNotFoundException | SQLException e) {
+            throw propagate(e);
+        }
     }
 
     protected void after() {
-        if (graphDatabase != null) {
-            graphDatabase.shutdown();
-        }
-        if (graphDirectory != null) {
-            try {
-                walkFileTree(graphDirectory.toPath(), new DeletionFileVisitor());
-            } catch (IOException e) {
-                throw propagate(e);
+        try {
+            walkFileTree(path, new RecursiveDirectoryDeletionVisitor());
+            if (!connection.isClosed()) {
+                connection.close();
             }
+        } catch (SQLException | IOException e) {
+            throw propagate(e);
         }
     }
+
 }

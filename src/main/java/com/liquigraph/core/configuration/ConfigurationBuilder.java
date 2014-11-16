@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.liquigraph.core.configuration.validators.ExecutionModeValidator;
 import com.liquigraph.core.configuration.validators.MandatoryOptionValidator;
-import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -31,7 +30,6 @@ public final class ConfigurationBuilder {
 
     private MandatoryOptionValidator mandatoryOptionValidator = new MandatoryOptionValidator();
     private ExecutionModeValidator executionModeValidator = new ExecutionModeValidator();
-    private GraphDatabaseService graphDatabaseService;
 
     /**
      * Specifies the location of the master changelog file.
@@ -45,13 +43,8 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Specifies the connection URI of the graph database instance.
-     * Only 'http://' and 'https://' are supported at the moment.
+     * Specifies the JDBC connection URI of the graph database instance.
      *
-     * Please call {@link this#withGraphDatabaseService(GraphDatabaseService)}
-     * instead for embedded graph databases.
-     *
-     * @see this#withGraphDatabaseService(GraphDatabaseService)
      * @param uri connection URI
      * @return itself for chaining purposes
      */
@@ -77,19 +70,6 @@ public final class ConfigurationBuilder {
      */
     public ConfigurationBuilder withPassword(String password) {
         this.password = fromNullable(password);
-        return this;
-    }
-
-    /**
-     * Specifies the graph database instance.
-     * For remote DBs, {@link this#withUri(String)} as well as optionally {@link this#withUsername(String)}
-     * and {@link this#withPassword(String)} could be called instead.
-     *
-     * @param graphDatabaseService graph DB instance
-     * @return itself for chaining purposes
-     */
-    public ConfigurationBuilder withGraphDatabaseService(GraphDatabaseService graphDatabaseService) {
-        this.graphDatabaseService = graphDatabaseService;
         return this;
     }
 
@@ -144,7 +124,7 @@ public final class ConfigurationBuilder {
      */
     public Configuration build() {
         Collection<String> errors = newLinkedList();
-        errors.addAll(mandatoryOptionValidator.validate(masterChangelog, uri, graphDatabaseService));
+        errors.addAll(mandatoryOptionValidator.validate(masterChangelog, uri));
         errors.addAll(executionModeValidator.validate(executionMode));
 
         if (!errors.isEmpty()) {
@@ -156,8 +136,7 @@ public final class ConfigurationBuilder {
             username,
             password,
             executionContexts,
-            executionMode,
-            graphDatabaseService
+            executionMode
         );
     }
 

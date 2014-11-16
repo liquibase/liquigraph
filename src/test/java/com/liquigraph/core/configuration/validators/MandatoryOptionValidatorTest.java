@@ -1,7 +1,5 @@
 package com.liquigraph.core.configuration.validators;
 
-import com.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -10,21 +8,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MandatoryOptionValidatorTest {
 
-    @Rule
-    public EmbeddedGraphDatabaseRule graphDatabase = new EmbeddedGraphDatabaseRule();
     private MandatoryOptionValidator validator = new MandatoryOptionValidator();
 
     @Test
-    public void fails_on_ambiguous_graph_instance_configuration() {
+    public void fails_on_invalid_jdbc_uri() {
         Collection<String> errors = validator.validate(
             "/changelog.xml",
-            graphDatabase.graphDirectory().toURI().toString(),
-            graphDatabase.graphDatabase()
+            "foo"
         );
 
         assertThat(errors).containsExactly(
-            "Ambiguous or incomplete configuration. " +
-            "Either 'uri' OR 'graphDatabaseService' should be specified."
+            "Invalid JDBC URI. Supported configurations:\n" +
+            "\t - jdbc:neo4j://<host>:<port>/\n" +
+            "\t - jdbc:neo4j:file:/path/to/db\n" +
+            "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.\n" +
+            "Given: foo"
         );
     }
 
@@ -32,13 +30,10 @@ public class MandatoryOptionValidatorTest {
     public void fails_on_incomplete_graph_instance_configuration() {
         Collection<String> errors = validator.validate(
             "/changelog.xml",
-            null,
             null
         );
 
         assertThat(errors).containsExactly(
-            "Ambiguous or incomplete configuration. " +
-            "Either 'uri' OR 'graphDatabaseService' should be specified.",
             "'uri' should not be null"
         );
     }

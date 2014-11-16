@@ -17,7 +17,7 @@
         <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <neo4j.version>2.0.0</neo4j.version>
+        <neo4j.version>2.0.3</neo4j.version>
     </properties>
 
     <dependencies>
@@ -28,8 +28,8 @@
         </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-rest-graphdb</artifactId>
-            <version>2.0.1</version>
+            <artifactId>neo4j-jdbc</artifactId>
+            <version>2.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -60,10 +60,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.jboss.byteman</groupId>
-            <artifactId>byteman-bmunit</artifactId>
-            <version>2.2.0.1</version>
-            <scope>test</scope>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-kernel</artifactId>
+            <version>2.0.3</version>
+            <type>test-jar</type>
         </dependency>
     </dependencies>
 

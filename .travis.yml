@@ -3,3 +3,4 @@ script: "mvn -T4 clean test"
 jdk:
 - openjdk7
 - oraclejdk7
+- oraclejdk8

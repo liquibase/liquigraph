@@ -3,62 +3,59 @@ package com.liquigraph.core.writer;
 import com.liquigraph.core.exception.PreconditionNotMetException;
 import com.liquigraph.core.model.Changeset;
 import com.liquigraph.core.model.Precondition;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.Transaction;
 
+import java.sql.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.collect.Iterators.getOnlyElement;
+import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 
 public class ChangelogGraphWriter implements ChangelogWriter {
 
     private static final String LATEST_INDEX =
         "MERGE (changelog:__LiquigraphChangelog) " +
-            "WITH changelog " +
-            "OPTIONAL MATCH (changelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(:__LiquigraphChangeset)" +
-            "RETURN COALESCE(MAX(exec.order), 0) AS lastIndex";
+        "WITH changelog " +
+        "OPTIONAL MATCH (changelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(:__LiquigraphChangeset)" +
+        "RETURN COALESCE(MAX(exec.order), 0) AS lastIndex";
 
     private static final String CHANGESET_UPSERT =
         "MATCH (changelog:__LiquigraphChangelog) " +
-            "MERGE (changelog)<-[:EXECUTED_WITHIN_CHANGELOG {order: {index}}]-(changeset:__LiquigraphChangeset {id: {id}}) " +
-            "ON MATCH SET  changeset.checksum = {checksum}, " +
-            "              changeset.query = {query}" +
-            "ON CREATE SET changeset.author = {author}, " +
-            "              changeset.query = {query}, " +
-            "              changeset.checksum = {checksum}";
+        "MERGE (changelog)<-[:EXECUTED_WITHIN_CHANGELOG {order: {1}}]-(changeset:__LiquigraphChangeset {id: {2}}) " +
+        "ON MATCH SET  changeset.checksum = {3}, " +
+        "              changeset.query = {4} " +
+        "ON CREATE SET changeset.author = {5}, " +
+        "              changeset.query = {4}, " +
+        "              changeset.checksum = {3}";
 
-    private final GraphDatabaseService graphDatabase;
+    private final Connection connection;
     private final PreconditionExecutor preconditionExecutor;
 
-    public ChangelogGraphWriter(GraphDatabaseService graphDatabase, PreconditionExecutor preconditionExecutor) {
-        this.graphDatabase = graphDatabase;
+    public ChangelogGraphWriter(Connection connection, PreconditionExecutor preconditionExecutor) {
+        this.connection = connection;
         this.preconditionExecutor = preconditionExecutor;
     }
 
     @Override
     public void write(Collection<Changeset> changelogsToInsert) {
-        ExecutionEngine cypherEngine = new ExecutionEngine(graphDatabase);
-        long index = latestPersistedIndex(graphDatabase) + 1L;
+        long index = latestPersistedIndex(connection) + 1L;
 
         for (Changeset changeset : changelogsToInsert) {
-            try (Transaction transaction = graphDatabase.beginTx()) {
-                Precondition precondition = changeset.getPrecondition();
-                PreconditionResult result = preconditionExecutor.executePrecondition(cypherEngine, precondition).orNull();
-                if (result == null || result.executedSuccessfully()) {
-                    cypherEngine.execute(changeset.getQuery());
-                    upsertChangeset(cypherEngine, index, changeset);
+            Precondition precondition = changeset.getPrecondition();
+
+            try (Statement statement = connection.createStatement()) {
+                PreconditionResult preconditionResult = executePrecondition(precondition);
+                if (preconditionResult == null || preconditionResult.executedSuccessfully()) {
+                    statement.execute(changeset.getQuery());
+                    upsertChangeset(connection, index, changeset);
                 }
                 else {
-                    switch (result.errorPolicy()) {
+                    switch (preconditionResult.errorPolicy()) {
                         case CONTINUE:
                             continue;
                         case MARK_AS_EXECUTED:
-                            upsertChangeset(cypherEngine, index, changeset);
+                            upsertChangeset(connection, index, changeset);
                             break;
                         case FAIL:
                             throw new PreconditionNotMetException(
@@ -71,33 +68,55 @@ public class ChangelogGraphWriter implements ChangelogWriter {
                             );
                     }
                 }
-                transaction.success();
+                connection.commit();
+            } catch (SQLException e) {
+                throw propagate(e);
             }
             index++;
         }
     }
 
-    private void upsertChangeset(ExecutionEngine cypherEngine, long index, Changeset changeset) {
-        cypherEngine.execute(CHANGESET_UPSERT, parameters(changeset, index));
+    private PreconditionResult executePrecondition(Precondition precondition) {
+        PreconditionResult result;
+        try (Statement ignored = connection.createStatement()) {
+            result = preconditionExecutor.executePrecondition(connection, precondition).orNull();
+        } catch (SQLException e) {
+            throw propagate(e);
+        }
+        return result;
     }
 
-    private long latestPersistedIndex(GraphDatabaseService graphDb) {
-        try (Transaction transaction = graphDb.beginTx();
-             ResourceIterator<Long> results = new ExecutionEngine(graphDb).execute(LATEST_INDEX).columnAs("lastIndex")) {
-
-            Long result = getOnlyElement(results);
-            transaction.success();
-            return result;
+    private void upsertChangeset(Connection connection, long index, Changeset changeset) {
+        Map<Integer, Object> parameters = parameters(changeset, index);
+        try (PreparedStatement statement = connection.prepareStatement(CHANGESET_UPSERT)) {
+            for (Integer key : parameters.keySet()) {
+                statement.setObject(key, parameters.get(key));
+            }
+            statement.execute();
+        } catch (SQLException e) {
+            throw propagate(e);
         }
     }
 
-    private Map<String, Object> parameters(Changeset changeset, long index) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("index", index);
-        parameters.put("id", changeset.getId());
-        parameters.put("author", changeset.getAuthor());
-        parameters.put("query", changeset.getQuery());
-        parameters.put("checksum", changeset.getChecksum());
+    private long latestPersistedIndex(Connection connection) {
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(LATEST_INDEX);
+            resultSet.next();
+            return resultSet.getLong("lastIndex");
+        } catch (SQLException e) {
+            throw propagate(e);
+        }
+    }
+
+    private Map<Integer, Object> parameters(Changeset changeset, long index) {
+        String query = changeset.getQuery();
+        String checksum = changeset.getChecksum();
+        Map<Integer, Object> parameters = new HashMap<>();
+        parameters.put(1, index);
+        parameters.put(2, changeset.getId());
+        parameters.put(3, checksum);
+        parameters.put(4, query);
+        parameters.put(5, changeset.getAuthor());
         return parameters;
     }
 }

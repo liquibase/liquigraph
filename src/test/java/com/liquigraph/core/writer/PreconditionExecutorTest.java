@@ -2,14 +2,16 @@ package com.liquigraph.core.writer;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import com.liquigraph.core.exception.PreconditionSyntaxException;
+import com.liquigraph.core.exception.PreconditionException;
 import com.liquigraph.core.model.*;
 import com.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.neo4j.graphdb.Transaction;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -18,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PreconditionExecutorTest {
 
     @Rule
-    public EmbeddedGraphDatabaseRule graphDatabaseRule = new EmbeddedGraphDatabaseRule();
+    public EmbeddedGraphDatabaseRule graphDatabaseRule = new EmbeddedGraphDatabaseRule("neotest");
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -27,58 +29,58 @@ public class PreconditionExecutorTest {
 
     @Test
     public void returns_no_result_when_precondition_is_null() {
-        Optional<PreconditionResult> result = executor.executePrecondition(graphDatabaseRule.cypherEngine(), null);
+        Optional<PreconditionResult> result = executor.executePrecondition(graphDatabaseRule.jdbcConnection(), null);
 
         assertThat(result).isEqualTo(Optional.absent());
     }
 
     @Test
-    public void executes_simple_precondition() {
-        try (Transaction transaction = graphDatabaseRule.graphDatabase().beginTx()) {
+    public void executes_simple_precondition() throws SQLException {
+        Connection connection = graphDatabaseRule.jdbcConnection();
+        try (Statement ignored = connection.createStatement()) {
             Optional<PreconditionResult> maybeResult = executor.executePrecondition(
-                graphDatabaseRule.cypherEngine(),
+                connection,
                 simplePrecondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "RETURN true AS result")
             );
 
             PreconditionResult result = maybeResult.get();
             assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.MARK_AS_EXECUTED);
             assertThat(result.executedSuccessfully()).isTrue();
-            transaction.success();
         }
     }
 
     @Test
-    public void executes_nested_and_precondition_queries() {
-        try (Transaction transaction = graphDatabaseRule.graphDatabase().beginTx()) {
+    public void executes_nested_and_precondition_queries() throws SQLException {
+        Connection connection = graphDatabaseRule.jdbcConnection();
+        try (Statement ignored = connection.createStatement()) {
             Optional<PreconditionResult> maybeResult = executor.executePrecondition(
-                graphDatabaseRule.cypherEngine(),
+                connection,
                 andPrecondition(PreconditionErrorPolicy.FAIL, "RETURN true AS result", "RETURN false AS result")
             );
 
             PreconditionResult result = maybeResult.get();
             assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.FAIL);
             assertThat(result.executedSuccessfully()).isFalse();
-            transaction.success();
         }
     }
 
     @Test
-    public void executes_nested_or_precondition_queries() {
-        try (Transaction transaction = graphDatabaseRule.graphDatabase().beginTx()) {
+    public void executes_nested_or_precondition_queries() throws SQLException {
+        Connection connection = graphDatabaseRule.jdbcConnection();
+        try (Statement ignored = connection.createStatement()) {
             Optional<PreconditionResult> maybeResult = executor.executePrecondition(
-                graphDatabaseRule.cypherEngine(),
+                connection,
                 orPrecondition(PreconditionErrorPolicy.CONTINUE, "RETURN true AS result", "RETURN false AS result")
             );
 
             PreconditionResult result = maybeResult.get();
             assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.CONTINUE);
             assertThat(result.executedSuccessfully()).isTrue();
-            transaction.success();
         }
     }
 
     @Test
-    public void executes_nested_mixed_precondition_queries_like_a_charm() {
+    public void executes_nested_mixed_precondition_queries_like_a_charm() throws SQLException {
         Precondition precondition = precondition(PreconditionErrorPolicy.MARK_AS_EXECUTED);
         AndQuery andQuery = new AndQuery();
         andQuery.setPreconditionQueries(newArrayList(
@@ -87,48 +89,46 @@ public class PreconditionExecutorTest {
         ));
         precondition.setQuery(andQuery);
 
-        try (Transaction transaction = graphDatabaseRule.graphDatabase().beginTx()) {
+        Connection connection = graphDatabaseRule.jdbcConnection();
+        try (Statement ignored = connection.createStatement()) {
             Optional<PreconditionResult> maybeResult = executor.executePrecondition(
-                graphDatabaseRule.cypherEngine(),
+                connection,
                 precondition
             );
 
             PreconditionResult result = maybeResult.get();
             assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.MARK_AS_EXECUTED);
             assertThat(result.executedSuccessfully()).isTrue();
-            transaction.success();
         }
     }
 
     @Test
-    public void fails_with_invalid_cypher_query() {
-        thrown.expect(PreconditionSyntaxException.class);
-        thrown.expectMessage("\tQuery <toto> is invalid. Please check again its syntax.\n" +
-            "\tMore details:\n" +
-            "Invalid input 't': expected SingleStatement (line 1, column 1)\n" +
-            "\"toto\"\n" +
-            " ^");
+    public void fails_with_invalid_cypher_query() throws SQLException {
+        thrown.expect(PreconditionException.class);
+        thrown.expectMessage("\tQuery <toto> should yield exactly one column named or aliased 'result'.\n" +
+            "\tCause: Error executing query toto\n" +
+            " with params {}");
 
-        try (Transaction transaction = graphDatabaseRule.graphDatabase().beginTx()) {
+        Connection connection = graphDatabaseRule.jdbcConnection();
+        try (Statement ignored = connection.createStatement()) {
             executor.executePrecondition(
-                graphDatabaseRule.cypherEngine(),
+                connection,
                 simplePrecondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "toto")
             );
-            transaction.success();
         }
     }
 
     @Test
-    public void fails_with_badly_named_precondition_result_column() {
-        thrown.expect(PreconditionSyntaxException.class);
+    public void fails_with_badly_named_precondition_result_column() throws SQLException {
+        thrown.expect(PreconditionException.class);
         thrown.expectMessage("Query <RETURN true> should yield exactly one column named or aliased 'result'.");
 
-        try (Transaction transaction = graphDatabaseRule.graphDatabase().beginTx()) {
+        Connection connection = graphDatabaseRule.jdbcConnection();
+        try (Statement ignored = connection.createStatement()) {
             executor.executePrecondition(
-                graphDatabaseRule.cypherEngine(),
+                connection,
                 simplePrecondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "RETURN true")
             );
-            transaction.success();
         }
     }
 
@@ -139,7 +139,7 @@ public class PreconditionExecutorTest {
 
         Precondition precondition = new Precondition();
         precondition.setQuery(new PreconditionQuery() {});
-        executor.executePrecondition(graphDatabaseRule.cypherEngine(), precondition);
+        executor.executePrecondition(graphDatabaseRule.jdbcConnection(), precondition);
     }
 
     private Precondition simplePrecondition(PreconditionErrorPolicy fail, String query) {
