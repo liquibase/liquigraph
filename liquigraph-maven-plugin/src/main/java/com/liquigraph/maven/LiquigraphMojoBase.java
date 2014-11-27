@@ -37,8 +37,8 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
      *  - jdbc:neo4j:mem
      *  - jdbc:neo4j:mem:name
      */
-    @Parameter(property = "uri", required = true)
-    String uri;
+    @Parameter(property = "jdbcUri", required = true)
+    String jdbcUri;
 
     /**
      * Graph connection username.
@@ -72,7 +72,7 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
                 .withMasterChangelogLocation(changelog)
                 .withUsername(username)
                 .withPassword(password)
-                .withUri(uri))
+                .withUri(jdbcUri))
                 .build();
 
             getLog().info("Generating Cypher output file in directory: " + directory);
