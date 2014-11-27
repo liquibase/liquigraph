@@ -3,13 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.liquigraph</groupId>
+    <groupId>org.liquigraph</groupId>
     <artifactId>liquigraph-core</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>liquigraph-core</name>
-    <url>http://fbiville.github.io/liquigraph</url>
+    <url>http://www.liquigraph.org/</url>
 
     <properties><encoding>UTF-8</encoding>
         <java.version>1.7</java.version>
