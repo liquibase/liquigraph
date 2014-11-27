@@ -42,7 +42,7 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.liquigraph.cli.LiquigraphCli</mainClass>
+                                    <mainClass>org.liquigraph.cli.LiquigraphCli</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

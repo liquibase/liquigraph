@@ -94,4 +94,4 @@ if ${cygwin}; then
   [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --path --windows "$JAVA_HOME"`
 fi
 
-exec "$JAVACMD" -classpath "$CLASSPATH" com.liquigraph.cli.LiquigraphCli ${PROCESSED}
+exec "$JAVACMD" -classpath "$CLASSPATH" org.liquigraph.cli.LiquigraphCli ${PROCESSED}
