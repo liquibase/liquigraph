@@ -369,3 +369,14 @@ footer a:hover {
 
 /* Mobile Portrait Size to Mobile Landscape Size (devices and browsers) */
 @media only screen and (max-width: 479px) {}
+
+
+/* custom */
+header { padding-bottom:0;}
+#headline,#five_minute_guide,#detailed_section { text-align:center;}
+#downloads,#five_minute_guide { overflow:hidden;}
+#downloads a { float:right;}
+
+#maven,#shell { width:48%; float:left; padding:5px;}
+#maven h2, #shell h2 { margin-top:15px;}
+#maven p, #shell p { text-align:left; padding:10px;}
