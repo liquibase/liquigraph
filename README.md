@@ -5,3 +5,4 @@ Liquigraph is a Liquibase port dedicated to Neo4j (v2+) migrations.
 ## Build status
 
 [![Build Status](https://travis-ci.org/fbiville/liquigraph.png)](https://travis-ci.org/fbiville/liquigraph)
+[![Coverage Status](https://coveralls.io/repos/fbiville/liquigraph/badge.png)](https://coveralls.io/r/fbiville/liquigraph)
