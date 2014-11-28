@@ -377,6 +377,9 @@ header { padding-bottom:0;}
 #downloads,#five_minute_guide { overflow:hidden;}
 #downloads a { float:right;}
 
-#maven,#shell { width:48%; float:left; padding:5px;}
-#maven h2, #shell h2 { margin-top:15px;}
-#maven p, #shell p { text-align:left; padding:10px;}
+.path { background-color:white; color:red; font-family: monospace}
+#maven,#shell {text-align:left;}
+
+nav { width:50%; margin:20px auto;}
+nav ul { overflow:auto;}
+nav li { float:left; list-style-type:none;}

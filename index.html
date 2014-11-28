@@ -26,12 +26,44 @@
         </section>
 
         <hr>
-
+	
 	<section id="five_minute_guide">
 		<h1>5-minute guide</h1>
+        	<nav>
+          	  <ul>
+            	    <li><a href="#maven">Maven users</a></li>
+            	    <li><a href="#shell">Shell aficionados</a></li>
+          	  </ul>
+        	</nav>
 		<div id="maven">
 			<h2>The Maven way</h2>
-			<p>TODO</p>
+			<p>Define your migrations in <span class='path'>src/main/resources/changelog.xml</span>:</p>
+			<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;changelog&gt;
+    &lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
+        &lt;query&gt;&lt;![CDATA[CREATE (n:Sentence {text:&apos;Hello monde!&apos;}) RETURN n]]&gt;&lt;/query&gt;
+    &lt;/changeset&gt;
+    &lt;changeset id=&quot;hello-world-fixed&quot; author=&quot;you&quot;&gt;
+        &lt;query&gt;&lt;![CDATA[MATCH (n:Sentence {text:&apos;Hello monde!&apos;}) SET n.text=&apos;Hello world!&apos; RETURN n]]&gt;&lt;/query&gt;
+    &lt;/changeset&gt;
+&lt;changelog&gt;</code></pre>
+			<p>Then, include Liquigraph plugin in your <span class="path">pom.xml</span>:
+			<pre><code>&lt;plugin&gt;
+    &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
+    &lt;artifactId&gt;liquigraph-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;XXX&lt;/version&gt;
+    &lt;configuration&gt;
+        &lt;changelog&gt;changelog.xml&lt;/changelog&gt;&lt;!-- classpath location --&gt;
+        &lt;jdbcUri&gt;jdbc:neo4j://localhost:7474&lt;/jdbcUri&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;</code></pre>
+			<p>And then, simulate the changes:</p>
+			<pre><code>$&gt; mvn liquigraph:dry-run
+# prints queries that would be run
+$&gt; less target/output.cypher</code></pre>
+</p>
+			<p>And finally, run:</p>
+			<pre><code>$&gt; mvn liquigraph:run</code></pre>
 		</div>
 		<div id="shell">
 			<h2>Highway to shell</h2>
