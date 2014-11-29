@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.liquigraph</groupId>
         <artifactId>liquigraph-parent</artifactId>
-        <version>1.0.RC1</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>liquigraph-maven-plugin</artifactId>
@@ -17,7 +17,7 @@
         <dependency>
             <groupId>org.liquigraph</groupId>
             <artifactId>liquigraph-core</artifactId>
-            <version>1.0.RC1</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
