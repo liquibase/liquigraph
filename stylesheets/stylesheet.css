@@ -374,12 +374,15 @@ footer a:hover {
 /* custom */
 .inner { width:50%;}
 pre {font-family: Consolas,monospace};
-header { padding-bottom:0;}
-header h1 { text-align:center;}
+header { text-align:center !important;}
+h1 { text-align:center; margin-bottom:20px;}
+header h1 { margin-bottom:0;}
 
-#downloads,#five_minute_guide { overflow:hidden;}
+#downloads, #five_minute_guide { overflow:hidden;}
 #downloads a { float:right;}
 
+dt { font-size:13pt; padding:10px 0;}
+.nota-bene, dd { border-left:5px solid #AAA; padding-left: 20px; font-size:11pt;}
 .path { background-color:white; color:red; font-family: monospace}
 #maven,#shell {text-align:left;}
 
