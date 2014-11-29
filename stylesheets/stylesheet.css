@@ -372,14 +372,17 @@ footer a:hover {
 
 
 /* custom */
+.inner { width:50%;}
+pre {font-family: Consolas,monospace};
 header { padding-bottom:0;}
-#headline,#five_minute_guide,#detailed_section { text-align:center;}
+header h1 { text-align:center;}
+
 #downloads,#five_minute_guide { overflow:hidden;}
 #downloads a { float:right;}
 
 .path { background-color:white; color:red; font-family: monospace}
 #maven,#shell {text-align:left;}
 
-nav { width:50%; margin:20px auto;}
-nav ul { overflow:auto;}
-nav li { float:left; list-style-type:none;}
+nav { width:50%; margin:20px auto; text-align:center;}
+nav ul { margin:0 auto;}
+nav li { display:inline-block; padding:5px; font-size:14pt; list-style-type:none;}

@@ -18,7 +18,7 @@
       <div class="inner">
 
         <header>
-          <h1 id="headline"><img src="images/liquigraph-logo.png" alt="Liquigraph" id="logo" title="Liquigraph: graph migration made easy" /></h1>
+          <h1 id="headline"><a href=""><img src="images/liquigraph-logo.png" alt="Liquigraph" id="logo" title="Liquigraph: graph migrations made easy" /></a></h1>
         </header>
 
         <section id="downloads" class="clearfix">
@@ -29,15 +29,8 @@
 	
 	<section id="five_minute_guide">
 		<h1>5-minute guide</h1>
-        	<nav>
-          	  <ul>
-            	    <li><a href="#maven">Maven users</a></li>
-            	    <li><a href="#shell">Shell aficionados</a></li>
-          	  </ul>
-        	</nav>
-		<div id="maven">
-			<h2>The Maven way</h2>
-			<p>Define your migrations in <span class='path'>src/main/resources/changelog.xml</span>:</p>
+		<div>
+			<p>Open your favourite editor and paste:</p>
 			<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 &lt;changelog&gt;
     &lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
@@ -47,6 +40,16 @@
         &lt;query&gt;&lt;![CDATA[MATCH (n:Sentence {text:&apos;Hello monde!&apos;}) SET n.text=&apos;Hello world!&apos; RETURN n]]&gt;&lt;/query&gt;
     &lt;/changeset&gt;
 &lt;changelog&gt;</code></pre>
+		</div>
+        	<nav>
+          	  <ul>
+            	    <li><a href="#maven">Maven users</a></li>
+            	    <li><a href="#shell">Shell aficionados</a></li>
+          	  </ul>
+        	</nav>
+		<div id="maven">
+			<h2>The Maven way</h2>
+			<p>Save these migrations in <span class='path'>${your_project}/src/main/resources/changelog.xml</span>.</p>
 			<p>Then, include Liquigraph plugin in your <span class="path">pom.xml</span>:
 			<pre><code>&lt;plugin&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
@@ -58,7 +61,8 @@
     &lt;/configuration&gt;
 &lt;/plugin&gt;</code></pre>
 			<p>And then, simulate the changes:</p>
-			<pre><code>$&gt; mvn liquigraph:dry-run
+			<pre><code># check Neo4j is started, and then
+$&gt; mvn liquigraph:dry-run
 # prints queries that would be run
 $&gt; less target/output.cypher</code></pre>
 </p>
@@ -67,7 +71,19 @@ $&gt; less target/output.cypher</code></pre>
 		</div>
 		<div id="shell">
 			<h2>Highway to shell</h2>
-			<p>TODO</p>
+			<p>Save these migrations in <span class='path'>${your_project}/migrations/changelog.xml</span>.</p>
+			<p><strong>Note for Windows users: make sure you run the following commands in a bash emulator (such as Cygwin, or Git Bash).</strong></p> 
+			<p>Then, download <a>liquigraph.run</a> and export it in your path. You can now run:</p>
+			<pre><code>$&gt; liquigraph.run --help</code></pre>
+			<p>A description should be prompted. Then, simulate the changes:</p>
+			<pre><code>$&gt; liquigraph.run --changelog "${your_project}/migrations/changelog.xml" \
+			     --graph-db-uri jdbc:neo4j://localhost:7474/ \
+			     --dry-run-output-directory /tmp
+# check contents
+$&gt; less /tmp/output.cypher</code></pre>
+			<p>And finally, run:</p>
+			<pre><code>$&gt; liquigraph.run --changelog "${your_project}/migrations/changelog.xml" \
+			     --graph-db-uri jdbc:neo4j://localhost:7474/</code></pre>
 		</div>
 	</section>	
 
