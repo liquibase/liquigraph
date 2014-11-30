@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static java.lang.String.format;
 import static java.nio.file.Files.createFile;
@@ -30,9 +31,14 @@ public class ChangelogFileWriter implements ChangelogWriter {
     @Override
     public void write(Collection<Changeset> changelogsToInsert) {
         try {
-            reinitializeFile(outputFile.toPath());
+            Path path = outputFile.toPath();
+            reinitializeFile(path);
+            if (changelogsToInsert.isEmpty()) {
+                writeNothingToPersist(path);
+                return;
+            }
             for (Changeset changeset : changelogsToInsert) {
-                writeChangeset(changeset, outputFile.toPath());
+                writeChangeset(changeset, path);
             }
         } catch (IOException e) {
             throw propagate(e);
@@ -42,6 +48,10 @@ public class ChangelogFileWriter implements ChangelogWriter {
     private void reinitializeFile(Path path) throws IOException {
         deleteIfExists(path);
         createFile(path);
+    }
+
+    private void writeNothingToPersist(Path path) throws IOException {
+        Files.write(path, newArrayList("//Liquigraph: nothing to persist!"), Charsets.UTF_8);
     }
 
     private void writeChangeset(Changeset changeset, Path path) throws IOException {

@@ -2,6 +2,7 @@ package org.liquigraph.core.writer;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.Precondition;
 import org.junit.Before;
@@ -40,6 +41,16 @@ public class ChangelogFileWriterTest {
         writer = new ChangelogFileWriter(
             preconditionPrinter,
             outputFile
+        );
+    }
+
+    @Test
+    public void generates_a_simple_comment_when_nothing_has_to_be_written() throws IOException {
+        writer.write(Lists.<Changeset>newArrayList());
+
+        String fileContents = Joiner.on("\n").join(Files.readAllLines(outputFile.toPath(), Charsets.UTF_8));
+        assertThat(fileContents).isEqualTo(
+            "//Liquigraph: nothing to persist!"
         );
     }
 
