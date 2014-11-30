@@ -34,10 +34,10 @@
 			<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 &lt;changelog&gt;
     &lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
-        &lt;query&gt;CREATE (n:Sentence {text:&apos;Hello monde!&apos;}) RETURN n&lt;/query&gt;
+        &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
     &lt;/changeset&gt;
     &lt;changeset id=&quot;hello-world-fixed&quot; author=&quot;you&quot;&gt;
-        &lt;query&gt;MATCH (n:Sentence {text:&apos;Hello monde!&apos;}) SET n.text=&apos;Hello world!&apos; RETURN n&lt;/query&gt;
+        &lt;query&gt;MATCH (n:Sentence {text:&#39;Hello monde!&#39;}) SET n.text=&#39;Hello world!&#39; RETURN n&lt;/query&gt;
     &lt;/changeset&gt;
 &lt;/changelog&gt;</code></pre>
 		</div>
@@ -100,7 +100,7 @@ $&gt; less /tmp/output.cypher</code></pre>
 			<dt>Execution context</dt>
 			<dd><p>An execution context is a simple string, defined at changeset level. A changeset can have 0, 1 or more execution contexts (in the latter case, they're comma-separated). For instance:</p>
 <pre><code>&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; contexts=&quot;foo,bar&quot;&gt;
-   &lt;query&gt;CREATE (n:Sentence {text:&apos;Hello monde!&apos;}) RETURN n&lt;/query&gt;
+   &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
 &lt;/changeset&gt;</code></pre>
 <p>If no execution contexts are specified at runtime, all changesets will match.<br/>If one or more execution contexts are specified at runtime, changesets will be selected:</p>
 <ul>
@@ -112,14 +112,14 @@ $&gt; less /tmp/output.cypher</code></pre>
 			<dd><p>As previously mentioned, Liquigraph changesets are immutable by default (an error will be thrown if they have been altered). 
 That said, there may be situations where changesets should be run whenever their contents have changed. To achieve this, you just need to define one extra attribute:</p>
 <pre><code>&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-on-change=&quot;true&quot;&gt;
-   &lt;query&gt;CREATE (n:Sentence {text:&apos;Hello monde!&apos;}) RETURN n&lt;/query&gt;
+   &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
 &lt;/changeset&gt;</code></pre></dd>
 
 			<dt>Changeset incrementality</dt>
 			<dd><p>As previously mentioned, Liquigraph changesets are incremental by default (they will be executed only once). 
 That said, there may be situations where changesets should be run at every execution. To achieve this, you just need to define one extra attribute:</p>
 <pre><code>&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-always=&quot;true&quot;&gt;
-   &lt;query&gt;CREATE (n:Sentence {text:&apos;Hello monde!&apos;}) RETURN n&lt;/query&gt;
+   &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
 &lt;/changeset&gt;</code></pre></dd>
 
 			<dt>Changeset precondition</dt>
@@ -137,7 +137,7 @@ That said, there may be situations where changesets should be run at every execu
    &lt;precondition if-not-met=&quot;MARK_AS_EXECUTED&quot;&gt;
       &lt;query&gt;RETURN true AS result&lt;/query&gt;
    &lt;/precondition&gt;
-   &lt;query&gt;CREATE (n:Sentence {text:&apos;Hello monde!&apos;}) RETURN n&lt;/query&gt;
+   &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
 &lt;/changeset&gt;</code></pre>
 <p>Here comes a slightly more complicated example:</p>
 <pre><code>&lt;changeset id=&quot;contest-winner-selection&quot; author=&quot;futuroscope-engineering&quot;&gt;
