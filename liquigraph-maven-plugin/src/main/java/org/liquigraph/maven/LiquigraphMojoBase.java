@@ -31,11 +31,12 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
 
     /**
      * Graph JDBC URI
-     *
-     *  - jdbc:neo4j://<host>:<port>/
-     *  - jdbc:neo4j:file:/path/to/db
-     *  - jdbc:neo4j:mem
-     *  - jdbc:neo4j:mem:name
+     * <ul>
+     *  <li>jdbc:neo4j://&lt;host&gt;:&lt;port&gt;/</li>
+     *  <li>jdbc:neo4j:file:/path/to/db</li>
+     *  <li>jdbc:neo4j:mem</li>
+     *  <li>jdbc:neo4j:mem:name</li>
+     * </ul>
      */
     @Parameter(property = "jdbcUri", required = true)
     String jdbcUri;

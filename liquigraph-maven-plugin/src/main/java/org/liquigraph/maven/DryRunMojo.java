@@ -7,6 +7,9 @@ import org.apache.maven.plugins.annotations.Mojo;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Simulates Liquigraph execution and persists results in ${project.build.directory}/output.cypher.
+ */
 @Mojo(name = "dry-run", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
 public class DryRunMojo extends LiquigraphMojoBase {
 
