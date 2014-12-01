@@ -13,6 +13,7 @@ import java.util.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static org.liquigraph.core.model.Checksums.checksum;
 
 public class Changeset {
@@ -60,8 +61,8 @@ public class Changeset {
     }
 
     public void setChecksum(String checksum) {
-        checkArgument(checksum != null);
-        checkArgument(checksum.equals(checksum(query)));
+        checkArgument(checksum != null, "Checksum cannot be null");
+        checkArgument(checksum.equals(checksum(query)), checksumError(id, checksum(query), checksum));
         this.checksum = checksum;
     }
 
@@ -138,5 +139,9 @@ public class Changeset {
                 ", runAlways=" + runAlways +
                 ", precondition=" + precondition +
                 '}';
+    }
+
+    private String checksumError(String id, String expected, String actual) {
+        return format("Changeset <%s>. Checksum mismatch!%n\t Expected: %s%n\t Actual: %s", id, expected, actual);
     }
 }
