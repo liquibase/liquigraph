@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.liquigraph</groupId>
         <artifactId>liquigraph-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.RC2</version>
     </parent>
 
     <artifactId>liquigraph-cli</artifactId>
@@ -15,7 +15,7 @@
         <dependency>
             <groupId>org.liquigraph</groupId>
             <artifactId>liquigraph-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.RC2</version>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>
