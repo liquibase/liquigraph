@@ -54,7 +54,7 @@
 			<pre><code>&lt;plugin&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
     &lt;artifactId&gt;liquigraph-maven-plugin&lt;/artifactId&gt;
-    &lt;version&gt;1.0.RC1&lt;/version&gt;
+    &lt;version&gt;1.0.RC2&lt;/version&gt;
     &lt;configuration&gt;
         &lt;changelog&gt;changelog.xml&lt;/changelog&gt;&lt;!-- classpath location --&gt;
         &lt;jdbcUri&gt;jdbc:neo4j://localhost:7474&lt;/jdbcUri&gt;
@@ -72,11 +72,19 @@ $&gt; less target/output.cypher</code></pre>
 		<div id="shell">
 			<h2>Highway to shell</h2>
 			<p>Save these migrations in <span class='path'>${your_project}/migrations/changelog.xml</span>.</p>
-			<p class="nota-bene">Note for Windows users: current RC does not support your OS. We're working hard to fix that.</p> 
-			<p>Then, download <a href="https://github.com/fbiville/liquigraph/releases/download/liquigraph-1.0.RC1/liquigraph.run">liquigraph.run</a>, export it in your path and `chmod +x` it. You can now run:</p>
-			<pre><code>$&gt; liquigraph.run --help</code></pre>
-			<p>A description should be prompted. Then, simulate the changes:</p>
-			<pre><code>$&gt; liquigraph.run --changelog "${your_project}/migrations/changelog.xml" \
+			<h3>Prerequisites</h3>
+			<p class="nota-bene">Note for Windows users: make sure to install <a href="https://www.python.org/">Python</a> and include it in your <code>PATH</code>. <br />If you are using CMD (and not shell emulators like <a href="http://git-scm.com/downloads">Git Bash</a> or <a href="https://www.cygwin.com/">Cygwin</a>), the following commands will have to be passed to <code>python.exe</code> (i.e. <code>liquigraph</code> becomes <code>python.exe liquigraph</code>).</p> 
+			<ol>
+				<li>make sure at least JDK7 is set up and Java is included in your path</li>
+				<li>unzip <a href="https://github.com/fbiville/liquigraph/releases/download/liquigraph-1.0.RC2/liquigraph.zip">Liquigraph</a> in <code>LIQUIGRAPH_DIR</code></li>
+				<li>include <code>LIQUIGRAPH_DIR</code> to your <code>PATH</code></li>
+				<li>make sure <code>LIQUIGRAPH_DIR/liquigraph</code> is executable</li>
+			</ol>
+			<p>You can now check your installation by executing the following command (reminder to CMD users: command should start with python.exe):</p>
+			<h3>Running Liquigraph</h3>
+			<pre><code>$&gt; liquigraph --help</code></pre>
+			<p>A description should be prompted. Then, simulate the changes (replace /tmp with whatever floats your boat):</p>
+			<pre><code>$&gt; liquigraph --changelog "${your_project}/migrations/changelog.xml" \
 			     --graph-db-uri jdbc:neo4j://localhost:7474/ \
 			     --dry-run-output-directory /tmp
 # check contents
