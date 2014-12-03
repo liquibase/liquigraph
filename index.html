@@ -18,14 +18,24 @@
       <div class="inner">
 
         <header>
-          <h1 id="headline"><a href=""><img src="images/liquigraph-logo.png" alt="Liquigraph" id="logo" title="Liquigraph: graph migrations made easy" /></a></h1>
+        	<h1 id="headline"><a href=""><img src="images/liquigraph-logo.png" alt="Liquigraph" id="logo" title="Liquigraph: graph migrations made easy" /></a></h1>
         </header>
 
         <section id="downloads" class="clearfix">
           <a href="https://github.com/fbiville/liquigraph" id="view-on-github" class="button"><span>View on GitHub</span></a>
         </section>
 
-        <hr>
+	<hr/>	
+
+        <nav id="main_summary">
+        	<ul>
+                	<li><a href="#five_minute_guide">5-minute guide</a></li>
+                      	<li><a href="#detailed_section">Detailed section</a></li>
+              	</ul>
+      	</nav>
+
+
+        <hr/>
 	
 	<section id="five_minute_guide">
 		<h1>5-minute guide</h1>
@@ -43,10 +53,32 @@
 		</div>
         	<nav>
           	  <ul>
+		    <li><a href="#core">Java API</a></li>
             	    <li><a href="#maven">Maven users</a></li>
             	    <li><a href="#shell">Shell aficionados</a></li>
           	  </ul>
         	</nav>
+		<div id="core">
+			<h2>Java API</h2>
+			<p>Save these migrations in <span class='path'>${your_project}/${root_classpath_folder}/changelog.xml</span>.</p>
+			<p>Then, running the migrations can be done as follows:</p>
+			<pre><code>import org.liquigraph.core.api.Liquigraph;
+import org.liquigraph.core.configuration.Configuration;
+import org.liquigraph.core.configuration.ConfigurationBuilder;
+
+// [...]
+
+Configuration configuration = new ConfigurationBuilder()
+				.withMasterChangelogLocation("changelog.xml")
+				.withUri("jdbc:neo4j://localhost:7474")
+				.withRunMode()
+				.build();
+
+Liquigraph liquigraph = new Liquigraph();
+liquigraph.runMigrations(configuration);
+</code></pre>
+			<p>If want to dry-run your migrations, replace <code>withRunMode()</code> by <code>withDryRunMode(Paths.get(outputDirectory))</code>, where <code>outputDirectory</code> specifies the path of the directory where <code>output.cypher</code> will be written in.</p>
+		</div>
 		<div id="maven">
 			<h2>The Maven way</h2>
 			<p>Save these migrations in <span class='path'>${your_project}/src/main/resources/changelog.xml</span>.</p>
@@ -171,7 +203,9 @@ That said, there may be situations where changesets should be run at every execu
 		<p>Bug reporting, improvement suggestion... belong <a href="https://github.com/fbiville/liquigraph/issues">here</a>.</p>
 	</section>
 
-        <footer><p>Liquigraph is maintained by <a href="https://github.com/fbiville">Florent Biville</a> &middot; Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p></footer>     
+        <footer>
+		<div id="back_top"><a href="#container">Back to top</a></div>
+		<p>Liquigraph is maintained by <a href="https://github.com/fbiville">Florent Biville</a> &middot; Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p></footer>     
       </div>
     </div>
   </body>

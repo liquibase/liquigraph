@@ -389,3 +389,8 @@ dt { font-size:13pt; padding:10px 0;}
 nav { width:50%; margin:20px auto; text-align:center;}
 nav ul { margin:0 auto;}
 nav li { display:inline-block; padding:5px; font-size:14pt; list-style-type:none;}
+
+#main_summary { margin:0 auto;}
+#main_summary a { font-size:18pt;}
+
+#back_top { position:fixed; bottom:0; right:0; padding:20px; background-color:white;}
