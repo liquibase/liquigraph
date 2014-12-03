@@ -187,12 +187,12 @@ That said, there may be situations where changesets should be run at every execu
       &lt;or&gt;
          &lt;and&gt;
             &lt;query&gt;MATCH (p:User {twitter:'@fbiville'}) RETURN NOT (p.underAge) AS result&lt;/query&gt;
-            &lt;query&gt;MATCH (p:User {twitter:'@fbiville'}) OPTIONAL MATCH (p)-[:SUFFERS_FROM]-&gt;(d:NEURO_DISORDER {name:'photosensitive epilepsy'}) RETURN (d IS NULL) AS result&lt;/query&gt;
+            &lt;query&gt;&lt;![CDATA[MATCH (p:User {twitter:'@fbiville'}) OPTIONAL MATCH (p)-[:SUFFERS_FROM]-&gt;(d:NEURO_DISORDER {name:'photosensitive epilepsy'}) RETURN (d IS NULL) AS result]]&gt;&lt;/query&gt;
          &lt;/and&gt;
-         &lt;query&gt;MATCH (p:User {twitter:'@fbiville'}) OPTIONAL MATCH (p)&lt;-[:HAS_PARENTAL_CONTROL]-(parent:User) RETURN NOT (parent IS NULL) AS RESULT&lt;/query&gt;
+         &lt;query&gt;&lt;![CDATA[MATCH (p:User {twitter:'@fbiville'}) OPTIONAL MATCH (p)&lt;-[:HAS_PARENTAL_CONTROL]-(parent:User) RETURN NOT (parent IS NULL) AS RESULT]]&gt;&lt;/query&gt;
       &lt;/or&gt;
    &lt;/precondition&gt;
-   &lt;query&gt;MATCH (p:User {twitter:'@fbiville'}) CREATE (p)-[:IS_OFFERED_FREE_PASS_TO]-&gt;(:Location {name:'Futuroscope'})&lt;/query&gt;
+   &lt;query&gt;&lt;![CDATA[MATCH (p:User {twitter:'@fbiville'}) CREATE (p)-[:IS_OFFERED_FREE_PASS_TO]-&gt;(:Location {name:'Futuroscope'})]]&gt;&lt;/query&gt;
 &lt;/changeset&gt;</code></pre>
 </dd>
 		</dl>
