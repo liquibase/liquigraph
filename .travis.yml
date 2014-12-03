@@ -17,6 +17,7 @@ env:
     - NEO_VERSION=2.1.4
     - NEO_VERSION=2.1.5
     - NEO_VERSION=2.1.6
+    - NEO_VERSION=2.2.0-M01
 script: "mvn -T4 clean test -Dneo4j.version=${NEO_VERSION}"
 after_success:
   - mvn clean test jacoco:report coveralls:report
