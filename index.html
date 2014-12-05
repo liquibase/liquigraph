@@ -92,14 +92,18 @@ liquigraph.runMigrations(configuration);
         &lt;changelog&gt;changelog.xml&lt;/changelog&gt;&lt;!-- classpath location --&gt;
         &lt;jdbcUri&gt;jdbc:neo4j://localhost:7474&lt;/jdbcUri&gt;
     &lt;/configuration&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+          &lt;id&gt;run-migrations&lt;/id&gt;
+          &lt;goals&gt;
+            &lt;goal&gt;dry-run&lt;/goal&gt;
+            &lt;goal&gt;run&lt;/goal&gt;
+          &lt;/goals&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
 &lt;/plugin&gt;</code></pre>
-			<p>And then, simulate the changes:</p>
-			<pre><code class="bash"># check Neo4j is started, and then
-$&gt; mvn liquigraph:dry-run
-# prints queries that would be run
-$&gt; less target/output.cypher</code></pre>
 			<p>And finally, run:</p>
-			<pre><code class="bash">$&gt; mvn liquigraph:run</code></pre>
+			<pre><code class="bash">$&gt; mvn clean package</code></pre>
 			<p>Full documentation is <a href="http://fbiville.github.io/liquigraph/maven-plugin/plugin-info.html">here</a>.
 		</div>
 		<div id="shell">
