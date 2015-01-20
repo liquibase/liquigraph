@@ -51,30 +51,4 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>release-script</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.3.2</version>
-                        <executions>
-                            <execution>
-                                <id>generate-executable</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                                <configuration>
-                                    <executable>${basedir}/releases/package.sh</executable>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
