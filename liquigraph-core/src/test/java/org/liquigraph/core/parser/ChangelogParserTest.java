@@ -38,7 +38,6 @@ public class ChangelogParserTest {
     }
 
     @Test
-    @Ignore("not supported atm")
     public void parses_changelog_of_changelogs() {
         Collection<Changeset> changesets = parser.parse(classLoader, "changelog-of-changelogs.xml");
 
@@ -46,7 +45,8 @@ public class ChangelogParserTest {
             .extracting("author", "id", "query")
             .containsExactly(
                 tuple("fbiville", "first-changelog", "MATCH n RETURN n"),
-                tuple("team", "second-changelog", "MATCH m RETURN m")
+                tuple("team", "second-changelog", "MATCH m RETURN m"),
+                tuple("company", "third-changelog", "MATCH l RETURN l")
             );
     }
 
