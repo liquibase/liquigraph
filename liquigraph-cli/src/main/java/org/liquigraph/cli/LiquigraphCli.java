@@ -7,6 +7,7 @@ import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -110,7 +111,11 @@ public class LiquigraphCli {
     }
 
     private static String parentFolder(String changelog) {
-        return new File(changelog).getParent();
+        try {
+            return new File(changelog).getCanonicalFile().getParent();
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     private static Collection<String> executionContexts(String executionContexts) {
