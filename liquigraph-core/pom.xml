@@ -64,6 +64,21 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>with-neo4j-io</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.neo4j</groupId>
+                    <artifactId>neo4j-io</artifactId>
+                    <version>${neo4j.version}</version>
+                    <type>test-jar</type>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
     <repositories>
         <repository>
             <id>neo4j-release-repository</id>
