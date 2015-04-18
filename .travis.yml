@@ -17,6 +17,12 @@ env:
     - NEO_VERSION=2.1.4
     - NEO_VERSION=2.1.5
     - NEO_VERSION=2.1.6
-script: "mvn -T4 clean test -Dneo4j.version=${NEO_VERSION}"
+    - NEO_VERSION=2.1.7
+    - NEO_VERSION=2.1.8
+    - NEO_VERSION=2.2.0
+      EXTRA_PROFILES=-Pwith-neo4j-io
+    - NEO_VERSION=2.2.1
+      EXTRA_PROFILES=-Pwith-neo4j-io
+script: "mvn -T4 clean test -Dneo4j.version=${NEO_VERSION} ${EXTRA_PROFILES}"
 after_success:
   - mvn clean test jacoco:report coveralls:report
