@@ -30,11 +30,11 @@ public class ConfigurationBuilderTest {
     @Test
     public void fails_on_non_existing_changelog() {
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage("'masterChangelog' points to a non-existing location: /non-existing.xml");
+        thrown.expectMessage("'masterChangelog' points to a non-existing location: changelog/non-existing.xml");
 
         new ConfigurationBuilder()
             .withUri("http://localhost:7474/db/data")
-            .withMasterChangelogLocation("/non-existing.xml")
+            .withMasterChangelogLocation("changelog/non-existing.xml")
             .build();
     }
 
@@ -44,7 +44,7 @@ public class ConfigurationBuilderTest {
         thrown.expectMessage("'uri' should not be null");
 
         new ConfigurationBuilder()
-            .withMasterChangelogLocation("/changelog.xml")
+            .withMasterChangelogLocation("changelog/changelog.xml")
             .build();
     }
 
@@ -60,7 +60,7 @@ public class ConfigurationBuilderTest {
         );
 
         new ConfigurationBuilder()
-            .withMasterChangelogLocation("/changelog.xml")
+            .withMasterChangelogLocation("changelog/changelog.xml")
             .withUri("ssh://sorry@buddy")
             .build();
     }
@@ -83,7 +83,7 @@ public class ConfigurationBuilderTest {
         thrown.expectMessage(format("<%s> is not a directory", path.toString()));
 
         new ConfigurationBuilder()
-                    .withMasterChangelogLocation("/changelog.xml")
+                    .withMasterChangelogLocation("changelog/changelog.xml")
                     .withUri("file:///sorry@buddy")
                     .withDryRunMode(path)
                     .build();
@@ -99,7 +99,7 @@ public class ConfigurationBuilderTest {
         thrown.expectMessage(format("<%s> must be writable", path.toString()));
 
         new ConfigurationBuilder()
-                    .withMasterChangelogLocation("/changelog.xml")
+                    .withMasterChangelogLocation("changelog/changelog.xml")
                     .withUri("http:///sorry@buddy")
                     .withDryRunMode(path)
                     .build();

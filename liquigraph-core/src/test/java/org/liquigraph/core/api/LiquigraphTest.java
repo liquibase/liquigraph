@@ -21,7 +21,7 @@ public class LiquigraphTest {
         liquigraph.runMigrations(
                 new ConfigurationBuilder()
                         .withRunMode()
-                        .withMasterChangelogLocation("changelog-with-1-node.xml")
+                        .withMasterChangelogLocation("changelog/changelog-with-1-node.xml")
                         .withUri(graph.uri())
                         .build()
         );

@@ -4,8 +4,8 @@ import com.google.common.base.Joiner;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.parser.ChangelogParser;
-import org.liquigraph.core.validation.DeclaredChangesetValidator;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
+import org.liquigraph.core.validation.XmlSchemaValidator;
 import org.liquigraph.core.writer.*;
 
 import java.sql.Connection;
@@ -19,7 +19,7 @@ class MigrationRunner {
     private final ChangelogDiffMaker changelogDiffMaker;
     private final PreconditionExecutor preconditionExecutor;
     private final PreconditionPrinter preconditionPrinter;
-    private final DeclaredChangesetValidator declaredChangesetValidator;
+    private final XmlSchemaValidator xmlSchemaValidator;
     private final PersistedChangesetValidator persistedChangesetValidator;
 
     public MigrationRunner(GraphJdbcConnector connector,
@@ -28,7 +28,7 @@ class MigrationRunner {
                            ChangelogDiffMaker changelogDiffMaker,
                            PreconditionExecutor preconditionExecutor,
                            PreconditionPrinter preconditionPrinter,
-                           DeclaredChangesetValidator declaredChangesetValidator,
+                           XmlSchemaValidator xmlSchemaValidator,
                            PersistedChangesetValidator persistedChangesetValidator) {
 
         this.connector = connector;
@@ -37,7 +37,7 @@ class MigrationRunner {
         this.changelogDiffMaker = changelogDiffMaker;
         this.preconditionExecutor = preconditionExecutor;
         this.preconditionPrinter = preconditionPrinter;
-        this.declaredChangesetValidator = declaredChangesetValidator;
+        this.xmlSchemaValidator = xmlSchemaValidator;
         this.persistedChangesetValidator = persistedChangesetValidator;
     }
 
@@ -54,16 +54,13 @@ class MigrationRunner {
             declaredChangesets,
             persistedChangesets
         );
+
         writeDiff(configuration, connection, changelogsToInsert);
     }
 
     private Collection<Changeset> parseChangesets(ClassLoader classLoader, String masterChangelog) {
-        Collection<Changeset> declaredChangesets = changelogParser.parse(classLoader, masterChangelog);
-        Collection<String> errors = declaredChangesetValidator.validate(declaredChangesets);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(formatErrorMessage(errors));
-        }
-        return declaredChangesets;
+
+        return changelogParser.parse(classLoader, masterChangelog);
     }
 
     private Collection<Changeset> readPersistedChangesets(Collection<Changeset> declaredChangesets, Connection graphDatabase) {

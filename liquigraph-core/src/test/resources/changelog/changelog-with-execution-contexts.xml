@@ -6,7 +6,7 @@
     <changeset id="second-changelog" author="team" contexts="baz">
         <query><![CDATA[MATCH m RETURN m]]></query>
     </changeset>
-    <changeset id="second-changelog" author="team">
+    <changeset id="third-changelog" author="team">
         <query><![CDATA[MATCH m RETURN m]]></query>
     </changeset>
 </changelog>

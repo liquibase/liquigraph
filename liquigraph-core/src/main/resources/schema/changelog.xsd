@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="QueryType">
+        <xs:restriction base="xs:string" />
+    </xs:simpleType>
+
+    <xs:complexType name="PreconditionChildType">
+        <xs:sequence>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="and" type="PreconditionChildType" minOccurs="0" />
+                <xs:element name="or" type="PreconditionChildType" minOccurs="0" />
+                <xs:element name="query" type="QueryType" minOccurs="0" />
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PreconditionType">
+        <xs:sequence>
+            <xs:choice minOccurs="1" maxOccurs="1">
+                <xs:element name="and" type="PreconditionChildType" minOccurs="0" />
+                <xs:element name="or" type="PreconditionChildType" minOccurs="0" />
+                <xs:element name="query" type="QueryType" minOccurs="0" />
+            </xs:choice>
+        </xs:sequence>
+
+        <xs:attribute name="if-not-met" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="ImportType">
+        <xs:attribute name="resource" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="ChangesetType">
+        <xs:sequence>
+            <xs:element name="precondition" type="PreconditionType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="query" type="QueryType" minOccurs="1" maxOccurs="1" />
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string" use="required" />
+        <xs:attribute name="author" type="xs:string" use="required" />
+        <xs:attribute name="contexts" type="xs:string" use="optional" />
+        <xs:attribute name="run-always" type="xs:boolean" use="optional" />
+        <xs:attribute name="run-on-change" type="xs:boolean" use="optional" />
+    </xs:complexType>
+
+    <xs:element name="changelog">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="import" type="ImportType" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="changeset" type="ChangesetType" minOccurs="0" maxOccurs="unbounded" />
+            </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="unique_id">
+            <xs:selector xpath="changeset" />
+            <xs:field xpath="@id" />
+        </xs:unique>
+    </xs:element>
+</xs:schema>

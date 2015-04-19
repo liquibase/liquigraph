@@ -16,7 +16,7 @@ public class MandatoryOptionValidatorTest {
     public void fails_on_invalid_jdbc_uri() {
         Collection<String> errors = validator.validate(
             classLoader,
-            "changelog.xml",
+            "changelog/changelog.xml",
             "foo"
         );
 
@@ -33,7 +33,7 @@ public class MandatoryOptionValidatorTest {
     public void fails_on_incomplete_graph_instance_configuration() {
         Collection<String> errors = validator.validate(
             classLoader,
-            "changelog.xml",
+            "changelog/changelog.xml",
             null
         );
 

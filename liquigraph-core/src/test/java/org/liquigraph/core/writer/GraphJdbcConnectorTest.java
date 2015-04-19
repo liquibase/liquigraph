@@ -23,7 +23,7 @@ public class GraphJdbcConnectorTest {
     public void instantiates_a_local_graph_database() {
         Connection connection = connector.connect(new ConfigurationBuilder()
                 .withRunMode()
-                .withMasterChangelogLocation("changelog.xml")
+                .withMasterChangelogLocation("changelog/changelog.xml")
                 .withUri("jdbc:neo4j:mem")
                 .build()
         );

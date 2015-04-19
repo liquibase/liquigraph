@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changelog>
+    <changeset author="fbiville" id="first-changelog">
+    </changeset>
+    <changeset author="fbiville" id="second-changelog">
+        <query><![CDATA[MATCH m RETURN m]]></query>
+    </changeset>
+</changelog>

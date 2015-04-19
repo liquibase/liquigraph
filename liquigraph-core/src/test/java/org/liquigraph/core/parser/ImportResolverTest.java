@@ -23,7 +23,7 @@ public class ImportResolverTest {
     @Test
     public void yields_same_document_when_no_imports_are_defined() throws Exception {
         Node root = resolver.resolveImports(
-            "changelog.xml",
+            "changelog/changelog.xml",
             classLoader
         );
 
@@ -42,7 +42,7 @@ public class ImportResolverTest {
     @Test
     public void resolves_1_level_of_imports() throws Exception {
         Node root = resolver.resolveImports(
-            "includes/included.xml",
+            "changelog/includes/included.xml",
             classLoader
         );
 
@@ -64,7 +64,7 @@ public class ImportResolverTest {
     @Test
     public void resolves_any_level_of_imports() throws Exception {
         Node root = resolver.resolveImports(
-            "includes/deeply-nested-changelog.xml",
+            "changelog/includes/deeply-nested-changelog.xml",
             classLoader
         );
 

@@ -4,7 +4,7 @@ import org.w3c.dom.Node;
 
 import java.io.InputStream;
 
-class ChangelogPreprocessor {
+public class ChangelogPreprocessor {
 
     private final ImportResolver resolver;
 

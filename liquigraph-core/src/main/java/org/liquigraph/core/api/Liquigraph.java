@@ -2,8 +2,10 @@ package org.liquigraph.core.api;
 
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.parser.ChangelogParser;
-import org.liquigraph.core.validation.DeclaredChangesetValidator;
+import org.liquigraph.core.parser.ChangelogPreprocessor;
+import org.liquigraph.core.parser.ImportResolver;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
+import org.liquigraph.core.validation.XmlSchemaValidator;
 import org.liquigraph.core.writer.ChangelogReader;
 import org.liquigraph.core.writer.GraphJdbcConnector;
 import org.liquigraph.core.writer.PreconditionExecutor;
@@ -19,12 +21,12 @@ public final class Liquigraph {
     public Liquigraph() {
         migrationRunner = new MigrationRunner(
             new GraphJdbcConnector(),
-            new ChangelogParser(),
+            new ChangelogParser(new XmlSchemaValidator(), new ChangelogPreprocessor(new ImportResolver())),
             new ChangelogReader(),
             new ChangelogDiffMaker(),
             new PreconditionExecutor(),
             new PreconditionPrinter(),
-            new DeclaredChangesetValidator(),
+            new XmlSchemaValidator(),
             new PersistedChangesetValidator()
         );
     }
