@@ -9,13 +9,8 @@
     </parent>
 
     <artifactId>liquigraph-core</artifactId>
-    <packaging>jar</packaging>
-
     <name>liquigraph-core</name>
-
-    <properties>
-        <neo4j.version>2.0.3</neo4j.version>
-    </properties>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
