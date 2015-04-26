@@ -19,7 +19,6 @@ class MigrationRunner {
     private final ChangelogDiffMaker changelogDiffMaker;
     private final PreconditionExecutor preconditionExecutor;
     private final PreconditionPrinter preconditionPrinter;
-    private final XmlSchemaValidator xmlSchemaValidator;
     private final PersistedChangesetValidator persistedChangesetValidator;
 
     public MigrationRunner(GraphJdbcConnector connector,
@@ -28,7 +27,6 @@ class MigrationRunner {
                            ChangelogDiffMaker changelogDiffMaker,
                            PreconditionExecutor preconditionExecutor,
                            PreconditionPrinter preconditionPrinter,
-                           XmlSchemaValidator xmlSchemaValidator,
                            PersistedChangesetValidator persistedChangesetValidator) {
 
         this.connector = connector;
@@ -37,29 +35,25 @@ class MigrationRunner {
         this.changelogDiffMaker = changelogDiffMaker;
         this.preconditionExecutor = preconditionExecutor;
         this.preconditionPrinter = preconditionPrinter;
-        this.xmlSchemaValidator = xmlSchemaValidator;
         this.persistedChangesetValidator = persistedChangesetValidator;
     }
 
-
-
     public void runMigrations(Configuration configuration) {
         Collection<Changeset> declaredChangesets = parseChangesets(configuration.classLoader(), configuration.masterChangelog());
-
         Connection connection = connector.connect(configuration);
         Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, connection);
 
         Collection<Changeset> changelogsToInsert = changelogDiffMaker.computeChangesetsToInsert(
-            configuration.executionContexts(),
-            declaredChangesets,
-            persistedChangesets
+                configuration.executionContexts(),
+                declaredChangesets,
+                persistedChangesets
         );
 
         writeDiff(configuration, connection, changelogsToInsert);
+
     }
 
     private Collection<Changeset> parseChangesets(ClassLoader classLoader, String masterChangelog) {
-
         return changelogParser.parse(classLoader, masterChangelog);
     }
 
@@ -74,9 +68,9 @@ class MigrationRunner {
 
     private void writeDiff(Configuration configuration, Connection connection, Collection<Changeset> changelogsToInsert) {
         ChangelogWriter changelogWriter = configuration.resolveWriter(
-            connection,
-            preconditionExecutor,
-            preconditionPrinter
+                connection,
+                preconditionExecutor,
+                preconditionPrinter
         );
         changelogWriter.write(changelogsToInsert);
     }
@@ -85,4 +79,5 @@ class MigrationRunner {
         String separator = "\n\t";
         return separator + Joiner.on(separator).join(errors);
     }
+
 }
