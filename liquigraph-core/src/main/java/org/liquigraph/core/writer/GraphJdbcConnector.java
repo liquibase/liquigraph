@@ -13,17 +13,28 @@ public class GraphJdbcConnector {
     public final Connection connect(Configuration configuration) {
         try {
             Class.forName("org.neo4j.jdbc.Driver");
-            Connection connection = DriverManager.getConnection(configuration.uri());
-            Optional<String> username = configuration.username();
-            if (username.isPresent()) {
-                connection.setClientInfo("user", username.get());
-                connection.setClientInfo("password", configuration.password().get());
-            }
+            Connection connection = DriverManager.getConnection(makeUri(configuration));
             connection.setAutoCommit(false);
             return connection;
         } catch (ClassNotFoundException | SQLException e) {
             throw Throwables.propagate(e);
         }
     }
+
+  private String makeUri(Configuration configuration) {
+    Optional<String> username = configuration.username();
+    if (!username.isPresent()) {
+      return configuration.uri();
+    }
+    return authenticatedUri(configuration);
+  }
+
+  private String authenticatedUri(Configuration configuration) {
+    String uri = configuration.uri();
+    String firstDelimiter = uri.contains("?") ? "," : "?";
+    return uri
+      + firstDelimiter + "user=" + configuration.username().get()
+      + ",password=" + configuration.password().or("");
+  }
 
 }
