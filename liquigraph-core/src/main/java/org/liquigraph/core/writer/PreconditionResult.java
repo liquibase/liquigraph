@@ -4,6 +4,8 @@ import org.liquigraph.core.model.PreconditionErrorPolicy;
 
 class PreconditionResult {
 
+    public static final PreconditionResult NO_PRECONDITION = new PreconditionResult(null, true);
+
     private final PreconditionErrorPolicy errorPolicy;
     private final boolean executedSuccessfully;
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changelog>
+    <changeset id="initial-constraint" author="florent">
+        <precondition if-not-met="FAIL">
+            <query>
+                OPTIONAL MATCH (f1:Foo)
+                WITH COALESCE(COLLECT(f1.bar),[]) AS all
+                OPTIONAL MATCH (f2:Foo)
+                WITH all, COALESCE(COLLECT(DISTINCT f2.bar),[]) AS uniq
+                RETURN (LENGTH(all)= LENGTH(uniq)) AS result
+            </query>
+        </precondition>
+        <query>CREATE CONSTRAINT ON (foo:Foo) ASSERT foo.bar IS UNIQUE</query>
+    </changeset>
+    <changeset id="insert-foo" author="florent">
+        <precondition if-not-met="FAIL">
+            <query>RETURN true AS result</query>
+        </precondition>
+        <query>CREATE (:Foo {bar: 123})</query>
+    </changeset>
+</changelog>

@@ -5,5 +5,5 @@ import javax.xml.bind.annotation.XmlEnum;
 @XmlEnum
 public enum PreconditionErrorPolicy {
 
-    CONTINUE, MARK_AS_EXECUTED, FAIL;
+    CONTINUE, MARK_AS_EXECUTED, FAIL
 }

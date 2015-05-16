@@ -55,4 +55,44 @@ public class LiquigraphTest {
         }
     }
 
+    @Test
+    public void runs_migrations_with_schema_changes() throws SQLException {
+        liquigraph.runMigrations(
+            new ConfigurationBuilder()
+                .withRunMode()
+                .withMasterChangelogLocation("schema/schema-changelog.xml")
+                .withUri(graph.uri())
+                .build()
+        );
+
+        try (Connection connection = graph.jdbcConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
+
+            assertThat(resultSet.next()).isTrue();
+            assertThat(resultSet.next()).isFalse();
+            connection.commit();
+        }
+    }
+
+    @Test
+    public void runs_migrations_with_schema_changes_and_preconditions() throws SQLException {
+        liquigraph.runMigrations(
+            new ConfigurationBuilder()
+                .withRunMode()
+                .withMasterChangelogLocation("schema/schema-preconditions-changelog.xml")
+                .withUri(graph.uri())
+                .build()
+        );
+
+        try (Connection connection = graph.jdbcConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
+
+            assertThat(resultSet.next()).isTrue();
+            assertThat(resultSet.next()).isFalse();
+            connection.commit();
+        }
+    }
+
 }

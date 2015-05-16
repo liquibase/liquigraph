@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<changelog>
+    <changeset id="initial-constraint" author="florent">
+        <query>CREATE CONSTRAINT ON (foo:Foo) ASSERT foo.bar IS UNIQUE</query>
+    </changeset>
+    <changeset id="insert-foo" author="florent">
+        <query>CREATE (:Foo {bar: 123})</query>
+    </changeset>
+</changelog>
