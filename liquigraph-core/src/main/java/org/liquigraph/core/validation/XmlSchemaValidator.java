@@ -1,15 +1,9 @@
 package org.liquigraph.core.validation;
 
-import org.liquigraph.core.model.Changelog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -22,8 +16,6 @@ import java.util.Collection;
 import static java.lang.String.format;
 
 public class XmlSchemaValidator {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(XmlSchemaValidator.class);
 
     private final Schema schema;
 

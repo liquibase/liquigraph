@@ -3,13 +3,13 @@ package org.liquigraph.core.writer;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import org.liquigraph.core.model.Changeset;
-import org.liquigraph.core.model.Precondition;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.liquigraph.core.model.Changeset;
+import org.liquigraph.core.model.Precondition;
 
 import java.io.File;
 import java.io.IOException;

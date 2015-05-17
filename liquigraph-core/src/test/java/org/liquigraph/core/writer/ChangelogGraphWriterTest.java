@@ -1,15 +1,15 @@
 package org.liquigraph.core.writer;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.liquigraph.core.exception.PreconditionNotMetException;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
 import org.liquigraph.core.model.SimpleQuery;
 import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Node;
 
@@ -18,8 +18,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.liquigraph.core.model.Checksums.checksum;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.liquigraph.core.model.Checksums.checksum;
 
 public class ChangelogGraphWriterTest {
 

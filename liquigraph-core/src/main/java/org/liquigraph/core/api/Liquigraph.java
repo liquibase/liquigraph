@@ -6,7 +6,7 @@ import org.liquigraph.core.parser.ChangelogPreprocessor;
 import org.liquigraph.core.parser.ImportResolver;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
 import org.liquigraph.core.validation.XmlSchemaValidator;
-import org.liquigraph.core.writer.ChangelogReader;
+import org.liquigraph.core.writer.ChangelogGraphReader;
 import org.liquigraph.core.writer.GraphJdbcConnector;
 import org.liquigraph.core.writer.PreconditionExecutor;
 import org.liquigraph.core.writer.PreconditionPrinter;
@@ -22,7 +22,7 @@ public final class Liquigraph {
         migrationRunner = new MigrationRunner(
             new GraphJdbcConnector(),
             new ChangelogParser(new XmlSchemaValidator(), new ChangelogPreprocessor(new ImportResolver())),
-            new ChangelogReader(),
+            new ChangelogGraphReader(),
             new ChangelogDiffMaker(),
             new PreconditionExecutor(),
             new PreconditionPrinter(),

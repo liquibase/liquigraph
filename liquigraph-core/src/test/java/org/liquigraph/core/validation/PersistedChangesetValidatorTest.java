@@ -1,15 +1,15 @@
 package org.liquigraph.core.validation;
 
 import com.google.common.collect.Lists;
-import org.liquigraph.core.model.Changeset;
 import org.junit.Test;
+import org.liquigraph.core.model.Changeset;
 
 import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.liquigraph.core.model.Checksums.checksum;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.liquigraph.core.model.Checksums.checksum;
 
 public class PersistedChangesetValidatorTest {
 

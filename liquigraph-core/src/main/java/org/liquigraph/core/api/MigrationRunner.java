@@ -15,7 +15,7 @@ class MigrationRunner {
 
     private final GraphJdbcConnector connector;
     private final ChangelogParser changelogParser;
-    private final ChangelogReader changelogReader;
+    private final ChangelogGraphReader changelogReader;
     private final ChangelogDiffMaker changelogDiffMaker;
     private final PreconditionExecutor preconditionExecutor;
     private final PreconditionPrinter preconditionPrinter;
@@ -24,7 +24,7 @@ class MigrationRunner {
 
     public MigrationRunner(GraphJdbcConnector connector,
                            ChangelogParser changelogParser,
-                           ChangelogReader changelogReader,
+                           ChangelogGraphReader changelogGraphReader,
                            ChangelogDiffMaker changelogDiffMaker,
                            PreconditionExecutor preconditionExecutor,
                            PreconditionPrinter preconditionPrinter,
@@ -33,7 +33,7 @@ class MigrationRunner {
 
         this.connector = connector;
         this.changelogParser = changelogParser;
-        this.changelogReader = changelogReader;
+        this.changelogReader = changelogGraphReader;
         this.changelogDiffMaker = changelogDiffMaker;
         this.preconditionExecutor = preconditionExecutor;
         this.preconditionPrinter = preconditionPrinter;

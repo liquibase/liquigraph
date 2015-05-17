@@ -2,8 +2,6 @@ package org.liquigraph.core.parser;
 
 import org.w3c.dom.Node;
 
-import java.io.InputStream;
-
 public class ChangelogPreprocessor {
 
     private final ImportResolver resolver;

@@ -14,7 +14,7 @@ import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newLinkedList;
 import static java.lang.String.format;
 
-public class ChangelogReader {
+public class ChangelogGraphReader {
 
     private static final String MATCH_CHANGESETS =
         "MATCH (changelog:__LiquigraphChangelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
@@ -36,6 +36,7 @@ public class ChangelogReader {
         return changesets;
     }
 
+    @SuppressWarnings("unchecked")
     private Changeset mapLine(Object line) throws SQLException {
         if (line instanceof Node) {
             return changeset((Node) line);

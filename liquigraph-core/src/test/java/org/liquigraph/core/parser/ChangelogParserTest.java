@@ -7,24 +7,32 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.core.model.*;
 import org.liquigraph.core.validation.XmlSchemaValidator;
+import org.w3c.dom.Node;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.fail;
-import static org.liquigraph.core.model.PreconditionErrorPolicy.FAIL;
-import static org.liquigraph.core.model.PreconditionErrorPolicy.MARK_AS_EXECUTED;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.liquigraph.core.model.PreconditionErrorPolicy.FAIL;
+import static org.liquigraph.core.model.PreconditionErrorPolicy.MARK_AS_EXECUTED;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ChangelogParserTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private ChangelogParser parser = new ChangelogParser(new XmlSchemaValidator(), new ChangelogPreprocessor(new ImportResolver()));
+    private XmlSchemaValidator validator = new XmlSchemaValidator();
+    private final ChangelogPreprocessor preprocessor = new ChangelogPreprocessor(new ImportResolver());
+    private final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    private final ChangelogParser parser = new ChangelogParser(validator, preprocessor);
 
     @Test
     public void parses_single_changelog() {
@@ -52,6 +60,7 @@ public class ChangelogParserTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void parses_changelog_with_execution_contexts() {
         Collection<Changeset> changesets = parser.parse(classLoader, "changelog/changelog-with-execution-contexts.xml");
 
@@ -107,6 +116,26 @@ public class ChangelogParserTest {
                 OrQuery.class,
                 OrQuery.class
             );
+    }
+
+    @Test
+    public void forwards_validation_errors() throws Exception {
+        given_validation_errors(asList("error1", "error2"));
+
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(String.format("%n\terror1%n\terror2"));
+
+        parser.parse(classLoader, "changelog/changelog.xml");
+    }
+
+    // fragile: uses reflection
+    private void given_validation_errors(List<String> errors) throws Exception {
+        XmlSchemaValidator validator = mock(XmlSchemaValidator.class);
+        when(validator.validateSchema(any(Node.class))).thenReturn(errors);
+
+        Field field = ChangelogParser.class.getDeclaredField("validator");
+        field.setAccessible(true);
+        field.set(parser, validator);
     }
 
     private Precondition precondition(PreconditionErrorPolicy errorPolicy, String query) {

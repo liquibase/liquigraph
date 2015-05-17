@@ -26,6 +26,7 @@ public class ProjectClassLoader {
         );
     }
 
+    @SuppressWarnings("unchecked")
     private static List<String> compileClassPathElements(MavenProject project) throws DependencyResolutionRequiredException {
         return newArrayList(project.getCompileClasspathElements());
     }

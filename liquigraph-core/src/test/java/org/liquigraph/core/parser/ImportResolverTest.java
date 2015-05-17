@@ -40,6 +40,25 @@ public class ImportResolverTest {
     }
 
     @Test
+    public void yields_document_when_import_in_same_directory() throws Exception {
+        Node root = resolver.resolveImports(
+            "changelog/changelog-same-level-import.xml",
+            classLoader
+        );
+
+        assertThat(contents(root)).isXmlEqualTo(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<changelog>\n" +
+            "    <changeset author=\"fbiville\" id=\"first-changelog\">\n" +
+            "        <query><![CDATA[MATCH n RETURN n]]></query>\n" +
+            "    </changeset>\n" +
+            "    <changeset author=\"team\" id=\"second-changelog\">\n" +
+            "        <query><![CDATA[MATCH m RETURN m]]></query>\n" +
+            "    </changeset>\n" +
+            "</changelog>");
+    }
+
+    @Test
     public void resolves_1_level_of_imports() throws Exception {
         Node root = resolver.resolveImports(
             "changelog/includes/included.xml",

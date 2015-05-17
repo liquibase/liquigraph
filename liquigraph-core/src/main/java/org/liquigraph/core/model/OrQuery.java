@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.liquigraph.core.model.CompoundQueries.checkQueryListState;
 import static java.lang.String.format;
+import static org.liquigraph.core.model.CompoundQueries.checkQueryListState;
 
 @XmlSeeAlso(PreconditionQuery.class)
 @XmlRootElement(name = "or")

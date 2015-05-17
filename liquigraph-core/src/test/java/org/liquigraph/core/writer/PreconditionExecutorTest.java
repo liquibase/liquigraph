@@ -2,12 +2,12 @@ package org.liquigraph.core.writer;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import org.liquigraph.core.exception.PreconditionException;
-import org.liquigraph.core.model.*;
-import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.liquigraph.core.exception.PreconditionException;
+import org.liquigraph.core.model.*;
+import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 
 import java.sql.Connection;
 import java.sql.SQLException;

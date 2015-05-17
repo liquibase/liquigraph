@@ -1,26 +1,26 @@
 package org.liquigraph.core.writer;
 
-import org.liquigraph.core.model.Changeset;
-import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.liquigraph.core.model.Changeset;
+import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 
-import static org.liquigraph.core.model.Checksums.checksum;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.liquigraph.core.model.Checksums.checksum;
 
-public class ChangelogReaderTest {
+public class ChangelogGraphReaderTest {
 
     @Rule
     public EmbeddedGraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neotest");
 
-    private ChangelogReader reader = new ChangelogReader();
+    private ChangelogGraphReader reader = new ChangelogGraphReader();
 
     @Test
     public void reads_changelog_from_graph_database() throws SQLException {

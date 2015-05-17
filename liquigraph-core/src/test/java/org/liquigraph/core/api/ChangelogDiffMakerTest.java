@@ -1,14 +1,14 @@
 package org.liquigraph.core.api;
 
+import org.junit.Test;
 import org.liquigraph.core.configuration.ExecutionContexts;
 import org.liquigraph.core.model.Changeset;
-import org.junit.Test;
 
 import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.liquigraph.core.configuration.ExecutionContexts.DEFAULT_CONTEXT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.liquigraph.core.configuration.ExecutionContexts.DEFAULT_CONTEXT;
 
 public class ChangelogDiffMakerTest {
 

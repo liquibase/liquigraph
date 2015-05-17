@@ -1,5 +1,6 @@
 package org.liquigraph.core.api;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import org.liquigraph.core.configuration.ExecutionContexts;
 import org.liquigraph.core.model.Changeset;
@@ -22,22 +23,25 @@ class ChangelogDiffMaker {
         return diff(executionContexts, declaredChangesets, persistedChangesets);
     }
 
-    private Collection<Changeset> diff(ExecutionContexts executionContexts,
+    private static Collection<Changeset> diff(ExecutionContexts executionContexts,
                                        Collection<Changeset> declaredChangesets,
                                        Collection<Changeset> persistedChangesets) {
 
         return from(declaredChangesets)
             .filter(ChangesetMatchAnyExecutionContexts.BY_ANY_EXECUTION_CONTEXT(executionContexts))
-            .filter(
-                or(
-                    not(in(persistedChangesets)),
-                    Predicates.and(
-                        ChangesetRunOnChange.RUN_ON_CHANGE,
-                        ChangesetChecksumHasChanged.CHECKSUM_HAS_CHANGED(persistedChangesets)
-                    ),
-                    RUN_ALWAYS
-                )
-            )
+            .filter(executionFilter(persistedChangesets))
             .toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Predicate<Changeset> executionFilter(Collection<Changeset> persistedChangesets) {
+        return or(
+            not(in(persistedChangesets)),
+            Predicates.and(
+                ChangesetRunOnChange.RUN_ON_CHANGE,
+                ChangesetChecksumHasChanged.CHECKSUM_HAS_CHANGED(persistedChangesets)
+            ),
+            RUN_ALWAYS
+        );
     }
 }

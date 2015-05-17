@@ -1,9 +1,9 @@
 package org.liquigraph.core.api;
 
-import org.liquigraph.core.configuration.ConfigurationBuilder;
-import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.liquigraph.core.configuration.ConfigurationBuilder;
+import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 
 import java.sql.*;
 
