@@ -3,7 +3,6 @@ package org.liquigraph.core.writer;
 import org.liquigraph.core.exception.PreconditionNotMetException;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.Precondition;
-import org.liquigraph.core.model.PreconditionErrorPolicy;
 
 import java.sql.*;
 import java.util.Collection;
@@ -12,7 +11,7 @@ import java.util.Map;
 
 import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
-import static org.liquigraph.core.model.PreconditionErrorPolicy.MARK_AS_EXECUTED;
+import static org.liquigraph.core.writer.PreconditionResult.NO_PRECONDITION;
 
 public class ChangelogGraphWriter implements ChangelogWriter {
 
@@ -65,8 +64,17 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         try (Statement statement = connection.createStatement()) {
             Precondition precondition = changeset.getPrecondition();
             PreconditionResult preconditionResult = executePrecondition(precondition);
-            if (preconditionResult != null && !preconditionResult.executedSuccessfully()) {
+
+            if (preconditionResult.executedSuccessfully()) {
+                statement.execute(changeset.getQuery());
+            }
+            else {
                 switch (preconditionResult.errorPolicy()) {
+                    /*
+                     * ignore MARK_AS_EXECUTED:
+                     * the changeset should just be inserted in the history graph
+                     * without actually being executed
+                     */
                     case CONTINUE:
                         return StatementExecution.IGNORE_FAILURE;
                     case FAIL:
@@ -79,9 +87,6 @@ public class ChangelogGraphWriter implements ChangelogWriter {
                             )
                         );
                 }
-            } else if (preconditionResult == null || preconditionResult.executedSuccessfully()
-                                                  || preconditionResult.errorPolicy() == MARK_AS_EXECUTED) {
-                statement.execute(changeset.getQuery());
             }
             connection.commit();
         } catch (SQLException e) {
@@ -93,7 +98,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     private PreconditionResult executePrecondition(Precondition precondition) {
         PreconditionResult result;
         try (Statement ignored = connection.createStatement()) {
-            result = preconditionExecutor.executePrecondition(connection, precondition).orNull();
+            result = preconditionExecutor.executePrecondition(connection, precondition).or(NO_PRECONDITION);
         } catch (SQLException e) {
             throw propagate(e);
         }
