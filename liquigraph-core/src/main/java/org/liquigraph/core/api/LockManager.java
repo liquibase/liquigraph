@@ -31,9 +31,10 @@ import static java.util.concurrent.TimeUnit.MINUTES;
  */
 class LockManager {
 
-    private static final String CREATE_QUERY =   "CREATE (lock:__LiquigraphLock) SET lock.ip={0}, lock.date={1} RETURN lock";
-    private static final String FIND_QUERY =     "MATCH (lock:__LiquigraphLock) RETURN lock";
-    private static final String DELETE_QUERY =   "MATCH (lock:__LiquigraphLock) DELETE lock";
+    private static final String UNICITY_QUERY =  "CREATE CONSTRAINT ON (lock:__LiquigraphLock) ASSERT lock.name IS UNIQUE";
+    private static final String CREATE_QUERY =   "CREATE (lock:__LiquigraphLock {name:'liquigraph'}) SET lock.ip={0}, lock.date={1} RETURN lock";
+    private static final String FIND_QUERY =     "MATCH (lock:__LiquigraphLock {name:'liquigraph'}) RETURN lock";
+    private static final String DELETE_QUERY =   "MATCH (lock:__LiquigraphLock {name:'liquigraph'}) DELETE lock";
 
     private final Lock lock;
     private final Condition absentLock;
@@ -57,6 +58,7 @@ class LockManager {
                 absentLock.await();
             }
 
+            ensureUnicity(configuration);
             insertLock(configuration);
             registerDeleteLockShutDownHook(new UnlockTask(this, configuration));
 
@@ -71,15 +73,6 @@ class LockManager {
             deleteLock(configuration);
             absentLock.signal();
             lock.unlock();
-        }
-    }
-
-    void deleteLock(Configuration configuration) {
-        try {
-            executeQuery(configuration, DELETE_QUERY);
-        }
-        catch (SQLException e) {
-            throw new LockManagerException("A Cypher exception occurred when unlocking", e);
         }
     }
 
@@ -105,8 +98,25 @@ class LockManager {
         }
     }
 
+    private void ensureUnicity(Configuration configuration) {
+        try {
+            executeQuery(configuration, UNICITY_QUERY);
+        } catch (SQLException e) {
+            throw new LockManagerException("A Cypher exception occurred when ensuring lock unicity", e);
+        }
+    }
+
     private void insertLock(Configuration configuration) throws SQLException {
         executeQuery(configuration, CREATE_QUERY, Arrays.asList(ipOrDefault("127.0.0.1"),currentFormattedDate("yyyy/MM/dd HH:mm:ss")));
+    }
+
+    void deleteLock(Configuration configuration) {
+        try {
+            executeQuery(configuration, DELETE_QUERY);
+        }
+        catch (SQLException e) {
+            throw new LockManagerException("A Cypher exception occurred when unlocking", e);
+        }
     }
 
     private Map<String, Object> executeQuery(Configuration configuration, String query) throws SQLException {
@@ -115,7 +125,7 @@ class LockManager {
 
     private Map<String, Object> executeQuery(Configuration configuration, String query, List<String> args) throws SQLException {
         try (Connection connection = connector.connect(configuration);
-            PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(query)) {
             setArguments(args, statement);
             if (statement.execute()) {
                 return asMap(statement);
