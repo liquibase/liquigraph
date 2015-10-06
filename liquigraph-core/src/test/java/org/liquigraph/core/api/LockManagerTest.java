@@ -33,7 +33,7 @@ public class LockManagerTest {
     @Test
     public void ensures_only_one_execution_at_a_time() throws Exception {
         CountDownLatch startSignal = new CountDownLatch(1);
-        int threadCount = 100;
+        int threadCount = 10;
         CountDownLatch doneSignal = new CountDownLatch(threadCount);
         for (int i = 0; i < threadCount; i++) {
             new Thread(

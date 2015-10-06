@@ -59,6 +59,9 @@
                 <version>2.18.1</version>
                 <configuration>
                     <argLine>-Duser.language=en</argLine>
+		    <excludes>
+			<exclude>**/remote/*Test.java</exclude>
+		    </excludes>
                 </configuration>
             </plugin>
         </plugins>
