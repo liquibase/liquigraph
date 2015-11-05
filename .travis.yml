@@ -19,7 +19,9 @@ env:
       EXTRA_PROFILES=-Pwith-neo4j-io,with-docker
     - NEO_VERSION=2.3.0
       EXTRA_PROFILES=-Pwith-neo4j-io,with-docker
-
+cache:
+  directories:
+  - $HOME/.m2
 before_script: 
  - if [[ "${EXTRA_PROFILES}" =~ "with-docker" ]]; then docker run --detach --publish=7474:7474 --volume=$HOME/neo4j-data:/data --env=NEO4J_AUTH=neo4j/foobar neo4j/neo4j; fi
 script: "mvn -T4 clean test -Dneo4j.version=${NEO_VERSION} ${EXTRA_PROFILES}"
