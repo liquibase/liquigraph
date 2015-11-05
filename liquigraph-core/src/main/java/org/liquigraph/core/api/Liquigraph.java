@@ -17,16 +17,19 @@ import org.liquigraph.core.writer.PreconditionPrinter;
 public final class Liquigraph {
 
     private final MigrationRunner migrationRunner;
+    private final LockManager lockManager;
 
     public Liquigraph() {
+        GraphJdbcConnector connector = new GraphJdbcConnector();
+
+        lockManager = new LockManager(connector);
         migrationRunner = new MigrationRunner(
-            new GraphJdbcConnector(),
+            connector,
             new ChangelogParser(new XmlSchemaValidator(), new ChangelogPreprocessor(new ImportResolver())),
             new ChangelogGraphReader(),
             new ChangelogDiffMaker(),
             new PreconditionExecutor(),
             new PreconditionPrinter(),
-            new XmlSchemaValidator(),
             new PersistedChangesetValidator()
         );
     }
@@ -39,6 +42,11 @@ public final class Liquigraph {
      * @see org.liquigraph.core.configuration.ConfigurationBuilder to create {@link org.liquigraph.core.configuration.Configuration instances}
      */
     public void runMigrations(Configuration configuration) {
-        migrationRunner.runMigrations(configuration);
+        try {
+            MigrationTask task = new MigrationTask(migrationRunner, configuration);
+            lockManager.lockAndExecute(task, configuration);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Could not obtain lock after 1 minute", e);
+        }
     }
 }
