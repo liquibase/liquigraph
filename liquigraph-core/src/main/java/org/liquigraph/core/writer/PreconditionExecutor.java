@@ -18,16 +18,12 @@ import static java.lang.String.format;
 
 public class PreconditionExecutor {
 
-    public final Optional<PreconditionResult> executePrecondition(Connection connection, Precondition precondition) {
-        if (precondition == null) {
-            return absent();
-        }
+    public final PreconditionResult executePrecondition(Connection connection, Precondition precondition) {
         checkArgument(connection != null, "Connection should not be null");
-        PreconditionResult result = new PreconditionResult(
+        return new PreconditionResult(
             precondition.getPolicy(),
             applyPrecondition(connection, precondition.getQuery())
         );
-        return Optional.of(result);
     }
 
     private boolean applyPrecondition(Connection connection, PreconditionQuery query) {

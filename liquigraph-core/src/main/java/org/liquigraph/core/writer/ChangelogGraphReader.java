@@ -19,7 +19,7 @@ public class ChangelogGraphReader {
     private static final String MATCH_CHANGESETS =
         "MATCH (changelog:__LiquigraphChangelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
         "RETURN changeset " +
-        "ORDER BY exec.order ASC";
+        "ORDER BY exec.time ASC";
 
     public final Collection<Changeset> read(Connection connection) {
         Collection<Changeset> changesets = newLinkedList();

@@ -5,7 +5,6 @@ import com.google.common.base.Predicates;
 import org.liquigraph.core.configuration.ExecutionContexts;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.predicates.ChangesetChecksumHasChanged;
-import org.liquigraph.core.model.predicates.ChangesetMatchAnyExecutionContexts;
 import org.liquigraph.core.model.predicates.ChangesetRunOnChange;
 
 import java.util.Collection;
@@ -14,6 +13,7 @@ import static com.google.common.base.Predicates.or;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.FluentIterable.from;
+import static org.liquigraph.core.model.predicates.ChangesetMatchAnyExecutionContexts.BY_ANY_EXECUTION_CONTEXT;
 import static org.liquigraph.core.model.predicates.ChangesetRunAlways.RUN_ALWAYS;
 
 class ChangelogDiffMaker {
@@ -30,7 +30,7 @@ class ChangelogDiffMaker {
                                        Collection<Changeset> persistedChangesets) {
 
         return from(declaredChangesets)
-            .filter(ChangesetMatchAnyExecutionContexts.BY_ANY_EXECUTION_CONTEXT(executionContexts))
+            .filter(BY_ANY_EXECUTION_CONTEXT(executionContexts))
             .filter(executionFilter(persistedChangesets))
             .toList();
     }

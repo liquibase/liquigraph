@@ -63,44 +63,6 @@ public class PersistedChangesetValidatorTest {
         );
     }
 
-    @Test
-    public void fails_if_less_declared_changesets_than_persisted_ones() {
-        Collection<String> errors = validator.validate(
-            newArrayList(changeset("identifier", "author", "MATCH m RETURN m")),
-            newArrayList(
-                changeset("identifier", "author", "MATCH m RETURN m"),
-                changeset("identifier2", "author", "MATCH n RETURN n")
-            )
-        );
-
-        assertThat(errors).containsExactly(
-            "At least 1 declared changeset(s) is/are missing."
-        );
-    }
-
-    @Test
-    public void fails_if_order_of_changelogs_is_different() {
-        Collection<String> errors = validator.validate(
-            newArrayList(
-                changeset("identifier2", "author", "MATCH n RETURN n"),
-                changeset("identifier", "author", "MATCH m RETURN m")
-            ),
-            newArrayList(
-                changeset("identifier", "author", "MATCH m RETURN m"),
-                changeset("identifier2", "author", "MATCH n RETURN n")
-            )
-        );
-
-        assertThat(errors).containsExactly(
-            "Declared changeset number 1 should have\n" +
-                "\t\t - ID:\t <identifier> \n" +
-                "\t\t - Found:\t<identifier2>.",
-            "Declared changeset number 2 should have\n" +
-                "\t\t - ID:\t <identifier2> \n" +
-                "\t\t - Found:\t<identifier>."
-        );
-    }
-
     private Changeset changeset(String identifier, String author, String query, boolean runOnChange) {
         Changeset changeset = changeset(identifier, author, query);
         changeset.setRunOnChange(true);

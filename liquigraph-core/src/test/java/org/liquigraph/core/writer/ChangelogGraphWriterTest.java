@@ -38,23 +38,24 @@ public class ChangelogGraphWriterTest {
 
     @Test
     public void persists_changesets_in_graph() throws SQLException {
-
         writer.write(newArrayList(changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})")));
 
         try (Statement statement = graph.jdbcConnection().createStatement();
             ResultSet resultSet = statement.executeQuery(
                 "MATCH (node: SomeNode), (changelog:__LiquigraphChangelog)<-[execution:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
-                "RETURN execution.order AS order, changeset, node"
+                "RETURN execution.time AS time, changeset, node"
             )) {
 
             assertThat(resultSet.next()).isTrue();
 
-            assertThat(resultSet.getLong("order")).isEqualTo(1L);
+            assertThat(resultSet.getLong("time")).isGreaterThan(0);
+
             Node changeset = (Node) resultSet.getObject("changeset");
             assertThat(changeset.getProperty("id")).isEqualTo("identifier");
             assertThat(changeset.getProperty("author")).isEqualTo("fbiville");
             assertThat(changeset.getProperty("query")).isEqualTo("CREATE (n: SomeNode {text:'yeah'})");
             assertThat(changeset.getProperty("checksum")).isEqualTo(checksum("CREATE (n: SomeNode {text:'yeah'})"));
+
             Node node = (Node) resultSet.getObject("node");
             assertThat(node.getLabels()).containsExactly(DynamicLabel.label("SomeNode"));
             assertThat(node.getProperty("text")).isEqualTo("yeah");
@@ -73,12 +74,12 @@ public class ChangelogGraphWriterTest {
         try (Statement statement = graph.jdbcConnection().createStatement();
              ResultSet resultSet = statement.executeQuery(
                  "MATCH (node: SomeNode), (changelog:__LiquigraphChangelog)<-[execution:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
-                 "RETURN execution.order AS order, changeset, node"
+                 "RETURN execution.time AS time, changeset, node"
              )) {
 
             assertThat(resultSet.next()).isTrue();
 
-            assertThat(resultSet.getLong("order")).isEqualTo(1L);
+            assertThat(resultSet.getLong("time")).isGreaterThan(0);
             Node persistedChangeset = (Node) resultSet.getObject("changeset");
             assertThat(persistedChangeset.getProperty("id")).isEqualTo("identifier");
             assertThat(persistedChangeset.getProperty("author")).isEqualTo("fbiville");
@@ -132,12 +133,12 @@ public class ChangelogGraphWriterTest {
              ResultSet resultSet = transaction.executeQuery(
                  "MATCH (changelog:__LiquigraphChangelog)<-[execution:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
                  "OPTIONAL MATCH (node:SomeNode)" +
-                 "RETURN execution.order AS order, changeset, node"
+                 "RETURN execution.time AS time, changeset, node"
              )) {
 
             assertThat(resultSet.next()).isTrue();
 
-            assertThat(resultSet.getLong("order")).isEqualTo(1L);
+            assertThat(resultSet.getLong("time")).isGreaterThan(0);
             Node persistedChangeset = (Node) resultSet.getObject("changeset");
             assertThat(persistedChangeset.getProperty("id")).isEqualTo("identifier");
             assertThat(persistedChangeset.getProperty("author")).isEqualTo("fbiville");

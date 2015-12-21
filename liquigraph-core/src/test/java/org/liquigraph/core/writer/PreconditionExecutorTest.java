@@ -1,6 +1,5 @@
 package org.liquigraph.core.writer;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,22 +32,14 @@ public class PreconditionExecutorTest {
     private PreconditionExecutor executor = new PreconditionExecutor();
 
     @Test
-    public void returns_no_result_when_precondition_is_null() {
-        Optional<PreconditionResult> result = executor.executePrecondition(graphDatabaseRule.jdbcConnection(), null);
-
-        assertThat(result).isEqualTo(Optional.absent());
-    }
-
-    @Test
     public void executes_simple_precondition() throws SQLException {
         Connection connection = graphDatabaseRule.jdbcConnection();
         try (Statement ignored = connection.createStatement()) {
-            Optional<PreconditionResult> maybeResult = executor.executePrecondition(
+            PreconditionResult result = executor.executePrecondition(
                 connection,
                 simplePrecondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "RETURN true AS result")
             );
 
-            PreconditionResult result = maybeResult.get();
             assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.MARK_AS_EXECUTED);
             assertThat(result.executedSuccessfully()).isTrue();
         }
@@ -58,12 +49,11 @@ public class PreconditionExecutorTest {
     public void executes_nested_and_precondition_queries() throws SQLException {
         Connection connection = graphDatabaseRule.jdbcConnection();
         try (Statement ignored = connection.createStatement()) {
-            Optional<PreconditionResult> maybeResult = executor.executePrecondition(
+            PreconditionResult result = executor.executePrecondition(
                 connection,
                 andPrecondition(PreconditionErrorPolicy.FAIL, "RETURN true AS result", "RETURN false AS result")
             );
 
-            PreconditionResult result = maybeResult.get();
             assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.FAIL);
             assertThat(result.executedSuccessfully()).isFalse();
         }
@@ -73,12 +63,11 @@ public class PreconditionExecutorTest {
     public void executes_nested_or_precondition_queries() throws SQLException {
         Connection connection = graphDatabaseRule.jdbcConnection();
         try (Statement ignored = connection.createStatement()) {
-            Optional<PreconditionResult> maybeResult = executor.executePrecondition(
+            PreconditionResult result = executor.executePrecondition(
                 connection,
                 orPrecondition(PreconditionErrorPolicy.CONTINUE, "RETURN true AS result", "RETURN false AS result")
             );
 
-            PreconditionResult result = maybeResult.get();
             assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.CONTINUE);
             assertThat(result.executedSuccessfully()).isTrue();
         }
@@ -96,12 +85,11 @@ public class PreconditionExecutorTest {
 
         Connection connection = graphDatabaseRule.jdbcConnection();
         try (Statement ignored = connection.createStatement()) {
-            Optional<PreconditionResult> maybeResult = executor.executePrecondition(
+            PreconditionResult result = executor.executePrecondition(
                 connection,
                 precondition
             );
 
-            PreconditionResult result = maybeResult.get();
             assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.MARK_AS_EXECUTED);
             assertThat(result.executedSuccessfully()).isTrue();
         }

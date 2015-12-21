@@ -19,20 +19,15 @@ import static org.liquigraph.core.writer.PreconditionResult.NO_PRECONDITION;
 
 public class ChangelogGraphWriter implements ChangelogWriter {
 
-    private static final String LATEST_INDEX =
-        "MERGE (changelog:__LiquigraphChangelog) " +
-        "WITH changelog " +
-        "OPTIONAL MATCH (changelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(:__LiquigraphChangeset)" +
-        "RETURN COALESCE(MAX(exec.order), 0) AS lastIndex";
-
     private static final String CHANGESET_UPSERT =
-        "MATCH (changelog:__LiquigraphChangelog) " +
-        "MERGE (changelog)<-[:EXECUTED_WITHIN_CHANGELOG {order: {1}}]-(changeset:__LiquigraphChangeset {id: {2}}) " +
-        "ON MATCH SET  changeset.checksum = {3}, " +
-        "              changeset.query = {4} " +
-        "ON CREATE SET changeset.author = {5}, " +
-        "              changeset.query = {4}, " +
-        "              changeset.checksum = {3}";
+        "MERGE (changelog:__LiquigraphChangelog) " +
+        "MERGE (changelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset {id: {1}}) " +
+        "ON MATCH SET  changeset.checksum = {2}, " +
+        "              changeset.query = {3} " +
+        "ON CREATE SET changeset.checksum = {2}," +
+        "              changeset.query = {3}," +
+        "              changeset.author = {4}," +
+        "              ewc.time = timestamp()";
 
     private final Connection connection;
     private final PreconditionExecutor preconditionExecutor;
@@ -52,15 +47,12 @@ public class ChangelogGraphWriter implements ChangelogWriter {
      */
     @Override
     public void write(Collection<Changeset> changelog) {
-        long index = latestPersistedIndex(connection) + 1L;
-
         for (Changeset changeset : changelog) {
             StatementExecution statementExecution = executeStatement(changeset);
             if (statementExecution == StatementExecution.IGNORE_FAILURE) {
                 continue;
             }
-
-            insertChangeset(connection, index++, changeset);
+            insertChangeset(connection, changeset);
         }
     }
 
@@ -100,17 +92,18 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     }
 
     private PreconditionResult executePrecondition(Precondition precondition) {
-        PreconditionResult result;
+        if (precondition == null) {
+            return NO_PRECONDITION;
+        }
         try (Statement ignored = connection.createStatement()) {
-            result = preconditionExecutor.executePrecondition(connection, precondition).or(NO_PRECONDITION);
+            return preconditionExecutor.executePrecondition(connection, precondition);
         } catch (SQLException e) {
             throw propagate(e);
         }
-        return result;
     }
 
-    private void insertChangeset(Connection connection, long index, Changeset changeset) {
-        Map<Integer, Object> parameters = parameters(changeset, index);
+    private void insertChangeset(Connection connection, Changeset changeset) {
+        Map<Integer, Object> parameters = parameters(changeset);
         try (PreparedStatement statement = connection.prepareStatement(CHANGESET_UPSERT)) {
             for (Integer key : parameters.keySet()) {
                 statement.setObject(key, parameters.get(key));
@@ -122,32 +115,18 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         }
     }
 
-    private long latestPersistedIndex(Connection connection) {
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(LATEST_INDEX);
-            resultSet.next();
-            long lastIndex = resultSet.getLong("lastIndex");
-
-            connection.commit();
-            return lastIndex;
-        } catch (SQLException e) {
-            throw propagate(e);
-        }
-    }
-
-    private Map<Integer, Object> parameters(Changeset changeset, long index) {
+    private Map<Integer, Object> parameters(Changeset changeset) {
         String query = changeset.getQuery();
         String checksum = changeset.getChecksum();
         Map<Integer, Object> parameters = new HashMap<>();
-        parameters.put(1, index);
-        parameters.put(2, changeset.getId());
-        parameters.put(3, checksum);
-        parameters.put(4, query);
-        parameters.put(5, changeset.getAuthor());
+        parameters.put(1, changeset.getId());
+        parameters.put(2, checksum);
+        parameters.put(3, query);
+        parameters.put(4, changeset.getAuthor());
         return parameters;
     }
 
-    private static enum StatementExecution {
+    private enum StatementExecution {
         SUCCESS, IGNORE_FAILURE;
     }
 }

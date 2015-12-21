@@ -17,10 +17,8 @@ import static java.lang.String.format;
 public class PersistedChangesetValidator {
 
     public Collection<String> validate(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
-        Collection<String> errors = newLinkedList();
-        errors.addAll(validateChecksums(filter(declaredChangesets, not(ChangesetRunOnChange.RUN_ON_CHANGE)), persistedChangesets));
-        errors.addAll(validateOrder(declaredChangesets, persistedChangesets));
-        return errors;
+        Collection<Changeset> changesets = filter(declaredChangesets, not(ChangesetRunOnChange.RUN_ON_CHANGE));
+        return validateChecksums(changesets, persistedChangesets);
     }
 
     private Collection<String> validateChecksums(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
@@ -46,40 +44,10 @@ public class PersistedChangesetValidator {
 
     }
 
-    private Collection<String> validateOrder(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
-        Collection<String> errors = newLinkedList();
-
-        int difference = declaredChangesets.size() - persistedChangesets.size();
-        if (difference < 0) {
-            errors.add(format("At least %d declared changeset(s) is/are missing.", Math.abs(difference)));
-            return errors;
-        }
-        for (int i = 0; i < persistedChangesets.size(); i++) {
-            Changeset declared = get(declaredChangesets, i);
-            Changeset persisted = get(persistedChangesets, i);
-            String persistedId = persisted.getId();
-            String declaredId = declared.getId();
-            if (!declaredId.equals(persistedId)) {
-                errors.add(idMismatchError(i, persistedId, declaredId));
-            }
-        }
-
-        return errors;
-    }
-
     private String checksumMismatchError(Changeset declaredChangeset, Changeset persistedChangeset) {
         return format(
             "Changeset with ID <%s> has conflicted checksums.%n\t - Declared: <%s>%n\t - Persisted: <%s>.",
             declaredChangeset.getId(), declaredChangeset.getChecksum(), persistedChangeset.getChecksum()
-        );
-    }
-
-    private String idMismatchError(int i, String persistedId, String declaredId) {
-        return format(
-            "Declared changeset number %d should have%n\t\t - ID:\t <%s> %n\t\t - Found:\t<%s>.",
-            i+1,
-            persistedId,
-            declaredId
         );
     }
 
