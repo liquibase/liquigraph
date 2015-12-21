@@ -3,6 +3,6 @@
     <changeset author="fbiville" id="first-changelog">
     </changeset>
     <changeset author="fbiville" id="second-changelog">
-        <query><![CDATA[MATCH m RETURN m]]></query>
+        <query><![CDATA[MATCH (m) RETURN m]]></query>
     </changeset>
 </changelog>

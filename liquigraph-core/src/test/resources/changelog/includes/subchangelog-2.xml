@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <changelog>
     <changeset id="third-changelog" author="company">
-        <query><![CDATA[MATCH l RETURN l]]></query>
+        <query><![CDATA[MATCH (l) RETURN l]]></query>
     </changeset>
 </changelog>

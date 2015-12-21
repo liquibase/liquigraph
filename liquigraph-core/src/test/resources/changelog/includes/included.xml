@@ -2,10 +2,10 @@
 <changelog>
     <import resource="inc/subchangelog-1.xml" />
     <changeset id="first-changelog" author="fbiville">
-        <query><![CDATA[MATCH n RETURN n]]></query>
+        <query><![CDATA[MATCH (n) RETURN n]]></query>
     </changeset>
     <changeset id="second-changelog" author="team">
-        <query><![CDATA[MATCH m RETURN m]]></query>
+        <query><![CDATA[MATCH (m) RETURN m]]></query>
     </changeset>
     <import resource="subchangelog-2.xml" />
 </changelog>

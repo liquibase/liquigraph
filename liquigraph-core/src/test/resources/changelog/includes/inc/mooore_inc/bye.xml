@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <changelog>
     <changeset id="first-changelog" author="fbiville">
-        <query><![CDATA[MATCH n RETURN n]]></query>
+        <query><![CDATA[MATCH (n) RETURN n]]></query>
     </changeset>
 </changelog>

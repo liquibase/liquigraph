@@ -31,10 +31,10 @@ public class ImportResolverTest {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<changelog>\n" +
             "    <changeset author=\"fbiville\" id=\"first-changelog\">\n" +
-            "        <query><![CDATA[MATCH n RETURN n]]></query>\n" +
+            "        <query><![CDATA[MATCH (n) RETURN n]]></query>\n" +
             "    </changeset>\n" +
             "    <changeset author=\"team\" id=\"second-changelog\">\n" +
-            "        <query><![CDATA[MATCH m RETURN m]]></query>\n" +
+            "        <query><![CDATA[MATCH (m) RETURN m]]></query>\n" +
             "    </changeset>\n" +
             "</changelog>");
     }
@@ -50,10 +50,10 @@ public class ImportResolverTest {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<changelog>\n" +
             "    <changeset author=\"fbiville\" id=\"first-changelog\">\n" +
-            "        <query><![CDATA[MATCH n RETURN n]]></query>\n" +
+            "        <query><![CDATA[MATCH (n) RETURN n]]></query>\n" +
             "    </changeset>\n" +
             "    <changeset author=\"team\" id=\"second-changelog\">\n" +
-            "        <query><![CDATA[MATCH m RETURN m]]></query>\n" +
+            "        <query><![CDATA[MATCH (m) RETURN m]]></query>\n" +
             "    </changeset>\n" +
             "</changelog>");
     }
@@ -69,13 +69,13 @@ public class ImportResolverTest {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<changelog>\n" +
             "    <changeset author=\"fbiville\" id=\"first-changelog\">\n" +
-            "        <query><![CDATA[MATCH n RETURN n]]></query>\n" +
+            "        <query><![CDATA[MATCH (n) RETURN n]]></query>\n" +
             "    </changeset>\n" +
             "    <changeset author=\"team\" id=\"second-changelog\">\n" +
-            "        <query><![CDATA[MATCH m RETURN m]]></query>\n" +
+            "        <query><![CDATA[MATCH (m) RETURN m]]></query>\n" +
             "    </changeset>\n" +
             "    <changeset author=\"company\" id=\"third-changelog\">\n" +
-            "        <query><![CDATA[MATCH l RETURN l]]></query>\n" +
+            "        <query><![CDATA[MATCH (l) RETURN l]]></query>\n" +
             "    </changeset>\n" +
             "</changelog>");
     }
@@ -91,16 +91,16 @@ public class ImportResolverTest {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<changelog>\n" +
             "    <changeset author=\"fbiville\" id=\"first-changelog\">\n" +
-            "        <query><![CDATA[MATCH n RETURN n]]></query>\n" +
+            "        <query><![CDATA[MATCH (n) RETURN n]]></query>\n" +
             "    </changeset>\n" +
             "    <changeset author=\"fbiville\" id=\"second-changelog\">\n" +
-            "        <query><![CDATA[MATCH n RETURN n]]></query>\n" +
+            "        <query><![CDATA[MATCH (n) RETURN n]]></query>\n" +
             "    </changeset>\n" +
             "    <changeset author=\"fbiville\" id=\"third-changelog\">\n" +
-            "        <query><![CDATA[MATCH n RETURN n]]></query>\n" +
+            "        <query><![CDATA[MATCH (n) RETURN n]]></query>\n" +
             "    </changeset>\n" +
             "    <changeset author=\"fbiville\" id=\"fourth-changelog\">\n" +
-            "        <query><![CDATA[MATCH n RETURN n]]></query>\n" +
+            "        <query><![CDATA[MATCH (n) RETURN n]]></query>\n" +
             "    </changeset>\n" +
             "</changelog>");
     }

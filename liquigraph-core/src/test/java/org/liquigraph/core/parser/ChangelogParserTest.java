@@ -41,8 +41,8 @@ public class ChangelogParserTest {
         assertThat(changesets)
             .extracting("author", "id", "query")
             .containsExactly(
-                tuple("fbiville", "first-changelog", "MATCH n RETURN n"),
-                tuple("team", "second-changelog", "MATCH m RETURN m")
+                tuple("fbiville", "first-changelog", "MATCH (n) RETURN n"),
+                tuple("team", "second-changelog", "MATCH (m) RETURN m")
             );
     }
 
@@ -53,9 +53,9 @@ public class ChangelogParserTest {
         assertThat(changesets)
             .extracting("author", "id", "query")
             .containsExactly(
-                tuple("fbiville", "first-changelog", "MATCH n RETURN n"),
-                tuple("team", "second-changelog", "MATCH m RETURN m"),
-                tuple("company", "third-changelog", "MATCH l RETURN l")
+                tuple("fbiville", "first-changelog", "MATCH (n) RETURN n"),
+                tuple("team", "second-changelog", "MATCH (m) RETURN m"),
+                tuple("company", "third-changelog", "MATCH (l) RETURN l")
             );
     }
 
@@ -99,8 +99,8 @@ public class ChangelogParserTest {
         assertThat(changesets)
             .extracting("id", "precondition")
             .containsExactly(
-                tuple("first-changelog", precondition(FAIL, "MATCH npre RETURN npre")),
-                tuple("second-changelog", precondition(MARK_AS_EXECUTED, "MATCH mpre RETURN mpre")),
+                tuple("first-changelog", precondition(FAIL, "MATCH (npre) RETURN npre")),
+                tuple("second-changelog", precondition(MARK_AS_EXECUTED, "MATCH (mpre) RETURN mpre")),
                 tuple("third-changelog", null)
             );
     }

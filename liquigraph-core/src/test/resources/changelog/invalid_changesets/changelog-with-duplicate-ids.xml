@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <changelog>
     <changeset author="fbiville" id="changelog">
-        <query><![CDATA[MATCH n RETURN n]]></query>
+        <query><![CDATA[MATCH (n) RETURN n]]></query>
     </changeset>
     <changeset author="fbiville" id="changelog">
-        <query><![CDATA[MATCH m RETURN m]]></query>
+        <query><![CDATA[MATCH (m) RETURN m]]></query>
     </changeset>
 </changelog>

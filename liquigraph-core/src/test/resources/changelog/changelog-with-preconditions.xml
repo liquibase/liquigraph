@@ -2,17 +2,17 @@
 <changelog>
     <changeset id="first-changelog" author="fbiville">
         <precondition if-not-met="FAIL">
-            <query><![CDATA[MATCH npre RETURN npre]]></query>
+            <query><![CDATA[MATCH (npre) RETURN npre]]></query>
         </precondition>
-        <query><![CDATA[MATCH n RETURN n]]></query>
+        <query><![CDATA[MATCH (n) RETURN n]]></query>
     </changeset>
     <changeset id="second-changelog" author="team">
         <precondition if-not-met="MARK_AS_EXECUTED">
-            <query><![CDATA[MATCH mpre RETURN mpre]]></query>
+            <query><![CDATA[MATCH (mpre) RETURN mpre]]></query>
         </precondition>
-        <query><![CDATA[MATCH m RETURN m]]></query>
+        <query><![CDATA[MATCH (m) RETURN m]]></query>
     </changeset>
     <changeset id="third-changelog" author="team">
-        <query><![CDATA[MATCH m RETURN m]]></query>
+        <query><![CDATA[MATCH (m) RETURN m]]></query>
     </changeset>
 </changelog>

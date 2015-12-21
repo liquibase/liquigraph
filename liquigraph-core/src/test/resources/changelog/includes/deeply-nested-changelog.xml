@@ -2,7 +2,7 @@
 <changelog>
     <import resource="inc/inc1.xml" />
     <changeset id="third-changelog" author="fbiville">
-        <query><![CDATA[MATCH n RETURN n]]></query>
+        <query><![CDATA[MATCH (n) RETURN n]]></query>
     </changeset>
     <import resource="inc/inc2.xml" />
 </changelog>

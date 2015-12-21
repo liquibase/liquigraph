@@ -53,7 +53,9 @@ public class PreconditionExecutor {
             return resultSet.getBoolean("result");
         }
         catch (SQLException e) {
-            throw new PreconditionException("%n\tQuery <%s> should yield exactly one column named or aliased 'result'.%n\tCause: %s", query, e.getMessage());
+            throw new PreconditionException("%nError executing precondition:%n" +
+               "\tMake sure your query <%s> yields exactly one column named or aliased 'result'.%n" +
+               "\tActual cause: %s", query, e.getMessage());
         }
     }
 }

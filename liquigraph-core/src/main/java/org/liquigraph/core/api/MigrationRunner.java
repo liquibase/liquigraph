@@ -49,13 +49,13 @@ class MigrationRunner {
         Connection connection = connector.connect(configuration);
         Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, connection);
 
-        Collection<Changeset> changelogsToInsert = changelogDiffMaker.computeChangesetsToInsert(
+        Collection<Changeset> changelog = changelogDiffMaker.computeChangesetsToInsert(
             configuration.executionContexts(),
             declaredChangesets,
             persistedChangesets
         );
 
-        writeDiff(configuration, connection, changelogsToInsert);
+        writeDiff(configuration, connection, changelog);
     }
 
     private Collection<Changeset> parseChangesets(ClassLoader classLoader, String masterChangelog) {

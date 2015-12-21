@@ -47,10 +47,10 @@ public class ChangelogGraphWriter implements ChangelogWriter {
      * from data changes.
      */
     @Override
-    public void write(Collection<Changeset> changelogsToInsert) {
+    public void write(Collection<Changeset> changelog) {
         long index = latestPersistedIndex(connection) + 1L;
 
-        for (Changeset changeset : changelogsToInsert) {
+        for (Changeset changeset : changelog) {
             StatementExecution statementExecution = executeStatement(changeset);
             if (statementExecution == StatementExecution.IGNORE_FAILURE) {
                 continue;

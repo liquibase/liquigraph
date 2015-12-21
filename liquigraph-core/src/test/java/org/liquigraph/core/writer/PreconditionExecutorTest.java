@@ -105,8 +105,10 @@ public class PreconditionExecutorTest {
     @Test
     public void fails_with_invalid_cypher_query() throws SQLException {
         thrown.expect(PreconditionException.class);
-        thrown.expectMessage("\tQuery <toto> should yield exactly one column named or aliased 'result'.\n" +
-            "\tCause: Error executing query toto\n" +
+        thrown.expectMessage(
+            "Error executing precondition:\n" +
+            "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.\n" +
+            "\tActual cause: Error executing query toto\n" +
             " with params {}");
 
         Connection connection = graphDatabaseRule.jdbcConnection();
@@ -121,7 +123,7 @@ public class PreconditionExecutorTest {
     @Test
     public void fails_with_badly_named_precondition_result_column() throws SQLException {
         thrown.expect(PreconditionException.class);
-        thrown.expectMessage("Query <RETURN true> should yield exactly one column named or aliased 'result'.");
+        thrown.expectMessage("Make sure your query <RETURN true> yields exactly one column named or aliased 'result'.");
 
         Connection connection = graphDatabaseRule.jdbcConnection();
         try (Statement ignored = connection.createStatement()) {

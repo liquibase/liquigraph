@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <changelog>
     <changeset id="first-changelog" author="fbiville" run-on-change="true" run-always="true">
-        <query><![CDATA[MATCH n RETURN n]]></query>
+        <query><![CDATA[MATCH (n) RETURN n]]></query>
     </changeset>
     <changeset id="second-changelog" author="team" run-on-change="true" run-always="false">
-        <query><![CDATA[MATCH m RETURN m]]></query>
+        <query><![CDATA[MATCH (m) RETURN m]]></query>
     </changeset>
     <changeset id="third-changelog" author="fbiville" run-on-change="false" run-always="true">
-        <query><![CDATA[MATCH l RETURN l]]></query>
+        <query><![CDATA[MATCH (l) RETURN l]]></query>
     </changeset>
     <changeset id="fourth-changelog" author="team" run-on-change="false" run-always="false">
-        <query><![CDATA[MATCH k RETURN k]]></query>
+        <query><![CDATA[MATCH (k) RETURN k]]></query>
     </changeset>
 </changelog>
