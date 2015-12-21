@@ -1,32 +1,30 @@
 package org.liquigraph.core.rules;
 
 import org.junit.rules.ExternalResource;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.jdbc.Driver;
+import org.neo4j.test.TestGraphDatabaseFactory;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
+import java.util.UUID;
 
 import static com.google.common.base.Throwables.propagate;
-import static java.nio.file.Files.walkFileTree;
 
 public class EmbeddedGraphDatabaseRule extends ExternalResource {
 
-    private final Path path;
+    private final String dbName;
     private final String uri;
     private Connection connection;
-
+    private GraphDatabaseService db;
+    
     public EmbeddedGraphDatabaseRule(String name) {
-        try {
-            this.path = Files.createTempDirectory(name);
-            this.uri = "jdbc:neo4j:file:" + path.toFile().getAbsolutePath();
-        } catch (IOException e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
+        dbName = name + "-" + UUID.randomUUID().toString();
+        uri = "jdbc:neo4j:instance:" + dbName;
     }
-
+    
     public Connection jdbcConnection() {
         return connection;
     }
@@ -37,8 +35,10 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource {
 
     protected void before() {
         try {
+            db = new TestGraphDatabaseFactory().newImpermanentDatabase();
             Class.forName("org.neo4j.jdbc.Driver");
-            connection = DriverManager.getConnection(uri);
+            Properties props = properties();
+            connection = DriverManager.getConnection(uri, props);
             connection.setAutoCommit(false);
         } catch (ClassNotFoundException | SQLException e) {
             throw propagate(e);
@@ -47,13 +47,18 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource {
 
     protected void after() {
         try {
-            walkFileTree(path, new RecursiveDirectoryDeletionVisitor());
             if (!connection.isClosed()) {
                 connection.close();
             }
-        } catch (SQLException | IOException e) {
+            db.shutdown();
+        } catch (SQLException e) {
             throw propagate(e);
         }
     }
 
+    private Properties properties() {
+        Properties props = new Properties();
+        props.put(dbName, db);
+        return props;
+    }
 }
