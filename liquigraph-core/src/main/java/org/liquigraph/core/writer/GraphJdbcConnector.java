@@ -8,8 +8,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class GraphJdbcConnector {
+public class GraphJdbcConnector implements LiquigraphJdbcConnector {
 
+    @Override
     public final Connection connect(Configuration configuration) {
         try {
             Class.forName("org.neo4j.jdbc.Driver");

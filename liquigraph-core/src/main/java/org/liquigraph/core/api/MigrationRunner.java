@@ -5,30 +5,31 @@ import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.parser.ChangelogParser;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
-import org.liquigraph.core.validation.XmlSchemaValidator;
-import org.liquigraph.core.writer.*;
+import org.liquigraph.core.writer.ChangelogGraphReader;
+import org.liquigraph.core.writer.ChangelogWriter;
+import org.liquigraph.core.writer.LiquigraphJdbcConnector;
+import org.liquigraph.core.writer.PreconditionExecutor;
+import org.liquigraph.core.writer.PreconditionPrinter;
 
 import java.sql.Connection;
 import java.util.Collection;
 
 class MigrationRunner {
 
-    private final GraphJdbcConnector connector;
+    private final LiquigraphJdbcConnector connector;
     private final ChangelogParser changelogParser;
     private final ChangelogGraphReader changelogReader;
     private final ChangelogDiffMaker changelogDiffMaker;
     private final PreconditionExecutor preconditionExecutor;
     private final PreconditionPrinter preconditionPrinter;
-    private final XmlSchemaValidator xmlSchemaValidator;
     private final PersistedChangesetValidator persistedChangesetValidator;
 
-    public MigrationRunner(GraphJdbcConnector connector,
+    public MigrationRunner(LiquigraphJdbcConnector connector,
                            ChangelogParser changelogParser,
                            ChangelogGraphReader changelogGraphReader,
                            ChangelogDiffMaker changelogDiffMaker,
                            PreconditionExecutor preconditionExecutor,
                            PreconditionPrinter preconditionPrinter,
-                           XmlSchemaValidator xmlSchemaValidator,
                            PersistedChangesetValidator persistedChangesetValidator) {
 
         this.connector = connector;
@@ -37,7 +38,6 @@ class MigrationRunner {
         this.changelogDiffMaker = changelogDiffMaker;
         this.preconditionExecutor = preconditionExecutor;
         this.preconditionPrinter = preconditionPrinter;
-        this.xmlSchemaValidator = xmlSchemaValidator;
         this.persistedChangesetValidator = persistedChangesetValidator;
     }
 

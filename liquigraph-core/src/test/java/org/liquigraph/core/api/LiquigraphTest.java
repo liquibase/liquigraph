@@ -3,6 +3,7 @@ package org.liquigraph.core.api;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.liquigraph.core.FixedConnectionConnector;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 
@@ -19,7 +20,15 @@ public class LiquigraphTest {
     @Rule
     public EmbeddedGraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neo");
 
-    private Liquigraph liquigraph = new Liquigraph();
+    private Liquigraph liquigraph;
+
+    @Before
+    public void prepare() {
+        liquigraph = new Liquigraph(
+            // bypasses the configured URI
+            new FixedConnectionConnector(graph.jdbcConnection())
+        );
+    }
 
     @Test
     public void runs_migrations_against_embedded_graph_with_failed_precondition_whose_changeset_is_marked_as_executed() throws SQLException {
