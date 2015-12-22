@@ -4,7 +4,13 @@ import com.google.common.base.Joiner;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.liquigraph.core.model.*;
+import org.liquigraph.core.model.AndQuery;
+import org.liquigraph.core.model.CompoundQuery;
+import org.liquigraph.core.model.OrQuery;
+import org.liquigraph.core.model.Precondition;
+import org.liquigraph.core.model.PreconditionErrorPolicy;
+import org.liquigraph.core.model.PreconditionQuery;
+import org.liquigraph.core.model.SimpleQuery;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;

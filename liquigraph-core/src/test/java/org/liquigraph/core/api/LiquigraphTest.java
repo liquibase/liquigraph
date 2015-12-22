@@ -1,11 +1,16 @@
 package org.liquigraph.core.api;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

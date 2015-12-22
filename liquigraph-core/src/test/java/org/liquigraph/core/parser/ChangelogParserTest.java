@@ -5,7 +5,12 @@ import org.assertj.core.api.iterable.Extractor;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.liquigraph.core.model.*;
+import org.liquigraph.core.model.AndQuery;
+import org.liquigraph.core.model.Changeset;
+import org.liquigraph.core.model.OrQuery;
+import org.liquigraph.core.model.Precondition;
+import org.liquigraph.core.model.PreconditionErrorPolicy;
+import org.liquigraph.core.model.SimpleQuery;
 import org.liquigraph.core.validation.XmlSchemaValidator;
 import org.w3c.dom.Node;
 

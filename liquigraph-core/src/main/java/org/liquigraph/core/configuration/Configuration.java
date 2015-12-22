@@ -1,7 +1,11 @@
 package org.liquigraph.core.configuration;
 
 import com.google.common.base.Optional;
-import org.liquigraph.core.writer.*;
+import org.liquigraph.core.writer.ChangelogFileWriter;
+import org.liquigraph.core.writer.ChangelogGraphWriter;
+import org.liquigraph.core.writer.ChangelogWriter;
+import org.liquigraph.core.writer.PreconditionExecutor;
+import org.liquigraph.core.writer.PreconditionPrinter;
 
 import java.sql.Connection;
 
