@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -100,7 +101,7 @@ public class ChangelogFileWriterTest {
         Changeset changeset = new Changeset();
         changeset.setId(identifier);
         changeset.setAuthor(author);
-        changeset.setQuery(query);
+        changeset.setQueries(singletonList(query));
         return changeset;
     }
 

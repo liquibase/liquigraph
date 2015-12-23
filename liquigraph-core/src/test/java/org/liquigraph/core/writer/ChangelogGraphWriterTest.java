@@ -16,8 +16,11 @@ import org.neo4j.graphdb.Node;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.liquigraph.core.model.Checksums.checksum;
 
@@ -53,8 +56,8 @@ public class ChangelogGraphWriterTest {
             Node changeset = (Node) resultSet.getObject("changeset");
             assertThat(changeset.getProperty("id")).isEqualTo("identifier");
             assertThat(changeset.getProperty("author")).isEqualTo("fbiville");
-            assertThat(changeset.getProperty("query")).isEqualTo("CREATE (n: SomeNode {text:'yeah'})");
-            assertThat(changeset.getProperty("checksum")).isEqualTo(checksum("CREATE (n: SomeNode {text:'yeah'})"));
+            assertThat((String[])changeset.getProperty("query")).containsExactly("CREATE (n: SomeNode {text:'yeah'})");
+            assertThat(changeset.getProperty("checksum")).isEqualTo(checksum(singletonList("CREATE (n: SomeNode {text:'yeah'})")));
 
             Node node = (Node) resultSet.getObject("node");
             assertThat(node.getLabels()).containsExactly(DynamicLabel.label("SomeNode"));
@@ -83,8 +86,8 @@ public class ChangelogGraphWriterTest {
             Node persistedChangeset = (Node) resultSet.getObject("changeset");
             assertThat(persistedChangeset.getProperty("id")).isEqualTo("identifier");
             assertThat(persistedChangeset.getProperty("author")).isEqualTo("fbiville");
-            assertThat(persistedChangeset.getProperty("query")).isEqualTo("CREATE (n: SomeNode {text:'yeah'})");
-            assertThat(persistedChangeset.getProperty("checksum")).isEqualTo(checksum("CREATE (n: SomeNode {text:'yeah'})"));
+            assertThat((String[])persistedChangeset.getProperty("query")).containsExactly("CREATE (n: SomeNode {text:'yeah'})");
+            assertThat(persistedChangeset.getProperty("checksum")).isEqualTo(checksum(singletonList("CREATE (n: SomeNode {text:'yeah'})")));
             Node node = (Node) resultSet.getObject("node");
             assertThat(node.getLabels()).containsExactly(DynamicLabel.label("SomeNode"));
             assertThat(node.getProperty("text")).isEqualTo("yeah");
@@ -127,7 +130,7 @@ public class ChangelogGraphWriterTest {
         Precondition precondition = precondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "RETURN false AS result");
         Changeset changeset = changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})", precondition);
 
-        writer.write(newArrayList(changeset));
+        writer.write(singletonList(changeset));
 
         try (Statement transaction = graph.jdbcConnection().createStatement();
              ResultSet resultSet = transaction.executeQuery(
@@ -142,10 +145,31 @@ public class ChangelogGraphWriterTest {
             Node persistedChangeset = (Node) resultSet.getObject("changeset");
             assertThat(persistedChangeset.getProperty("id")).isEqualTo("identifier");
             assertThat(persistedChangeset.getProperty("author")).isEqualTo("fbiville");
-            assertThat(persistedChangeset.getProperty("query")).isEqualTo("CREATE (n: SomeNode {text:'yeah'})");
-            assertThat(persistedChangeset.getProperty("checksum")).isEqualTo(checksum("CREATE (n: SomeNode {text:'yeah'})"));
+            assertThat((String[])persistedChangeset.getProperty("query")).containsExactly("CREATE (n: SomeNode {text:'yeah'})");
+            assertThat(persistedChangeset.getProperty("checksum")).isEqualTo(checksum(singletonList("CREATE (n: SomeNode {text:'yeah'})")));
             assertThat(resultSet.getObject("node")).isNull();
 
+            assertThat(resultSet.next()).isFalse();
+        }
+    }
+
+    @Test
+    public void executes_changeset_with_multiple_queries() throws SQLException {
+        Changeset changeset = changeset(
+           "id",
+           "fbiville",
+           asList(
+              "CREATE (n:Human) RETURN n",
+              "MATCH (n:Human) SET n.age = 42 RETURN n")
+        );
+
+        writer.write(singletonList(changeset));
+
+        try (Statement transaction = graph.jdbcConnection().createStatement();
+             ResultSet resultSet = transaction.executeQuery("MATCH (n:Human) RETURN n.age AS age")) {
+
+            assertThat(resultSet.next()).isTrue();
+            assertThat(resultSet.getLong("age")).isEqualTo(42);
             assertThat(resultSet.next()).isFalse();
         }
     }
@@ -166,11 +190,15 @@ public class ChangelogGraphWriterTest {
     }
 
     private Changeset changeset(String identifier, String author, String query) {
+        Collection<String> queries = singletonList(query);
+        return changeset(identifier, author, queries);
+    }
+
+    private Changeset changeset(String identifier, String author, Collection<String> queries) {
         Changeset changeset = new Changeset();
         changeset.setId(identifier);
         changeset.setAuthor(author);
-        changeset.setQuery(query);
+        changeset.setQueries(queries);
         return changeset;
     }
-
 }

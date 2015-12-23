@@ -1,6 +1,5 @@
 package org.liquigraph.core.model;
 
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
@@ -20,7 +19,7 @@ public class Changeset {
 
     private String id;
     private String author;
-    private String query;
+    private Collection<String> queries = newArrayList();
     private String checksum;
     private Collection<String> executionsContexts = newArrayList();
     private boolean runOnChange;
@@ -46,13 +45,15 @@ public class Changeset {
     }
 
     @XmlElement(name = "query", required = true)
-    public String getQuery() {
-        return query;
+    public Collection<String> getQueries() {
+        return queries;
     }
 
-    public void setQuery(String query) {
-        this.query = query;
-        setChecksum(checksum(query));
+    public void setQueries(Collection<String> queries) {
+        checkArgument(queries != null, "Queries cannot be null");
+        checkArgument(queries.size() > 0, "At least one query must be defined");
+        this.queries = queries;
+        setChecksum(checksum(queries));
     }
 
     @XmlTransient
@@ -62,7 +63,8 @@ public class Changeset {
 
     public void setChecksum(String checksum) {
         checkArgument(checksum != null, "Checksum cannot be null");
-        checkArgument(checksum.equals(checksum(query)), checksumError(id, checksum(query), checksum));
+        String expectedChecksum = checksum(queries);
+        checkArgument(checksum.equals(expectedChecksum), checksumError(id, expectedChecksum, checksum));
         this.checksum = checksum;
     }
 
@@ -132,7 +134,7 @@ public class Changeset {
         return "Changeset{" +
                 "id='" + id + '\'' +
                 ", author='" + author + '\'' +
-                ", query='" + query + '\'' +
+                ", queries='" + queries + '\'' +
                 ", checksum='" + checksum + '\'' +
                 ", executionsContexts=" + executionsContexts +
                 ", runOnChange=" + runOnChange +

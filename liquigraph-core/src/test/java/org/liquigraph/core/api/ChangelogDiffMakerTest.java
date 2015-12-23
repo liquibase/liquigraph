@@ -5,8 +5,10 @@ import org.liquigraph.core.configuration.ExecutionContexts;
 import org.liquigraph.core.model.Changeset;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.liquigraph.core.configuration.ExecutionContexts.DEFAULT_CONTEXT;
 
@@ -176,7 +178,7 @@ public class ChangelogDiffMakerTest {
         Changeset changeset = new Changeset();
         changeset.setId(id);
         changeset.setAuthor(author);
-        changeset.setQuery(query);
+        changeset.setQueries(singletonList(query));
         return changeset;
     }
 }

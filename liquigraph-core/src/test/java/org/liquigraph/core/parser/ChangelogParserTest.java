@@ -5,12 +5,7 @@ import org.assertj.core.api.iterable.Extractor;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.liquigraph.core.model.AndQuery;
-import org.liquigraph.core.model.Changeset;
-import org.liquigraph.core.model.OrQuery;
-import org.liquigraph.core.model.Precondition;
-import org.liquigraph.core.model.PreconditionErrorPolicy;
-import org.liquigraph.core.model.SimpleQuery;
+import org.liquigraph.core.model.*;
 import org.liquigraph.core.validation.XmlSchemaValidator;
 import org.w3c.dom.Node;
 
@@ -20,6 +15,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.liquigraph.core.model.PreconditionErrorPolicy.FAIL;
@@ -44,10 +40,10 @@ public class ChangelogParserTest {
         Collection<Changeset> changesets = parser.parse(classLoader, "changelog/changelog.xml");
 
         assertThat(changesets)
-            .extracting("author", "id", "query")
+            .extracting("author", "id", "queries")
             .containsExactly(
-                tuple("fbiville", "first-changelog", "MATCH (n) RETURN n"),
-                tuple("team", "second-changelog", "MATCH (m) RETURN m")
+                tuple("fbiville", "first-changelog", singletonList("MATCH (n) RETURN n")),
+                tuple("team", "second-changelog", singletonList("MATCH (m) RETURN m"))
             );
     }
 
@@ -56,11 +52,11 @@ public class ChangelogParserTest {
         Collection<Changeset> changesets = parser.parse(classLoader, "changelog/changelog-of-changelogs.xml");
 
         assertThat(changesets)
-            .extracting("author", "id", "query")
+            .extracting("author", "id", "queries")
             .containsExactly(
-                tuple("fbiville", "first-changelog", "MATCH (n) RETURN n"),
-                tuple("team", "second-changelog", "MATCH (m) RETURN m"),
-                tuple("company", "third-changelog", "MATCH (l) RETURN l")
+                tuple("fbiville", "first-changelog", singletonList("MATCH (n) RETURN n")),
+                tuple("team", "second-changelog", singletonList("MATCH (m) RETURN m")),
+                tuple("company", "third-changelog", singletonList("MATCH (l) RETURN l"))
             );
     }
 

@@ -12,7 +12,6 @@ import java.util.Collection;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newLinkedList;
 import static java.lang.String.format;
 import static java.nio.file.Files.createFile;
 import static java.nio.file.Files.deleteIfExists;
@@ -60,10 +59,10 @@ public class ChangelogFileWriter implements ChangelogWriter {
     }
 
     private Collection<String> changesetToString(Changeset changeset) {
-        Collection<String> lines = newLinkedList();
+        Collection<String> lines = newArrayList();
         lines.add(format("//Liquigraph changeset[author: %s, id: %s]", changeset.getAuthor(), changeset.getId()));
         lines.add(format("//Liquigraph changeset[executionContexts: %s]", flatten(changeset.getExecutionsContexts())));
-        lines.add(changeset.getQuery());
+        lines.addAll(changeset.getQueries());
         return lines;
     }
 

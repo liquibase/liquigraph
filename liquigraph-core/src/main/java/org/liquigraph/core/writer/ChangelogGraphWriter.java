@@ -62,7 +62,9 @@ public class ChangelogGraphWriter implements ChangelogWriter {
             PreconditionResult preconditionResult = executePrecondition(precondition);
 
             if (preconditionResult.executedSuccessfully()) {
-                statement.execute(changeset.getQuery());
+                for (String query : changeset.getQueries()) {
+                    statement.execute(query);
+                }
             }
             else {
                 switch (preconditionResult.errorPolicy()) {
@@ -116,12 +118,12 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     }
 
     private Map<Integer, Object> parameters(Changeset changeset) {
-        String query = changeset.getQuery();
+        Collection<String> queries = changeset.getQueries();
         String checksum = changeset.getChecksum();
         Map<Integer, Object> parameters = new HashMap<>();
         parameters.put(1, changeset.getId());
         parameters.put(2, checksum);
-        parameters.put(3, query);
+        parameters.put(3, queries.toArray(new String[queries.size()]));
         parameters.put(4, changeset.getAuthor());
         return parameters;
     }
