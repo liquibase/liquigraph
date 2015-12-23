@@ -28,7 +28,7 @@ public class ChangelogGraphReader {
         try (Statement statement = connection.createStatement();
             ResultSet result = statement.executeQuery(MATCH_CHANGESETS)) {
             while (result.next()) {
-                changesets.add(mapLine(result.getObject("changeset")));
+                changesets.add(mapRow(result.getObject("changeset")));
             }
             connection.commit();
         }
@@ -39,14 +39,16 @@ public class ChangelogGraphReader {
     }
 
     @SuppressWarnings("unchecked")
-    private Changeset mapLine(Object line) throws SQLException {
+    private Changeset mapRow(Object line) throws SQLException {
         if (line instanceof Node) {
             return changeset((Node) line);
         }
         if (line instanceof Map) {
             return changeset((Map<String, Object>) line);
         }
-        throw new IllegalStateException(format("Unrecognized result type:%s", line.getClass().getName()));
+        throw new IllegalArgumentException(format(
+           "Unsupported row.\n\t" +
+           "Cannot parse: %s", line));
     }
 
     private Changeset changeset(Node node) {
