@@ -9,9 +9,9 @@ import org.liquigraph.core.model.predicates.ChangesetRunOnChange;
 
 import java.util.Collection;
 
-import static com.google.common.base.Predicates.or;
-import static com.google.common.base.Predicates.not;
 import static com.google.common.base.Predicates.in;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.base.Predicates.or;
 import static com.google.common.collect.FluentIterable.from;
 import static org.liquigraph.core.model.predicates.ChangesetMatchAnyExecutionContexts.BY_ANY_EXECUTION_CONTEXT;
 import static org.liquigraph.core.model.predicates.ChangesetRunAlways.RUN_ALWAYS;

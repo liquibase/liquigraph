@@ -1,4 +1,4 @@
-package org.liquigraph.core.validation;
+package org.liquigraph.core.io.xml;
 
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;

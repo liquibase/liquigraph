@@ -1,8 +1,7 @@
-package org.liquigraph.core.rules;
+package org.liquigraph.core;
 
 import org.junit.rules.ExternalResource;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.jdbc.Driver;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.sql.Connection;

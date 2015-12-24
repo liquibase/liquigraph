@@ -1,4 +1,4 @@
-package org.liquigraph.core.writer;
+package org.liquigraph.core.io;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;

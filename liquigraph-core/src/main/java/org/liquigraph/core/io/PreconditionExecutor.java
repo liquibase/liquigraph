@@ -1,6 +1,5 @@
-package org.liquigraph.core.writer;
+package org.liquigraph.core.io;
 
-import com.google.common.base.Optional;
 import org.liquigraph.core.exception.PreconditionException;
 import org.liquigraph.core.model.CompoundQuery;
 import org.liquigraph.core.model.Precondition;
@@ -12,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 

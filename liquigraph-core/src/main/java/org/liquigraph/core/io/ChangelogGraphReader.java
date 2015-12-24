@@ -1,4 +1,4 @@
-package org.liquigraph.core.writer;
+package org.liquigraph.core.io;
 
 import org.liquigraph.core.model.Changeset;
 import org.neo4j.graphdb.Node;

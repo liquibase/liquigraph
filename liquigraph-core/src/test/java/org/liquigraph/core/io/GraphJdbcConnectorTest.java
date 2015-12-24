@@ -1,4 +1,4 @@
-package org.liquigraph.core.writer;
+package org.liquigraph.core.io;
 
 import org.junit.Ignore;
 import org.junit.Rule;

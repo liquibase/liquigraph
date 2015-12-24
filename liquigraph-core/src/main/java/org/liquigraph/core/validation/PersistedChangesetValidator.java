@@ -10,7 +10,6 @@ import java.util.Collection;
 
 import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Collections2.filter;
-import static com.google.common.collect.Iterables.get;
 import static com.google.common.collect.Lists.newLinkedList;
 import static java.lang.String.format;
 

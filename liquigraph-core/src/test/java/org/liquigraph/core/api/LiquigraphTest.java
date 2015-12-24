@@ -3,9 +3,9 @@ package org.liquigraph.core.api;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.liquigraph.core.FixedConnectionConnector;
+import org.liquigraph.core.EmbeddedGraphDatabaseRule;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
-import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
+import org.liquigraph.core.io.FixedConnectionConnector;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

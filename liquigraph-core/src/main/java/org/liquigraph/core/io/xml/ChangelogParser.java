@@ -1,9 +1,8 @@
-package org.liquigraph.core.parser;
+package org.liquigraph.core.io.xml;
 
 import com.google.common.base.Joiner;
 import org.liquigraph.core.model.Changelog;
 import org.liquigraph.core.model.Changeset;
-import org.liquigraph.core.validation.XmlSchemaValidator;
 import org.w3c.dom.Node;
 
 import javax.xml.bind.JAXBContext;

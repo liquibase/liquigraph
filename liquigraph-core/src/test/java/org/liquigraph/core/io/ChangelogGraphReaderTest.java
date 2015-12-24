@@ -1,13 +1,12 @@
-package org.liquigraph.core.writer;
+package org.liquigraph.core.io;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.liquigraph.core.EmbeddedGraphDatabaseRule;
 import org.liquigraph.core.model.Changeset;
-import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collection;
 
 import static java.lang.String.format;

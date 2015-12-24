@@ -2,14 +2,14 @@ package org.liquigraph.core.api;
 
 import com.google.common.base.Joiner;
 import org.liquigraph.core.configuration.Configuration;
+import org.liquigraph.core.io.ChangelogGraphReader;
+import org.liquigraph.core.io.ChangelogWriter;
+import org.liquigraph.core.io.LiquigraphJdbcConnector;
+import org.liquigraph.core.io.PreconditionExecutor;
+import org.liquigraph.core.io.PreconditionPrinter;
+import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.model.Changeset;
-import org.liquigraph.core.parser.ChangelogParser;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
-import org.liquigraph.core.writer.ChangelogGraphReader;
-import org.liquigraph.core.writer.ChangelogWriter;
-import org.liquigraph.core.writer.LiquigraphJdbcConnector;
-import org.liquigraph.core.writer.PreconditionExecutor;
-import org.liquigraph.core.writer.PreconditionPrinter;
 
 import java.sql.Connection;
 import java.util.Collection;

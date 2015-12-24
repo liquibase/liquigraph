@@ -5,7 +5,6 @@ import org.liquigraph.core.configuration.ExecutionContexts;
 import org.liquigraph.core.model.Changeset;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;

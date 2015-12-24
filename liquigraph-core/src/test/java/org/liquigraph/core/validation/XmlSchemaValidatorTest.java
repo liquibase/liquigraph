@@ -3,6 +3,7 @@ package org.liquigraph.core.validation;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.liquigraph.core.io.xml.XmlSchemaValidator;
 import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilderFactory;

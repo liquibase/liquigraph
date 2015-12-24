@@ -1,4 +1,4 @@
-package org.liquigraph.core.writer;
+package org.liquigraph.core.io;
 
 import com.google.common.base.Joiner;
 import org.junit.Rule;
@@ -30,7 +30,7 @@ public class PreconditionPrinterTest {
     @Test
     public void fails_to_print_when_given_an_unknown_query_type() {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Unsupported query type <org.liquigraph.core.writer.PreconditionPrinterTest$1>");
+        thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.PreconditionPrinterTest$1>");
 
         Precondition precondition = new Precondition();
         precondition.setQuery(new PreconditionQuery() {});

@@ -1,9 +1,10 @@
-package org.liquigraph.core.writer;
+package org.liquigraph.core.io;
 
 import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.liquigraph.core.EmbeddedGraphDatabaseRule;
 import org.liquigraph.core.exception.PreconditionException;
 import org.liquigraph.core.model.AndQuery;
 import org.liquigraph.core.model.OrQuery;
@@ -11,7 +12,6 @@ import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
 import org.liquigraph.core.model.PreconditionQuery;
 import org.liquigraph.core.model.SimpleQuery;
-import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -130,7 +130,7 @@ public class PreconditionExecutorTest {
     @Test
     public void fails_with_unknown_query_type() {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Unsupported query type <org.liquigraph.core.writer.PreconditionExecutorTest$1>");
+        thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.PreconditionExecutorTest$1>");
 
         Precondition precondition = new Precondition();
         precondition.setQuery(new PreconditionQuery() {});

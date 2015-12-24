@@ -1,4 +1,4 @@
-package org.liquigraph.core.parser;
+package org.liquigraph.core.io.xml;
 
 import org.w3c.dom.Node;
 

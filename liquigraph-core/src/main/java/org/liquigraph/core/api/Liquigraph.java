@@ -2,16 +2,16 @@ package org.liquigraph.core.api;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.liquigraph.core.configuration.Configuration;
-import org.liquigraph.core.parser.ChangelogParser;
-import org.liquigraph.core.parser.ChangelogPreprocessor;
-import org.liquigraph.core.parser.ImportResolver;
+import org.liquigraph.core.io.ChangelogGraphReader;
+import org.liquigraph.core.io.GraphJdbcConnector;
+import org.liquigraph.core.io.LiquigraphJdbcConnector;
+import org.liquigraph.core.io.PreconditionExecutor;
+import org.liquigraph.core.io.PreconditionPrinter;
+import org.liquigraph.core.io.xml.ChangelogParser;
+import org.liquigraph.core.io.xml.ChangelogPreprocessor;
+import org.liquigraph.core.io.xml.ImportResolver;
+import org.liquigraph.core.io.xml.XmlSchemaValidator;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
-import org.liquigraph.core.validation.XmlSchemaValidator;
-import org.liquigraph.core.writer.ChangelogGraphReader;
-import org.liquigraph.core.writer.GraphJdbcConnector;
-import org.liquigraph.core.writer.LiquigraphJdbcConnector;
-import org.liquigraph.core.writer.PreconditionExecutor;
-import org.liquigraph.core.writer.PreconditionPrinter;
 
 /**
  * Liquigraph facade in charge of migration execution.

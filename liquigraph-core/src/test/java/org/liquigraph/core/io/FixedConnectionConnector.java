@@ -1,7 +1,6 @@
-package org.liquigraph.core;
+package org.liquigraph.core.io;
 
 import org.liquigraph.core.configuration.Configuration;
-import org.liquigraph.core.writer.LiquigraphJdbcConnector;
 
 import java.sql.Connection;
 

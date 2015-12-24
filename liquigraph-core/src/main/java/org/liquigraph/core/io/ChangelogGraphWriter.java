@@ -1,4 +1,4 @@
-package org.liquigraph.core.writer;
+package org.liquigraph.core.io;
 
 import org.liquigraph.core.exception.PreconditionNotMetException;
 import org.liquigraph.core.model.Changeset;
@@ -6,7 +6,6 @@ import org.liquigraph.core.model.Precondition;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
@@ -15,7 +14,7 @@ import java.util.Map;
 
 import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
-import static org.liquigraph.core.writer.PreconditionResult.NO_PRECONDITION;
+import static org.liquigraph.core.io.PreconditionResult.NO_PRECONDITION;
 
 public class ChangelogGraphWriter implements ChangelogWriter {
 

@@ -1,15 +1,15 @@
-package org.liquigraph.core.writer;
+package org.liquigraph.core.io;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.liquigraph.core.EmbeddedGraphDatabaseRule;
 import org.liquigraph.core.exception.PreconditionNotMetException;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
 import org.liquigraph.core.model.SimpleQuery;
-import org.liquigraph.core.rules.EmbeddedGraphDatabaseRule;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Node;
 

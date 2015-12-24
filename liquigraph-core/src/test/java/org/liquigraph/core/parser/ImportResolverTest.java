@@ -1,6 +1,7 @@
 package org.liquigraph.core.parser;
 
 import org.junit.Test;
+import org.liquigraph.core.io.xml.ImportResolver;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.OutputKeys;
