@@ -15,7 +15,7 @@
  */
 package org.liquigraph.core.io;
 
-import org.liquigraph.core.exception.PreconditionException;
+import org.liquigraph.core.exception.PreconditionExecutionException;
 import org.liquigraph.core.model.CompoundQuery;
 import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionQuery;
@@ -62,7 +62,7 @@ public class PreconditionExecutor {
             return resultSet.getBoolean("result");
         }
         catch (SQLException e) {
-            throw new PreconditionException("%nError executing precondition:%n" +
+            throw new PreconditionExecutionException("%nError executing precondition:%n" +
                "\tMake sure your query <%s> yields exactly one column named or aliased 'result'.%n" +
                "\tActual cause: %s", query, e.getMessage());
         }

@@ -13,13 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.exception;
+package org.liquigraph.core.io.lock;
 
-import static java.lang.String.format;
+/**
+ * Lock-related cleanup task for {@link LockableConnection}
+ */
+final class ShutdownTask implements Runnable {
 
-public class PreconditionException extends RuntimeException {
+    private final LockableConnection connection;
 
-    public PreconditionException(String message, Object... arguments) {
-        super(format(message, arguments));
+    public ShutdownTask(LockableConnection connection) {
+        this.connection = connection;
     }
+
+    @Override
+    public void run() {
+        connection.releaseLock();
+    }
+
 }

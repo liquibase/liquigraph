@@ -18,6 +18,7 @@ package org.liquigraph.core.io;
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import org.liquigraph.core.configuration.Configuration;
+import org.liquigraph.core.io.lock.LockableConnection;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -25,13 +26,21 @@ import java.sql.SQLException;
 
 public class GraphJdbcConnector implements LiquigraphJdbcConnector {
 
+    /**
+     * Acquires a new connection to the configured instance
+     * and tries to lock it (fail-fast).
+     *
+     * @see {@link LockableConnection}
+     * @param configuration Liquigraph settings
+     * @return JDBC connection
+     */
     @Override
     public final Connection connect(Configuration configuration) {
         try {
             Class.forName("org.neo4j.jdbc.Driver");
             Connection connection = DriverManager.getConnection(makeUri(configuration));
             connection.setAutoCommit(false);
-            return connection;
+            return LockableConnection.acquire(connection);
         } catch (ClassNotFoundException | SQLException e) {
             throw Throwables.propagate(e);
         }
