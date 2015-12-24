@@ -25,12 +25,16 @@ import org.liquigraph.core.io.PreconditionPrinter;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
 
 class MigrationRunner {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MigrationRunner.class);
     private final LiquigraphJdbcConnector connector;
     private final ChangelogParser changelogParser;
     private final ChangelogGraphReader changelogReader;
@@ -61,16 +65,19 @@ class MigrationRunner {
     public void runMigrations(Configuration configuration) {
         Collection<Changeset> declaredChangesets = parseChangesets(configuration.classLoader(), configuration.masterChangelog());
 
-        Connection connection = connector.connect(configuration);
-        Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, connection);
+        try (Connection connection = connector.connect(configuration)) {
+            Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, connection);
 
-        Collection<Changeset> changelog = changelogDiffMaker.computeChangesetsToInsert(
-            configuration.executionContexts(),
-            declaredChangesets,
-            persistedChangesets
-        );
+            Collection<Changeset> changelog = changelogDiffMaker.computeChangesetsToInsert(
+                configuration.executionContexts(),
+                declaredChangesets,
+                persistedChangesets
+            );
 
-        writeDiff(configuration, connection, changelog);
+            writeApplicableChangesets(configuration, connection, changelog);
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
     }
 
     private Collection<Changeset> parseChangesets(ClassLoader classLoader, String masterChangelog) {
@@ -86,7 +93,7 @@ class MigrationRunner {
         return persistedChangesets;
     }
 
-    private void writeDiff(Configuration configuration, Connection connection, Collection<Changeset> changelogsToInsert) {
+    private void writeApplicableChangesets(Configuration configuration, Connection connection, Collection<Changeset> changelogsToInsert) {
         ChangelogWriter changelogWriter = configuration.resolveWriter(
             connection,
             preconditionExecutor,

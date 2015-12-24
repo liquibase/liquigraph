@@ -13,23 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.io;
+package org.liquigraph.core.exception;
 
-import org.liquigraph.core.configuration.Configuration;
+import static java.lang.String.format;
 
-import java.sql.Connection;
+public class PreconditionExecutionException extends RuntimeException {
 
-public class FixedConnectionConnector implements LiquigraphJdbcConnector {
-
-    private final Connection connection;
-
-    public FixedConnectionConnector(Connection connection) {
-        this.connection = connection;
+    public PreconditionExecutionException(String message, Object... arguments) {
+        super(format(message, arguments));
     }
-
-    @Override
-    public Connection connect(Configuration configuration) {
-        return new KeepAliveConnection(connection);
-    }
-
 }

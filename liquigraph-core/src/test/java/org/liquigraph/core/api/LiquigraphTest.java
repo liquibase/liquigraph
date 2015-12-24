@@ -15,6 +15,7 @@
  */
 package org.liquigraph.core.api;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,16 +33,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LiquigraphTest {
 
-    @Rule
-    public EmbeddedGraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neo");
-
+    @Rule public EmbeddedGraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neo");
     private Liquigraph liquigraph;
 
     @Before
     public void prepare() {
         liquigraph = new Liquigraph(
             // bypasses the configured URI
-            new FixedConnectionConnector(graph.jdbcConnection())
+             new FixedConnectionConnector(graph.jdbcConnection())
         );
     }
 

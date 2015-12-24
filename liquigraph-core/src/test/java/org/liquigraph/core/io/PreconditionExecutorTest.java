@@ -20,7 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.core.EmbeddedGraphDatabaseRule;
-import org.liquigraph.core.exception.PreconditionException;
+import org.liquigraph.core.exception.PreconditionExecutionException;
 import org.liquigraph.core.model.AndQuery;
 import org.liquigraph.core.model.OrQuery;
 import org.liquigraph.core.model.Precondition;
@@ -112,7 +112,7 @@ public class PreconditionExecutorTest {
 
     @Test
     public void fails_with_invalid_cypher_query() throws SQLException {
-        thrown.expect(PreconditionException.class);
+        thrown.expect(PreconditionExecutionException.class);
         thrown.expectMessage(
             "Error executing precondition:\n" +
             "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.\n" +
@@ -130,7 +130,7 @@ public class PreconditionExecutorTest {
 
     @Test
     public void fails_with_badly_named_precondition_result_column() throws SQLException {
-        thrown.expect(PreconditionException.class);
+        thrown.expect(PreconditionExecutionException.class);
         thrown.expectMessage("Make sure your query <RETURN true> yields exactly one column named or aliased 'result'.");
 
         Connection connection = graphDatabaseRule.jdbcConnection();
