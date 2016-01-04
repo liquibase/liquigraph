@@ -63,9 +63,22 @@ public final class ChangelogParser {
             if (!errors.isEmpty()) {
                 throw new IllegalArgumentException(formatErrorMessage(errors));
             }
-            return (Changelog) unmarshaller.unmarshal(document);
+            Changelog changelog = (Changelog) unmarshaller.unmarshal(document);
+            fixUpChangesets(changelog);
+            return changelog;
         } catch (JAXBException e) {
             throw new IllegalArgumentException(format("Unable to parse changelog <%s>.", masterChangelog), e);
+        }
+    }
+
+    /*
+     * Ugly workaround due to the way JAXB handles setters
+     * The checksum invariant of changesets cannot be properly
+     * managed.
+     */
+    private void fixUpChangesets(Changelog changelog) {
+        for (Changeset changeset : changelog.getChangesets()) {
+            changeset.setQueries(changeset.getQueries());
         }
     }
 

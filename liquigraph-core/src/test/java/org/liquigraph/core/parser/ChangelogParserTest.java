@@ -41,6 +41,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.liquigraph.core.model.Checksums.checksum;
 import static org.liquigraph.core.model.PreconditionErrorPolicy.FAIL;
 import static org.liquigraph.core.model.PreconditionErrorPolicy.MARK_AS_EXECUTED;
 import static org.mockito.Matchers.any;
@@ -49,10 +50,8 @@ import static org.mockito.Mockito.when;
 
 public class ChangelogParserTest {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    private XmlSchemaValidator validator = new XmlSchemaValidator();
+    @Rule public ExpectedException thrown = ExpectedException.none();
+    private final XmlSchemaValidator validator = new XmlSchemaValidator();
     private final ChangelogPreprocessor preprocessor = new ChangelogPreprocessor(new ImportResolver());
     private final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
@@ -150,6 +149,28 @@ public class ChangelogParserTest {
         thrown.expectMessage(String.format("%n\terror1%n\terror2"));
 
         parser.parse(classLoader, "changelog/changelog.xml");
+    }
+
+    @Test
+    public void populates_checksum() {
+        Collection<Changeset> changesets = parser.parse(classLoader, "changelog/changelog.xml");
+
+        assertThat(changesets)
+            .extracting("queries", "checksum")
+            .containsExactly(
+                tuple(singletonList("MATCH (n) RETURN n"), checksum(singletonList("MATCH (n) RETURN n"))),
+                tuple(singletonList("MATCH (m) RETURN m"), checksum(singletonList("MATCH (m) RETURN m")))
+            );
+    }
+
+    @Test
+    public void parses_changesets_with_several_queries() {
+        Collection<Changeset> changesets = parser.parse(classLoader, "changelog/multiple_queries/changelog.xml");
+
+        assertThat(changesets)
+            .hasSize(1)
+            .flatExtracting("queries")
+            .containsExactly("MATCH (n) RETURN n", "MATCH (m) RETURN m");
     }
 
     // fragile: uses reflection

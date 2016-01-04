@@ -74,7 +74,6 @@ class MigrationRunner {
     }
 
     private Collection<Changeset> parseChangesets(ClassLoader classLoader, String masterChangelog) {
-
         return changelogParser.parse(classLoader, masterChangelog);
     }
 

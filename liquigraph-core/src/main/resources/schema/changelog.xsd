@@ -50,7 +50,7 @@
     <xs:complexType name="ChangesetType">
         <xs:sequence>
             <xs:element name="precondition" type="PreconditionType" minOccurs="0" maxOccurs="1" />
-            <xs:element name="query" type="QueryType" minOccurs="1" />
+            <xs:element name="query" type="QueryType" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
 
         <xs:attribute name="id" type="xs:string" use="required" />
