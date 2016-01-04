@@ -12,7 +12,6 @@ os:
   - linux
 env:
   matrix:
-    - NEO_VERSION=2.0.3
     - NEO_VERSION=2.0.5
     - NEO_VERSION=2.1.8
     - NEO_VERSION=2.2.7

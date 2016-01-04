@@ -22,21 +22,29 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newLinkedList;
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.unmodifiableCollection;
 
 public class ChangelogGraphReader {
 
     private static final String MATCH_CHANGESETS =
         "MATCH (changelog:__LiquigraphChangelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
-        "RETURN changeset " +
-        "ORDER BY exec.time ASC";
+        "WITH changeset, exec " +
+        "MATCH (changeset)<-[:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
+        "WITH changeset, query, exec " +
+        "ORDER BY exec.time ASC, query.order ASC " +
+        "WITH changeset, COLLECT(query.query) AS queries, exec " +
+        "RETURN {" +
+        "   id: changeset.id, " +
+        "   author:changeset.author, " +
+        "   checksum:changeset.checksum, " +
+        "   query:queries" +
+        "} AS changeset";
 
     public final Collection<Changeset> read(Connection connection) {
         Collection<Changeset> changesets = newLinkedList();
@@ -85,16 +93,6 @@ public class ChangelogGraphReader {
     }
 
     private Collection<String> adaptQueries(Object rawQuery) {
-        if (rawQuery instanceof String) {
-            return singletonList((String) rawQuery);
-        }
-        if (rawQuery instanceof String[]) {
-            return Arrays.asList((String[]) rawQuery);
-        }
-        throw new IllegalArgumentException(
-           "Unsupported query format.\n\t" +
-              "Should be a String or a String[].\n\t" +
-              "Found value: " + rawQuery
-        );
+        return unmodifiableCollection((Collection<String>) rawQuery);
     }
 }

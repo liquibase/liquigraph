@@ -28,6 +28,7 @@ import org.liquigraph.core.model.SimpleQuery;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Node;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -41,12 +42,8 @@ import static org.liquigraph.core.model.Checksums.checksum;
 
 public class ChangelogGraphWriterTest {
 
-    @Rule
-    public EmbeddedGraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neotest");
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
+    @Rule public EmbeddedGraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neotest");
+    @Rule public ExpectedException thrown = ExpectedException.none();
     private ChangelogGraphWriter writer;
 
     @Before
@@ -58,28 +55,7 @@ public class ChangelogGraphWriterTest {
     public void persists_changesets_in_graph() throws SQLException {
         writer.write(newArrayList(changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})")));
 
-        try (Statement statement = graph.jdbcConnection().createStatement();
-            ResultSet resultSet = statement.executeQuery(
-                "MATCH (node: SomeNode), (changelog:__LiquigraphChangelog)<-[execution:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
-                "RETURN execution.time AS time, changeset, node"
-            )) {
-
-            assertThat(resultSet.next()).isTrue();
-
-            assertThat(resultSet.getLong("time")).isGreaterThan(0);
-
-            Node changeset = (Node) resultSet.getObject("changeset");
-            assertThat(changeset.getProperty("id")).isEqualTo("identifier");
-            assertThat(changeset.getProperty("author")).isEqualTo("fbiville");
-            assertThat((String[])changeset.getProperty("query")).containsExactly("CREATE (n: SomeNode {text:'yeah'})");
-            assertThat(changeset.getProperty("checksum")).isEqualTo(checksum(singletonList("CREATE (n: SomeNode {text:'yeah'})")));
-
-            Node node = (Node) resultSet.getObject("node");
-            assertThat(node.getLabels()).containsExactly(DynamicLabel.label("SomeNode"));
-            assertThat(node.getProperty("text")).isEqualTo("yeah");
-
-            assertThat(resultSet.next()).isFalse();
-        }
+        assertThatQueryIsExecutedAndHistoryPersisted(graph.jdbcConnection());
     }
 
     @Test
@@ -89,26 +65,7 @@ public class ChangelogGraphWriterTest {
 
         writer.write(newArrayList(changeset));
 
-        try (Statement statement = graph.jdbcConnection().createStatement();
-             ResultSet resultSet = statement.executeQuery(
-                 "MATCH (node: SomeNode), (changelog:__LiquigraphChangelog)<-[execution:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
-                 "RETURN execution.time AS time, changeset, node"
-             )) {
-
-            assertThat(resultSet.next()).isTrue();
-
-            assertThat(resultSet.getLong("time")).isGreaterThan(0);
-            Node persistedChangeset = (Node) resultSet.getObject("changeset");
-            assertThat(persistedChangeset.getProperty("id")).isEqualTo("identifier");
-            assertThat(persistedChangeset.getProperty("author")).isEqualTo("fbiville");
-            assertThat((String[])persistedChangeset.getProperty("query")).containsExactly("CREATE (n: SomeNode {text:'yeah'})");
-            assertThat(persistedChangeset.getProperty("checksum")).isEqualTo(checksum(singletonList("CREATE (n: SomeNode {text:'yeah'})")));
-            Node node = (Node) resultSet.getObject("node");
-            assertThat(node.getLabels()).containsExactly(DynamicLabel.label("SomeNode"));
-            assertThat(node.getProperty("text")).isEqualTo("yeah");
-
-            assertThat(resultSet.next()).isFalse();
-        }
+        assertThatQueryIsExecutedAndHistoryPersisted(graph.jdbcConnection());
     }
 
     @Test
@@ -136,7 +93,7 @@ public class ChangelogGraphWriterTest {
                  "RETURN execution.order AS order, changeset, node"
              )) {
 
-            assertThat(resultSet.next()).isFalse();
+            assertThat(resultSet.next()).as("No more result in result set").isFalse();
         }
     }
 
@@ -147,24 +104,19 @@ public class ChangelogGraphWriterTest {
 
         writer.write(singletonList(changeset));
 
-        try (Statement transaction = graph.jdbcConnection().createStatement();
-             ResultSet resultSet = transaction.executeQuery(
-                 "MATCH (changelog:__LiquigraphChangelog)<-[execution:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
-                 "OPTIONAL MATCH (node:SomeNode)" +
-                 "RETURN execution.time AS time, changeset, node"
+        try (Statement statement = graph.jdbcConnection().createStatement();
+             ResultSet resultSet = statement.executeQuery(
+                 "OPTIONAL MATCH  (node: SomeNode) " +
+                 "WITH node " +
+                 "MATCH  (changelog:__LiquigraphChangelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset), " +
+                 "       (changeset)<-[:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
+                 "RETURN ewc.time AS time, changeset, COLLECT(query.query) AS queries, node"
              )) {
 
-            assertThat(resultSet.next()).isTrue();
-
-            assertThat(resultSet.getLong("time")).isGreaterThan(0);
-            Node persistedChangeset = (Node) resultSet.getObject("changeset");
-            assertThat(persistedChangeset.getProperty("id")).isEqualTo("identifier");
-            assertThat(persistedChangeset.getProperty("author")).isEqualTo("fbiville");
-            assertThat((String[])persistedChangeset.getProperty("query")).containsExactly("CREATE (n: SomeNode {text:'yeah'})");
-            assertThat(persistedChangeset.getProperty("checksum")).isEqualTo(checksum(singletonList("CREATE (n: SomeNode {text:'yeah'})")));
-            assertThat(resultSet.getObject("node")).isNull();
-
-            assertThat(resultSet.next()).isFalse();
+            assertThat(resultSet.next()).as("Result set should contain 1 row").isTrue();
+            assertThatChangesetIsStored(resultSet);
+            assertThatQueryIsNotExecuted(resultSet);
+            assertThat(resultSet.next()).as("No more result in result set").isFalse();
         }
     }
 
@@ -185,7 +137,17 @@ public class ChangelogGraphWriterTest {
 
             assertThat(resultSet.next()).isTrue();
             assertThat(resultSet.getLong("age")).isEqualTo(42);
-            assertThat(resultSet.next()).isFalse();
+            assertThat(resultSet.next()).as("No more result in result set").isFalse();
+        }
+
+        try (Statement transaction = graph.jdbcConnection().createStatement();
+             ResultSet resultSet = transaction.executeQuery("MATCH (queries:__LiquigraphQuery) RETURN COLLECT(queries.query) AS query")) {
+
+            assertThat(resultSet.next()).isTrue();
+            assertThat((Collection<String>)resultSet.getObject("query")).containsExactly(
+                "CREATE (n:Human) RETURN n", "MATCH (n:Human) SET n.age = 42 RETURN n"
+            );
+            assertThat(resultSet.next()).as("No more result in result set").isFalse();
         }
     }
 
@@ -215,5 +177,43 @@ public class ChangelogGraphWriterTest {
         changeset.setAuthor(author);
         changeset.setQueries(queries);
         return changeset;
+    }
+
+    private static void assertThatQueryIsExecutedAndHistoryPersisted(Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(
+                 "MATCH  (node: SomeNode), " +
+                     "       (changelog:__LiquigraphChangelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset), " +
+                     "       (changeset)<-[:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
+                     "RETURN ewc.time AS time, changeset, COLLECT(query.query) AS queries, node"
+             )) {
+
+            assertThat(resultSet.next()).as("Result set should contain 1 row").isTrue();
+            assertThatChangesetIsStored(resultSet);
+            assertThatQueryIsExecuted(resultSet);
+            assertThat(resultSet.next()).as("No more result in result set").isFalse();
+        }
+    }
+
+    private static void assertThatChangesetIsStored(ResultSet resultSet) throws SQLException {
+        assertThat(resultSet.getLong("time")).isGreaterThan(0);
+
+        assertThat((Collection<String>) resultSet.getObject("queries"))
+            .containsExactly("CREATE (n: SomeNode {text:'yeah'})");
+
+        Node changeset = (Node) resultSet.getObject("changeset");
+        assertThat(changeset.getProperty("id")).isEqualTo("identifier");
+        assertThat(changeset.getProperty("author")).isEqualTo("fbiville");
+        assertThat(changeset.getProperty("checksum")).isEqualTo(checksum(singletonList("CREATE (n: SomeNode {text:'yeah'})")));
+    }
+
+    private static void assertThatQueryIsExecuted(ResultSet resultSet) throws SQLException {
+        Node node = (Node) resultSet.getObject("node");
+        assertThat(node.getLabels()).containsExactly(DynamicLabel.label("SomeNode"));
+        assertThat(node.getProperty("text")).isEqualTo("yeah");
+    }
+
+    private static void assertThatQueryIsNotExecuted(ResultSet resultSet) throws SQLException {
+        assertThat(resultSet.getObject("node")).isNull();
     }
 }

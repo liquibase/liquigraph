@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Iterables.get;
 import static java.lang.String.format;
 import static org.liquigraph.core.io.PreconditionResult.NO_PRECONDITION;
 
@@ -36,12 +37,22 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     private static final String CHANGESET_UPSERT =
         "MERGE (changelog:__LiquigraphChangelog) " +
         "MERGE (changelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset {id: {1}}) " +
-        "ON MATCH SET  changeset.checksum = {2}, " +
-        "              changeset.query = {3} " +
-        "ON CREATE SET changeset.checksum = {2}," +
-        "              changeset.query = {3}," +
-        "              changeset.author = {4}," +
-        "              ewc.time = timestamp()";
+        "ON MATCH SET  changeset.checksum = {2} " +
+        "ON CREATE SET changeset.checksum = {2}, " +
+        "              changeset.author = {3}, " +
+        "              ewc.time = timestamp() " +
+        "WITH changeset " +
+        // deletes previous stored queries, if any
+        "OPTIONAL MATCH (changeset)<-[eq:EXECUTED_WITHIN_CHANGESET]-(queries:__LiquigraphQuery) " +
+        "DELETE eq, queries " +
+        "WITH changeset " +
+        "RETURN changeset ";
+
+    private static final String QUERY_UPSERT =
+        // stores the possibly updated queries
+        "MATCH (changeset:__LiquigraphChangeset {id: {1}, author: {2}}) " +
+        "WITH changeset " +
+        "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order:{3}}]-(:__LiquigraphQuery {query: {4}})";
 
     private final Connection connection;
     private final PreconditionExecutor preconditionExecutor;
@@ -119,26 +130,46 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     }
 
     private void insertChangeset(Connection connection, Changeset changeset) {
-        Map<Integer, Object> parameters = parameters(changeset);
-        try (PreparedStatement statement = connection.prepareStatement(CHANGESET_UPSERT)) {
-            for (Integer key : parameters.keySet()) {
-                statement.setObject(key, parameters.get(key));
-            }
-            statement.execute();
+        try (PreparedStatement changesetStmt = connection.prepareStatement(CHANGESET_UPSERT);
+             PreparedStatement queryStmt = connection.prepareStatement(QUERY_UPSERT)) {
+
+            insertChangesetNode(changeset, changesetStmt);
+            insertQueryNodes(changeset, queryStmt);
+
             connection.commit();
         } catch (SQLException e) {
             throw propagate(e);
         }
     }
 
-    private Map<Integer, Object> parameters(Changeset changeset) {
+    private void insertChangesetNode(Changeset changeset, PreparedStatement changesetStmt) throws SQLException {
+        populateChangesetStatement(changeset, changesetStmt);
+        changesetStmt.execute();
+    }
+
+    private void insertQueryNodes(Changeset changeset, PreparedStatement queryStmt) throws SQLException {
+        queryStmt.setString(1, changeset.getId());
+        queryStmt.setString(2, changeset.getAuthor());
         Collection<String> queries = changeset.getQueries();
+        for (int i = 0; i < queries.size(); i++) {
+            queryStmt.setInt(3, i);
+            queryStmt.setString(4, get(queries, i));
+            queryStmt.execute();
+        }
+    }
+
+    private void populateChangesetStatement(Changeset changeset, PreparedStatement changesetStmt) throws SQLException {
+        for (Integer key : changesetParameters(changeset).keySet()) {
+            changesetStmt.setObject(key, changesetParameters(changeset).get(key));
+        }
+    }
+
+    private Map<Integer, Object> changesetParameters(Changeset changeset) {
         String checksum = changeset.getChecksum();
         Map<Integer, Object> parameters = new HashMap<>();
         parameters.put(1, changeset.getId());
         parameters.put(2, checksum);
-        parameters.put(3, queries.toArray(new String[queries.size()]));
-        parameters.put(4, changeset.getAuthor());
+        parameters.put(3, changeset.getAuthor());
         return parameters;
     }
 
