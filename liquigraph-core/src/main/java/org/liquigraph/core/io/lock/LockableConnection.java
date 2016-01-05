@@ -64,7 +64,7 @@ public final class LockableConnection implements Connection {
     public static LockableConnection acquire(Connection delegate) {
         LockableConnection connection = new LockableConnection(delegate);
         try {
-            connection.initiateLocking();
+            connection.acquireLock();
             return connection;
         } catch (RuntimeException e) {
             try {
@@ -85,7 +85,7 @@ public final class LockableConnection implements Connection {
      */
     @Override
     public void close() throws SQLException {
-        Runtime.getRuntime().removeShutdownHook(task);
+        removeShutdownHook();
         releaseLock();
         delegate.close();
     }
@@ -302,12 +302,6 @@ public final class LockableConnection implements Connection {
         delegate.setSchema(schema);
     }
 
-    private final void initiateLocking() {
-        registerLockRemovalHook();
-        ensureLockUnicity();
-        tryWriteLock();
-    }
-
     final void releaseLock() {
         try (PreparedStatement statement = prepareStatement(
             "MATCH (lock:__LiquigraphLock {uuid:{1}}) DELETE lock")) {
@@ -323,14 +317,24 @@ public final class LockableConnection implements Connection {
         }
     }
 
-    private final void registerLockRemovalHook() {
+    private final void acquireLock() {
+        addShutdownHook();
+        ensureLockUnicity();
+        tryWriteLock();
+    }
+
+    private final void addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(task);
+    }
+
+    private final void removeShutdownHook() {
+        Runtime.getRuntime().removeShutdownHook(task);
     }
 
     private final void ensureLockUnicity() {
         try (Statement statement = delegate.createStatement()) {
             statement.execute("CREATE CONSTRAINT ON (lock:__LiquigraphLock) ASSERT lock.name IS UNIQUE");
-            delegate.commit();
+            commit();
         }
         catch (SQLException e) {
             throw new LiquigraphLockException(
@@ -348,7 +352,7 @@ public final class LockableConnection implements Connection {
 
             statement.setString(1, uuid.toString());
             statement.execute();
-            delegate.commit();
+            commit();
         }
         catch (SQLException e) {
             throw new LiquigraphLockException(
