@@ -55,11 +55,25 @@ public final class LockableConnection implements Connection {
     private final UUID uuid;
     private final Thread task;
 
-    public LockableConnection(Connection delegate) {
+    private LockableConnection(Connection delegate) {
         this.delegate = delegate;
         this.uuid = UUID.randomUUID();
         this.task = new Thread(new ShutdownTask(this));
-        initiateLocking();
+    }
+
+    public static LockableConnection acquire(Connection delegate) {
+        LockableConnection connection = new LockableConnection(delegate);
+        try {
+            connection.initiateLocking();
+            return connection;
+        } catch (RuntimeException e) {
+            try {
+                connection.close();
+            } catch (SQLException exception) {
+                e.addSuppressed(exception);
+            }
+            throw e;
+        }
     }
 
     /**

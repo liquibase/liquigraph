@@ -40,7 +40,7 @@ public class GraphJdbcConnector implements LiquigraphJdbcConnector {
             Class.forName("org.neo4j.jdbc.Driver");
             Connection connection = DriverManager.getConnection(makeUri(configuration));
             connection.setAutoCommit(false);
-            return new LockableConnection(connection);
+            return LockableConnection.acquire(connection);
         } catch (ClassNotFoundException | SQLException e) {
             throw Throwables.propagate(e);
         }
