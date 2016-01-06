@@ -78,8 +78,6 @@ public class Changeset {
 
     public void setChecksum(String checksum) {
         checkArgument(checksum != null, "Checksum cannot be null");
-        String expectedChecksum = checksum(queries);
-        checkArgument(checksum.equals(expectedChecksum), checksumError(id, expectedChecksum, checksum));
         this.checksum = checksum;
     }
 
@@ -158,7 +156,4 @@ public class Changeset {
                 '}';
     }
 
-    private String checksumError(String id, String expected, String actual) {
-        return format("Changeset <%s>. Checksum mismatch!%n\t Expected: %s%n\t Actual: %s", id, expected, actual);
-    }
 }
