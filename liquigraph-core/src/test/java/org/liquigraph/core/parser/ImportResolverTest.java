@@ -15,7 +15,9 @@
  */
 package org.liquigraph.core.parser;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.liquigraph.core.io.xml.ImportResolver;
 import org.w3c.dom.Node;
 
@@ -33,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ImportResolverTest {
 
+    @Rule public ExpectedException thrown = ExpectedException.none();
     private ImportResolver resolver = new ImportResolver();
     private ClassLoader classLoader = currentThread().getContextClassLoader();
 
@@ -119,6 +122,17 @@ public class ImportResolverTest {
             "        <query><![CDATA[MATCH (n) RETURN n]]></query>\n" +
             "    </changeset>\n" +
             "</changelog>");
+    }
+
+    @Test
+    public void fails_on_non_existing_import() {
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("Import location cannot be resolved: changelog/includes/that/is_gonna_fail.xml");
+
+        resolver.resolveImports(
+            "changelog/includes/invalid_include.xml",
+            classLoader
+        );
     }
 
     private String contents(Node root) throws Exception {

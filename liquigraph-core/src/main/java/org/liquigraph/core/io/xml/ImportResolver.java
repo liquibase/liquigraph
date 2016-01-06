@@ -42,6 +42,9 @@ public class ImportResolver {
 
     public Node resolveImports(String changelog, ClassLoader classLoader) {
         try (InputStream stream = classLoader.getResourceAsStream(changelog)) {
+            if (stream == null) {
+                throw new RuntimeException("Import location cannot be resolved: " + changelog);
+            }
             return resolve(changelog, document(stream), classLoader);
         } catch (IOException e) {
             throw propagate(e);
