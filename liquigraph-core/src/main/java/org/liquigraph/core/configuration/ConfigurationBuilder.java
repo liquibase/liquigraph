@@ -19,9 +19,11 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import org.liquigraph.core.configuration.validators.ExecutionModeValidator;
 import org.liquigraph.core.configuration.validators.MandatoryOptionValidator;
+import org.restlet.engine.Engine;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.logging.Level;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
@@ -160,6 +162,8 @@ public final class ConfigurationBuilder {
         if (!errors.isEmpty()) {
             throw new RuntimeException(formatErrors(errors));
         }
+
+        muteRestletLogs();
         return new Configuration(
             classLoader,
             masterChangelog,
@@ -169,6 +173,10 @@ public final class ConfigurationBuilder {
             executionContexts,
             executionMode
         );
+    }
+
+    private void muteRestletLogs() {
+        Engine.setRestletLogLevel(Level.SEVERE);
     }
 
     private String formatErrors(Collection<String> errors) {
