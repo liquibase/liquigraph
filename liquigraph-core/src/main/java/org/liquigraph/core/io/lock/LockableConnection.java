@@ -81,7 +81,7 @@ public final class LockableConnection implements Connection {
      * task shutdown hook before closing the underlying
      * connection.
      *
-     * @see {@link ShutdownTask}
+     * @see ShutdownTask
      */
     @Override
     public void close() throws SQLException {

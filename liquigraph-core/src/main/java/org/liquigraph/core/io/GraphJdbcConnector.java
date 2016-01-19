@@ -30,7 +30,7 @@ public class GraphJdbcConnector implements LiquigraphJdbcConnector {
      * Acquires a new connection to the configured instance
      * and tries to lock it (fail-fast).
      *
-     * @see {@link LockableConnection}
+     * @see LockableConnection
      * @param configuration Liquigraph settings
      * @return JDBC connection
      */

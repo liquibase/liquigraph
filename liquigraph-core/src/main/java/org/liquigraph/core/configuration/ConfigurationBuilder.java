@@ -92,6 +92,10 @@ public final class ConfigurationBuilder {
 
     /**
      * @see ConfigurationBuilder#withExecutionContexts(java.util.Collection)
+     *
+     * @param executionContexts 0 or more Liquigraph execution contexts to allow changeset
+     *                          filtering
+     * @return itself for chaining purposes
      */
     public ConfigurationBuilder withExecutionContexts(String... executionContexts) {
         return withExecutionContexts(newArrayList(executionContexts));

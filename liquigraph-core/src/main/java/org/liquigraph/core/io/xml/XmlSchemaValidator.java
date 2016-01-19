@@ -45,7 +45,9 @@ public class XmlSchemaValidator {
     /**
      * Validate the fully resolved changelog containing all migrations
      *
+     * @param changelog DOM node holding the changelog
      * @throws IllegalArgumentException if there is am XML validation error
+     * @return validation error messages
      */
     public Collection<String> validateSchema(Node changelog) {
         return validate(new DOMSource(changelog));
