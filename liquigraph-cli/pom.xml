@@ -57,6 +57,7 @@
                 <version>2.6</version>
                 <configuration>
                     <descriptor>src/assembly/assembly.xml</descriptor>
+                    <tarLongFileMode>posix</tarLongFileMode>
                 </configuration>
                 <executions>
                     <execution>
