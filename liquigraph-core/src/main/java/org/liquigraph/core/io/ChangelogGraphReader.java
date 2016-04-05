@@ -34,17 +34,17 @@ public class ChangelogGraphReader {
 
     private static final String MATCH_CHANGESETS =
         "MATCH (changelog:__LiquigraphChangelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
-        "WITH changeset, exec " +
-        "MATCH (changeset)<-[:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
-        "WITH changeset, query, exec " +
-        "ORDER BY exec.time ASC, query.order ASC " +
-        "WITH changeset, COLLECT(query.query) AS queries, exec " +
-        "RETURN {" +
-        "   id: changeset.id, " +
-        "   author:changeset.author, " +
-        "   checksum:changeset.checksum, " +
-        "   query:queries" +
-        "} AS changeset";
+            "WITH changeset, exec " +
+            "MATCH (changeset)<-[execChangeSet:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
+            "WITH changeset, query, exec " +
+            "ORDER BY exec.time ASC, execChangeSet.order ASC " +
+            "WITH changeset, COLLECT(query.query) AS queries, exec " +
+            "RETURN {" +
+            "   id: changeset.id, " +
+            "   author:changeset.author, " +
+            "   checksum:changeset.checksum, " +
+            "   query:queries" +
+            "} AS changeset";
 
     public final Collection<Changeset> read(Connection connection) {
         Collection<Changeset> changesets = newLinkedList();
