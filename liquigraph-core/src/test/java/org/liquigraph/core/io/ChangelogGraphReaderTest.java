@@ -39,13 +39,16 @@ public class ChangelogGraphReaderTest {
     public void reads_changelog_from_graph_database() throws SQLException {
         try (Connection connection = graph.jdbcConnection()) {
             String query = "MATCH n RETURN n";
-            given_inserted_data(format("CREATE (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
+            given_inserted_data(format(
+                "CREATE (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
                     "(:__LiquigraphChangeset {" +
                     "   author:'fbiville'," +
                     "   id:'test'," +
                     "   checksum:'%s'" +
-                    "})<-[:EXECUTED_WITHIN_CHANGESET]-(:__LiquigraphQuery {query: '%s'})", checksum(singletonList(query)),
-                query), connection);
+                    "})<-[:EXECUTED_WITHIN_CHANGESET]-(:__LiquigraphQuery {query: '%s'})"
+                , checksum(singletonList(query)), query),
+                connection
+            );
 
             Collection<Changeset> changesets = reader.read(graph.jdbcConnection());
 
@@ -62,55 +65,34 @@ public class ChangelogGraphReaderTest {
     @Test
     public void reads_changeset_with_multiple_queries() throws SQLException {
         try (Connection connection = graph.jdbcConnection()) {
-            given_inserted_data(format("CREATE     (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
+            given_inserted_data(format(
+                "CREATE     (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
                     "           (changeset:__LiquigraphChangeset {" +
                     "               author:'fbiville'," +
                     "               id:'test'," +
                     "               checksum:'%s'" +
                     "           }), " +
-                    "           (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order: 0}]-(:__LiquigraphQuery {query: '%s'}), " +
-                    "           (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order: 1}]-(:__LiquigraphQuery {query: '%s'})",
-                checksum(asList("MATCH n RETURN n", "MATCH m RETURN m")), "MATCH n RETURN n", "MATCH m RETURN m"),
-                connection);
+                    "           (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order: 1} ]-(:__LiquigraphQuery {query: '%s'}), " +
+                    "           (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order: 0} ]-(:__LiquigraphQuery {query: '%s'}), " +
+                    "           (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order: 2}]-(:__LiquigraphQuery {query: '%s'})",
+                checksum(asList("MATCH m RETURN m", "MATCH n RETURN n", "Match o Return o")),
+                "MATCH n RETURN n",
+                "MATCH m RETURN m",
+                "MATCH o RETURN o"),
+                connection
+            );
 
             Collection<Changeset> changesets = reader.read(graph.jdbcConnection());
 
             assertThat(changesets).hasSize(1);
             Changeset changeset = changesets.iterator().next();
             assertThat(changeset.getId()).isEqualTo("test");
-            assertThat(changeset.getChecksum()).isEqualTo(checksum(asList("MATCH n RETURN n", "MATCH m RETURN m")));
+            assertThat(changeset.getChecksum()).isEqualTo(checksum(asList("MATCH m RETURN m", "MATCH n RETURN n", "Match o Return o")));
             assertThat(changeset.getAuthor()).isEqualTo("fbiville");
-            assertThat(changeset.getQueries()).containsExactly("MATCH n RETURN n", "MATCH m RETURN m");
+            assertThat(changeset.getQueries()).containsExactly("MATCH m RETURN m", "MATCH n RETURN n", "MATCH o RETURN o");
             connection.commit();
         }
     }
-
-    @Test
-    public void reads_changeset_with_multiple_queries_in_order() throws SQLException {
-        try (Connection connection = graph.jdbcConnection()) {
-            given_inserted_data(format("CREATE     (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
-                    "           (changeset:__LiquigraphChangeset {" +
-                    "               author:'fbiville'," +
-                    "               id:'test_in_order'," +
-                    "               checksum:'%s'" +
-                    "           }), " +
-                    "           (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order: 1}]-(:__LiquigraphQuery {query: '%s'}), " +
-                    "           (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order: 0}]-(:__LiquigraphQuery {query: '%s'})",
-                checksum(asList("MATCH m RETURN m","MATCH n RETURN n")), "MATCH n RETURN n", "MATCH m RETURN m"),
-                connection);
-
-            Collection<Changeset> changesets = reader.read(graph.jdbcConnection());
-
-            assertThat(changesets).hasSize(1);
-            Changeset changeset = changesets.iterator().next();
-            assertThat(changeset.getId()).isEqualTo("test_in_order");
-            assertThat(changeset.getChecksum()).isEqualTo(checksum(asList("MATCH m RETURN m", "MATCH n RETURN n")));
-            assertThat(changeset.getAuthor()).isEqualTo("fbiville");
-            assertThat(changeset.getQueries()).containsExactly("MATCH m RETURN m","MATCH n RETURN n");
-            connection.commit();
-        }
-    }
-
 
     private void given_inserted_data(String query, Connection connection) throws SQLException {
         connection.createStatement().executeQuery(query);

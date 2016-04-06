@@ -35,9 +35,9 @@ public class ChangelogGraphReader {
     private static final String MATCH_CHANGESETS =
         "MATCH (changelog:__LiquigraphChangelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
             "WITH changeset, exec " +
-            "MATCH (changeset)<-[execChangeset:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
+            "MATCH (changeset)<-[execChangeSet:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
             "WITH changeset, query, exec " +
-            "ORDER BY exec.time ASC, execChangeset.order ASC " +
+            "ORDER BY exec.time ASC, execChangeSet.order ASC " +
             "WITH changeset, COLLECT(query.query) AS queries, exec " +
             "RETURN {" +
             "   id: changeset.id, " +
@@ -54,7 +54,8 @@ public class ChangelogGraphReader {
                 changesets.add(mapRow(result.getObject("changeset")));
             }
             connection.commit();
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             throw propagate(e);
         }
         return changesets;
@@ -68,7 +69,9 @@ public class ChangelogGraphReader {
         if (line instanceof Map) {
             return changeset((Map<String, Object>) line);
         }
-        throw new IllegalArgumentException(format("Unsupported row.\n\t" + "Cannot parse: %s", line));
+        throw new IllegalArgumentException(format(
+           "Unsupported row.\n\t" +
+           "Cannot parse: %s", line));
     }
 
     private Changeset changeset(Node node) {
