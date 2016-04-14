@@ -14,9 +14,9 @@ env:
   matrix:
     - NEO_VERSION=2.0.5
     - NEO_VERSION=2.1.8
-    - NEO_VERSION=2.2.8
+    - NEO_VERSION=2.2.9
       EXTRA_PROFILES=-Pwith-neo4j-io
-    - NEO_VERSION=2.3.2
+    - NEO_VERSION=2.3.3
       EXTRA_PROFILES=-Pwith-neo4j-io
 script: "mvn -T4 clean test -Dneo4j.version=${NEO_VERSION} ${EXTRA_PROFILES}"
 after_success:
