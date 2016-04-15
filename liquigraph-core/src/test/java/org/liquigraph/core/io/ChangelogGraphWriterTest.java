@@ -151,6 +151,72 @@ public class ChangelogGraphWriterTest {
         }
     }
 
+    @Test
+    public void persists_run_always_changesets_in_graph_only_once() throws SQLException {
+        Changeset changeset = changeset("identifier", "fbiville",
+                "MERGE (n:SomeNode) " +
+                "ON CREATE SET n.prop = 1 " +
+                "ON MATCH SET n.prop = n.prop + 1");
+        changeset.setRunAlways(true);
+
+        for (int i = 0; i < 5; i++) {
+            writer.write(newArrayList(changeset));
+        }
+
+        try (Statement transaction = graph.jdbcConnection().createStatement();
+             ResultSet changesetSet = transaction.executeQuery("MATCH (changeset:__LiquigraphChangeset) RETURN changeset");
+             ResultSet propSet = transaction.executeQuery("MATCH (n:SomeNode) RETURN n.prop AS prop")) {
+            assertThat(changesetSet.next()).isTrue();
+            Node changesetNode = (Node) changesetSet.getObject("changeset");
+            assertThat(changesetNode.getProperty("id")).isEqualTo("identifier");
+            assertThat(changesetNode.getProperty("author")).isEqualTo("fbiville");
+            assertThat(changesetNode.getProperty("checksum"))
+                    .isEqualTo(checksum(singletonList(
+                            "MERGE (n:SomeNode) " +
+                            "ON CREATE SET n.prop = 1 " +
+                            "ON MATCH SET n.prop = n.prop + 1")));
+            assertThat(changesetSet.next()).as("No more result in changeset result set").isFalse();
+
+            assertThat(propSet.next()).isTrue();
+            assertThat(((Number) propSet.getObject("prop")).intValue()).isEqualTo(5);
+            assertThat(propSet.next()).as("No more result in test node result set").isFalse();
+        }
+    }
+
+    @Test
+    public void persists_run_on_change_changesets_in_graph_only_once() throws SQLException {
+        Changeset changeset = changeset("identifier", "fbiville",
+                "CREATE (n:SomeNode {prop: 1})");
+        changeset.setRunOnChange(true);
+        writer.write(newArrayList(changeset));
+        changeset = changeset(changeset.getId(), changeset.getAuthor(),
+                "MERGE (n:SomeNode) " +
+                "ON CREATE SET n.prop = 1 " +
+                "ON MATCH SET n.prop = n.prop + 1");
+        changeset.setRunOnChange(true);
+
+        writer.write(newArrayList(changeset));
+
+        try (Statement transaction = graph.jdbcConnection().createStatement();
+             ResultSet changesetSet = transaction.executeQuery("MATCH (changeset:__LiquigraphChangeset) RETURN changeset");
+             ResultSet propSet = transaction.executeQuery("MATCH (n:SomeNode) RETURN n.prop AS prop")) {
+            assertThat(changesetSet.next()).isTrue();
+            Node changesetNode = (Node) changesetSet.getObject("changeset");
+            assertThat(changesetNode.getProperty("id")).isEqualTo("identifier");
+            assertThat(changesetNode.getProperty("author")).isEqualTo("fbiville");
+            assertThat(changesetNode.getProperty("checksum"))
+                    .isEqualTo(checksum(singletonList(
+                            "MERGE (n:SomeNode) " +
+                            "ON CREATE SET n.prop = 1 " +
+                            "ON MATCH SET n.prop = n.prop + 1")));
+            assertThat(changesetSet.next()).as("No more result in changeset result set").isFalse();
+
+            assertThat(propSet.next()).isTrue();
+            assertThat(((Number) propSet.getObject("prop")).intValue()).isEqualTo(2);
+            assertThat(propSet.next()).as("No more result in test node result set").isFalse();
+        }
+    }
+
     private Precondition precondition(PreconditionErrorPolicy policy, String query) {
         Precondition precondition = new Precondition();
         precondition.setPolicy(policy);
