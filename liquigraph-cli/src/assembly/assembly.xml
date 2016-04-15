@@ -11,8 +11,12 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>src/main/resources</directory>
+            <directory>src/assembly</directory>
             <outputDirectory/>
+            <includes>
+                <include>liquigraph.bat</include>
+                <include>liquigraph.sh</include>
+            </includes>
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}</directory>
