@@ -38,7 +38,8 @@ public class ChangesetChecksumHasChanged implements Predicate<Changeset> {
 
     @Override
     public boolean apply(Changeset input) {
-        Optional<Changeset> persistedChangeset = from(persistedChangesets).firstMatch(BY_ID(input.getId()));
+        Optional<Changeset> persistedChangeset =
+                from(persistedChangesets).firstMatch(BY_ID(input.getId(), input.getAuthor()));
         return persistedChangeset.isPresent() && !input.getChecksum().equals(persistedChangeset.get().getChecksum());
     }
 }

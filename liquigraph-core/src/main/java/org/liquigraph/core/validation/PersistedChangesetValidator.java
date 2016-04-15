@@ -39,7 +39,7 @@ public class PersistedChangesetValidator {
         Collection<String> errors = newLinkedList();
         for (Changeset declaredChangeset : declaredChangesets) {
             Optional<Changeset> maybePersistedChangeset = FluentIterable.from(persistedChangesets)
-                .firstMatch(ChangesetById.BY_ID(declaredChangeset.getId()));
+                .firstMatch(ChangesetById.BY_ID(declaredChangeset.getId(), declaredChangeset.getAuthor()));
 
             if (!maybePersistedChangeset.isPresent()) {
                 continue;
@@ -60,8 +60,9 @@ public class PersistedChangesetValidator {
 
     private String checksumMismatchError(Changeset declaredChangeset, Changeset persistedChangeset) {
         return format(
-            "Changeset with ID <%s> has conflicted checksums.%n\t - Declared: <%s>%n\t - Persisted: <%s>.",
-            declaredChangeset.getId(), declaredChangeset.getChecksum(), persistedChangeset.getChecksum()
+            "Changeset with ID <%s> and author <%s> has conflicted checksums.%n\t - Declared: <%s>%n\t - Persisted: <%s>.",
+            declaredChangeset.getId(), declaredChangeset.getAuthor(), declaredChangeset.getChecksum(),
+            persistedChangeset.getChecksum()
         );
     }
 

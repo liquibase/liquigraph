@@ -34,11 +34,16 @@ public class ChangelogDiffMakerTest {
     public void diff_includes_all_latest_changesets_with_default_execution_context() {
         Collection<Changeset> changesets = diffMaker.computeChangesetsToInsert(
             DEFAULT_CONTEXT,
-            newArrayList(changeset("ID", "fbiville", "CREATE n"), changeset("ID2", "fbiville", "CREATE m")),
+            newArrayList(
+                changeset("ID", "fbiville", "CREATE n"),
+                changeset("ID", "author2", "CREATE m"),
+                changeset("ID2", "fbiville", "CREATE m")),
             newArrayList(changeset("ID", "fbiville", "CREATE n"))
         );
 
-        assertThat(changesets).containsExactly(changeset("ID2", "fbiville", "CREATE m"));
+        assertThat(changesets).containsExactly(
+            changeset("ID", "author2", "CREATE m"),
+            changeset("ID2", "fbiville", "CREATE m"));
     }
 
     @Test

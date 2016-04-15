@@ -36,10 +36,9 @@ public class ChangelogGraphWriter implements ChangelogWriter {
 
     private static final String CHANGESET_UPSERT =
         "MERGE (changelog:__LiquigraphChangelog) " +
-        "MERGE (changelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset {id: {1}}) " +
+        "MERGE (changelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset {id: {1}, author: {3}}) " +
         "ON MATCH SET  changeset.checksum = {2} " +
         "ON CREATE SET changeset.checksum = {2}, " +
-        "              changeset.author = {3}, " +
         "              ewc.time = timestamp() " +
         "WITH changeset " +
         // deletes previous stored queries, if any

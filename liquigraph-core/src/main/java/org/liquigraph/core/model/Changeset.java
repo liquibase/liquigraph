@@ -27,7 +27,6 @@ import java.util.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
 import static org.liquigraph.core.model.Checksums.checksum;
 
 public class Changeset {
@@ -88,7 +87,7 @@ public class Changeset {
 
     @XmlAttribute(name = "contexts", required = false)
     String getContexts() {
-        return executionsContexts == null ? "" : Joiner.on(',').join(executionsContexts);
+        return Joiner.on(',').join(executionsContexts);
     }
 
     public void setContexts(String executionsContexts) {
@@ -127,7 +126,7 @@ public class Changeset {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, checksum);
+        return Objects.hash(id, author, checksum);
     }
 
     @Override
@@ -139,7 +138,9 @@ public class Changeset {
             return false;
         }
         final Changeset other = (Changeset) obj;
-        return Objects.equals(this.id, other.id) && Objects.equals(this.checksum, other.checksum);
+        return Objects.equals(this.id, other.id) &&
+                Objects.equals(this.author, other.author) &&
+                Objects.equals(this.checksum, other.checksum);
     }
 
     @Override

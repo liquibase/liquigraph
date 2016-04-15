@@ -45,7 +45,7 @@ public class PersistedChangesetValidatorTest {
     public void passes_if_all_existing_changesets_have_not_changed_checksum() {
         Collection<String> errors = validator.validate(
             newArrayList(changeset("identifier", "author", "MATCH m RETURN m")),
-            newArrayList(changeset("identifier", "author2", "MATCH m RETURN m"))
+            newArrayList(changeset("identifier", "author", "MATCH m RETURN m"))
         );
 
         assertThat(errors).isEmpty();
@@ -65,12 +65,12 @@ public class PersistedChangesetValidatorTest {
     public void fails_if_changesets_with_same_id_have_different_checksums() throws Exception {
         Collection<String> errors = validator.validate(
             newArrayList(changeset("identifier", "author", "MATCH m RETURN m")),
-            newArrayList(changeset("identifier", "author2", "MATCH (m)-->(z) RETURN m, z"))
+            newArrayList(changeset("identifier", "author", "MATCH (m)-->(z) RETURN m, z"))
         );
 
         assertThat(errors).containsExactly(
             format(
-                "Changeset with ID <identifier> has conflicted checksums.\n" +
+                "Changeset with ID <identifier> and author <author> has conflicted checksums.\n" +
                 "\t - Declared: <%s>\n" +
                 "\t - Persisted: <%s>.",
                 checksum(singletonList("MATCH m RETURN m")),
@@ -81,7 +81,7 @@ public class PersistedChangesetValidatorTest {
 
     private Changeset changeset(String identifier, String author, String query, boolean runOnChange) {
         Changeset changeset = changeset(identifier, author, query);
-        changeset.setRunOnChange(true);
+        changeset.setRunOnChange(runOnChange);
         return changeset;
     }
 

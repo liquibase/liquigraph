@@ -12,6 +12,10 @@
     <name>liquigraph-core</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <guava.version>18.0</guava.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.neo4j</groupId>
@@ -26,7 +30,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -43,6 +47,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-testlib</artifactId>
+            <version>${guava.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

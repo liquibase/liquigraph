@@ -23,18 +23,22 @@ import static com.google.common.base.Preconditions.checkState;
 public class ChangesetById implements Predicate<Changeset> {
 
     private final String id;
+    private final String author;
 
-    private ChangesetById(String id) {
+    private ChangesetById(String id, String author) {
         this.id = id;
+        this.author = author;
         checkState(id != null);
+        checkState(author != null);
     }
 
-    public static Predicate<Changeset> BY_ID(String id) {
-        return new ChangesetById(id);
+    public static Predicate<Changeset> BY_ID(String id, String author) {
+        return new ChangesetById(id, author);
     }
 
     @Override
     public boolean apply(Changeset input) {
-        return id.equals(input.getId());
+        return id.equals(input.getId()) &&
+               author.equals(input.getAuthor());
     }
 }
