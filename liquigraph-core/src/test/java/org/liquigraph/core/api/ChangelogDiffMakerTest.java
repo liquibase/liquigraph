@@ -122,6 +122,17 @@ public class ChangelogDiffMakerTest {
     }
 
     @Test
+    public void diff_does_not_include_run_on_change_changesets_that_were_not_altered_since_last_execution() {
+        Collection<Changeset> changesets = diffMaker.computeChangesetsToInsert(
+            DEFAULT_CONTEXT,
+            newArrayList(changeset("ID", "fbiville", "CREATE n", "baz", false, true)),
+            newArrayList(changeset("ID", "fbiville", "CREATE n"))
+        );
+
+        assertThat(changesets).isEmpty();
+    }
+
+    @Test
     public void diff_does_not_include_run_on_change_changesets_if_they_do_not_match_any_execution_context() {
         Collection<Changeset> changesets = diffMaker.computeChangesetsToInsert(
             new ExecutionContexts(newArrayList("foo", "bar")),

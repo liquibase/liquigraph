@@ -32,13 +32,13 @@ public class ChangesetChecksumHasChanged implements Predicate<Changeset> {
         this.persistedChangesets = persistedChangesets;
     }
 
-    public static final Predicate<Changeset> CHECKSUM_HAS_CHANGED(Collection<Changeset> persistedChangesets) {
+    public static Predicate<Changeset> CHECKSUM_HAS_CHANGED(Collection<Changeset> persistedChangesets) {
         return new ChangesetChecksumHasChanged(persistedChangesets);
     }
 
     @Override
     public boolean apply(Changeset input) {
         Optional<Changeset> persistedChangeset = from(persistedChangesets).firstMatch(BY_ID(input.getId()));
-        return persistedChangeset.isPresent() && input.getChecksum().equals(persistedChangeset.get().getChecksum());
+        return persistedChangeset.isPresent() && !input.getChecksum().equals(persistedChangeset.get().getChecksum());
     }
 }
