@@ -48,7 +48,7 @@ public class PreconditionExecutorTest {
 
     @Test
     public void executes_simple_precondition() throws SQLException {
-        Connection connection = graphDatabaseRule.jdbcConnection();
+        Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
             PreconditionResult result = executor.executePrecondition(
                 connection,
@@ -62,7 +62,7 @@ public class PreconditionExecutorTest {
 
     @Test
     public void executes_nested_and_precondition_queries() throws SQLException {
-        Connection connection = graphDatabaseRule.jdbcConnection();
+        Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
             PreconditionResult result = executor.executePrecondition(
                 connection,
@@ -76,7 +76,7 @@ public class PreconditionExecutorTest {
 
     @Test
     public void executes_nested_or_precondition_queries() throws SQLException {
-        Connection connection = graphDatabaseRule.jdbcConnection();
+        Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
             PreconditionResult result = executor.executePrecondition(
                 connection,
@@ -98,7 +98,7 @@ public class PreconditionExecutorTest {
         ));
         precondition.setQuery(andQuery);
 
-        Connection connection = graphDatabaseRule.jdbcConnection();
+        Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
             PreconditionResult result = executor.executePrecondition(
                 connection,
@@ -119,7 +119,7 @@ public class PreconditionExecutorTest {
             "\tActual cause: Error executing query toto\n" +
             " with params {}");
 
-        Connection connection = graphDatabaseRule.jdbcConnection();
+        Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
             executor.executePrecondition(
                 connection,
@@ -133,7 +133,7 @@ public class PreconditionExecutorTest {
         thrown.expect(PreconditionExecutionException.class);
         thrown.expectMessage("Make sure your query <RETURN true> yields exactly one column named or aliased 'result'.");
 
-        Connection connection = graphDatabaseRule.jdbcConnection();
+        Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
             executor.executePrecondition(
                 connection,
@@ -149,7 +149,7 @@ public class PreconditionExecutorTest {
 
         Precondition precondition = new Precondition();
         precondition.setQuery(new PreconditionQuery() {});
-        executor.executePrecondition(graphDatabaseRule.jdbcConnection(), precondition);
+        executor.executePrecondition(graphDatabaseRule.connection(), precondition);
     }
 
     private Precondition simplePrecondition(PreconditionErrorPolicy fail, String query) {
