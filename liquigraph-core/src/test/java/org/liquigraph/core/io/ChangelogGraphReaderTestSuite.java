@@ -15,9 +15,8 @@
  */
 package org.liquigraph.core.io;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.liquigraph.core.EmbeddedGraphDatabaseRule;
+import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.model.Changeset;
 
 import java.sql.Connection;
@@ -30,14 +29,13 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.liquigraph.core.model.Checksums.checksum;
 
-public class ChangelogGraphReaderTest {
+abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuite {
 
-    @Rule public EmbeddedGraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neotest");
     private ChangelogGraphReader reader = new ChangelogGraphReader();
 
     @Test
     public void reads_changelog_from_graph_database() throws SQLException {
-        try (Connection connection = graph.jdbcConnection()) {
+        try (Connection connection = graphDatabase().connection()) {
             String query = "MATCH n RETURN n";
             given_inserted_data(format(
                 "CREATE (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
@@ -50,7 +48,7 @@ public class ChangelogGraphReaderTest {
                 connection
             );
 
-            Collection<Changeset> changesets = reader.read(graph.jdbcConnection());
+            Collection<Changeset> changesets = reader.read(graphDatabase().connection());
 
             assertThat(changesets).hasSize(1);
             Changeset changeset = changesets.iterator().next();
@@ -64,7 +62,7 @@ public class ChangelogGraphReaderTest {
 
     @Test
     public void reads_changeset_with_multiple_queries() throws SQLException {
-        try (Connection connection = graph.jdbcConnection()) {
+        try (Connection connection = graphDatabase().connection()) {
             given_inserted_data(format(
                 "CREATE     (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
                     "           (changeset:__LiquigraphChangeset {" +
@@ -82,7 +80,7 @@ public class ChangelogGraphReaderTest {
                 connection
             );
 
-            Collection<Changeset> changesets = reader.read(graph.jdbcConnection());
+            Collection<Changeset> changesets = reader.read(graphDatabase().connection());
 
             assertThat(changesets).hasSize(1);
             Changeset changeset = changesets.iterator().next();

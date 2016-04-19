@@ -15,11 +15,9 @@
  */
 package org.liquigraph.core.api;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.liquigraph.core.EmbeddedGraphDatabaseRule;
+import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.liquigraph.core.io.FixedConnectionConnector;
 
@@ -31,16 +29,15 @@ import java.sql.Statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LiquigraphTest {
+abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 
-    @Rule public EmbeddedGraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neo");
     private Liquigraph liquigraph;
 
     @Before
     public void prepare() {
         liquigraph = new Liquigraph(
-            // bypasses the configured URI
-             new FixedConnectionConnector(graph.jdbcConnection())
+                // bypasses the configured URI
+                new FixedConnectionConnector(graphDatabase().connection())
         );
     }
 
@@ -50,14 +47,16 @@ public class LiquigraphTest {
                 new ConfigurationBuilder()
                         .withRunMode()
                         .withMasterChangelogLocation("changelog/changelog-with-1-node.xml")
-                        .withUri(graph.uri())
+                        .withUri(graphDatabase().uri())
+                        .withUsername(graphDatabase().username().orNull())
+                        .withPassword(graphDatabase().password().orNull())
                         .build()
         );
 
-        try (Connection connection = graph.jdbcConnection()) {
+        try (Connection connection = graphDatabase().connection()) {
             try (Statement statement = connection.createStatement();
                  ResultSet resultSet = statement.executeQuery(
-                     "MATCH (human:Human {name: 'fbiville'}) RETURN human"
+                         "MATCH (human:Human {name: 'fbiville'}) RETURN human"
                  )) {
 
                 assertThat(resultSet.next()).isTrue();
@@ -66,7 +65,7 @@ public class LiquigraphTest {
             }
 
             try (PreparedStatement statement = connection.prepareStatement(
-                "MATCH (changeset:__LiquigraphChangeset {id: {1}}) RETURN changeset"
+                    "MATCH (changeset:__LiquigraphChangeset {id: {1}}) RETURN changeset"
             )) {
 
                 statement.setObject(1, "insert-fbiville");
@@ -86,14 +85,16 @@ public class LiquigraphTest {
     @Test
     public void runs_migrations_with_schema_changes() throws SQLException {
         liquigraph.runMigrations(
-            new ConfigurationBuilder()
-                .withRunMode()
-                .withMasterChangelogLocation("schema/schema-changelog.xml")
-                .withUri(graph.uri())
-                .build()
+                new ConfigurationBuilder()
+                        .withRunMode()
+                        .withMasterChangelogLocation("schema/schema-changelog.xml")
+                        .withUri(graphDatabase().uri())
+                        .withUsername(graphDatabase().username().orNull())
+                        .withPassword(graphDatabase().password().orNull())
+                        .build()
         );
 
-        try (Connection connection = graph.jdbcConnection();
+        try (Connection connection = graphDatabase().connection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
 
@@ -106,14 +107,14 @@ public class LiquigraphTest {
     @Test
     public void runs_migrations_with_schema_changes_and_preconditions() throws SQLException {
         liquigraph.runMigrations(
-            new ConfigurationBuilder()
-                .withRunMode()
-                .withMasterChangelogLocation("schema/schema-preconditions-changelog.xml")
-                .withUri(graph.uri())
-                .build()
+                new ConfigurationBuilder()
+                        .withRunMode()
+                        .withMasterChangelogLocation("schema/schema-preconditions-changelog.xml")
+                        .withUri(graphDatabase().uri())
+                        .build()
         );
 
-        try (Connection connection = graph.jdbcConnection();
+        try (Connection connection = graphDatabase().connection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
 
@@ -122,5 +123,4 @@ public class LiquigraphTest {
             connection.commit();
         }
     }
-
 }
