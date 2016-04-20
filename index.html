@@ -43,7 +43,7 @@
 		<div>
 			<p>Open your favourite editor and paste:</p>
 			<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;changelog&gt;
+&lt;changelog xmlns=&quot;http://fbiville.github.io/liquigraph/schema/1.0-RC3/liquigraph.xsd&quot;&gt;
     &lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
         &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
     &lt;/changeset&gt;
@@ -142,7 +142,7 @@ $&gt; less /tmp/output.cypher</code></pre>
 			<dt>Changelog</dt>
 			<dd><p>A Liquigraph changelog defines a set of migrations to be performed. There can be only one changelog per project.</p>
 <pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;changelog&gt;
+&lt;changelog xmlns=&quot;http://fbiville.github.io/liquigraph/schema/1.0-RC3/liquigraph.xsd&quot;&gt;
     &lt;!-- import &quot;sub-changelogs&quot;--&gt;
     &lt;import resource=&quot;version_1/sub_changelog.xml&quot; /&gt;
     &lt;import resource=&quot;version_2/sub_changelog.xml&quot; /&gt;
