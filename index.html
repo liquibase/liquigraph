@@ -87,7 +87,7 @@ liquigraph.runMigrations(configuration);
 			<pre><code class="xml">&lt;plugin&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
     &lt;artifactId&gt;liquigraph-maven-plugin&lt;/artifactId&gt;
-    &lt;version&gt;1.0.RC2&lt;/version&gt;
+    &lt;version&gt;1.0-RC3&lt;/version&gt;
     &lt;configuration&gt;
         &lt;changelog&gt;changelog.xml&lt;/changelog&gt;&lt;!-- classpath location --&gt;
         &lt;jdbcUri&gt;jdbc:neo4j://localhost:7474&lt;/jdbcUri&gt;
@@ -104,30 +104,32 @@ liquigraph.runMigrations(configuration);
 &lt;/plugin&gt;</code></pre>
 			<p>And finally, run:</p>
 			<pre><code class="bash">$&gt; mvn clean package</code></pre>
-			<p>Full documentation is <a href="http://fbiville.github.io/liquigraph/maven-plugin/plugin-info.html">here</a>.
+			<p>Full documentation is <a href="maven-plugin/plugin-info.html">here</a>.
 		</div>
 		<div id="shell">
 			<h2>Highway to shell</h2>
 			<p>Save these migrations in <span class='path'>${your_project}/migrations/changelog.xml</span>.</p>
 			<h3>Prerequisites</h3>
-			<p class="nota-bene">Note for Windows users: make sure to install <a href="https://www.python.org/">Python</a> and include it in your <code>PATH</code>. <br />If you are using CMD (and not shell emulators like <a href="http://git-scm.com/downloads">Git Bash</a> or <a href="https://www.cygwin.com/">Cygwin</a>), the following commands will have to be passed to <code>python.exe</code> (i.e. <code>liquigraph</code> becomes <code>python.exe liquigraph</code>).</p> 
 			<ol>
 				<li>make sure at least JDK7 is set up and Java is included in your path</li>
-				<li>unzip <a href="https://github.com/fbiville/liquigraph/releases/download/liquigraph-1.0.RC2/liquigraph.zip">Liquigraph</a> in <code>LIQUIGRAPH_DIR</code></li>
-				<li>include <code>LIQUIGRAPH_DIR</code> to your <code>PATH</code></li>
-				<li>make sure <code>LIQUIGRAPH_DIR/liquigraph</code> is executable</li>
+				<li>decompress Liquigraph <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/1.0-RC3/liquigraph-cli-1.0-RC3-bin.zip">zip</a>, <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/1.0-RC3/liquigraph-cli-1.0-RC3-bin.tar.gz">tar.gz</a> or <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/1.0-RC3/liquigraph-cli-1.0-RC3-bin.tar.bz2">tar.bz2</a> in <code>LIQUIGRAPH_DIR</code></li>
+				<li>include <code>LIQUIGRAPH_DIR/liquigraph-cli/</code> to your <code>PATH</code></li>
+				<li>Unix users: make sure <code>LIQUIGRAPH_DIR/liquigraph-cli/liquigraph.sh</code> is executable</li>
 			</ol>
-			<p>You can now check your installation by executing the following command (reminder to CMD users: command should start with <code>python.exe</code>):</p>
+			<p>You can now check your installation by executing the following command (reminder to non-Unix users: replace <code>.sh</code> with <code>.bat</code>):</p>
 			<h3>Running Liquigraph</h3>
-			<pre><code class="bash">$&gt; liquigraph --help</code></pre>
+			<pre><code class="bash">$&gt; cd LIQUIGRAPH_DIR/liquigraph-cli
+$&gt; ./liquigraph.sh --help</code></pre>
 			<p>A description should be prompted. Then, simulate the changes (replace /tmp with whatever floats your boat):</p>
-			<pre><code class="bash">$&gt; liquigraph --changelog "${your_project}/migrations/changelog.xml" \
+			<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
+			     --username neo4j --password s3cr3t \
 			     --graph-db-uri jdbc:neo4j://localhost:7474/ \
 			     --dry-run-output-directory /tmp
 # check contents
 $&gt; less /tmp/output.cypher</code></pre>
 			<p>And finally, run:</p>
-			<pre><code class="bash">$&gt; liquigraph.run --changelog "${your_project}/migrations/changelog.xml" \
+			<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
+			     --username neo4j --password s3cr3t \
 			     --graph-db-uri jdbc:neo4j://localhost:7474/</code></pre>
 		</div>
 	</section>	
@@ -138,10 +140,26 @@ $&gt; less /tmp/output.cypher</code></pre>
 		<h2>Definitions</h2>
 		<dl>
 			<dt>Changelog</dt>
-			<dd>A Liquigraph changelog defines a set of migrations to be performed. There can be only one changelog per project.</dd>
+			<dd><p>A Liquigraph changelog defines a set of migrations to be performed. There can be only one changelog per project.</p>
+<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;changelog&gt;
+    &lt;!-- import &quot;sub-changelogs&quot;--&gt;
+    &lt;import resource=&quot;version_1/sub_changelog.xml&quot; /&gt;
+    &lt;import resource=&quot;version_2/sub_changelog.xml&quot; /&gt;
+    &lt;!-- and/or define directly changesets--&gt;
+    &lt;changeset [...] /&gt; 
+    &lt;!-- [...] --&gt;
+&lt;/changelog&gt;</code></pre>
+                        <p>Both <code>sub_changelog.xml</code> files could import changelogs and/or define <code>changeset</code> elements.</p></dd>
 
 			<dt>Changeset</dt>
-			<dd>A Liquigraph changeset describes one create or update statement. This statement must be written in <a href="http://neo4j.com/developer/cypher-query-language/">Cypher Query Language</a> and is wrapped in its own transaction. A changeset can be run only once (incremental) and cannot be altered (immutable) against the same graph database instance, by default. Finally, a changeset is uniquely identified within the changelog by its mandatory ID and author attributes.</dd>
+			<dd><p>A Liquigraph changeset describes one or more create or update statement. These statements must be written in <a href="http://neo4j.com/developer/cypher-query-language/">Cypher Query Language</a> and are wrapped <strong>in a single transaction</strong> (1 transaction per changeset). A changeset can be run only once (incremental) and cannot be altered (immutable) against the same graph database instance, by default. Finally, a changeset is uniquely identified within the changelog by its mandatory ID and author attributes.</p>
+<pre><code class="xml">&lt;changeset id=&quot;unique_identifier&quot; author=&quot;team_or_individual_name&quot;&gt;
+    &lt;!-- 1 to n queries: all executed in 1 transaction --&gt;
+    &lt;query&gt;CREATE (m:MyAwesomeNode) RETURN m&lt;/query&gt;
+    &lt;query&gt;CREATE (m:MyOtherAwesomeNode) RETURN m&lt;/query&gt;
+&lt;/changeset&gt;</code></pre>
+                        <p>Both <code>sub_changelog.xml</code> files could import changelogs and/or define <code>changeset</code> elements.</p></dd>
 
 			<dt>Execution context</dt>
 			<dd><p>An execution context is a simple string, defined at changeset level. A changeset can have 0, 1 or more execution contexts (in the latter case, they're comma-separated). For instance:</p>
