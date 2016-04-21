@@ -140,7 +140,7 @@ $&gt; less /tmp/output.cypher</code></pre>
 		<h2>Definitions</h2>
 		<dl>
 			<dt>Changelog</dt>
-			<dd><p>A Liquigraph changelog defines a set of migrations to be performed. There can be only one changelog per project.</p>
+			<dd><p>A Liquigraph changelog defines a set of migrations to be performed. There can be only one changelog as entry point per project.</p>
 <pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 &lt;changelog xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:noNamespaceSchemaLocation=&quot;http://liquigraph.org/schema/1.0-RC3/liquigraph.xsd&quot;&gt;
     &lt;!-- import &quot;sub-changelogs&quot;--&gt;
@@ -150,7 +150,7 @@ $&gt; less /tmp/output.cypher</code></pre>
     &lt;changeset [...] /&gt; 
     &lt;!-- [...] --&gt;
 &lt;/changelog&gt;</code></pre>
-                        <p>Both <code>sub_changelog.xml</code> files could import changelogs and/or define <code>changeset</code> elements.</p></dd>
+                        <p>Both <code>sub_changelog.xml</code> files could import changelogs and/or define <code>changeset</code> elements. Their root element is also <code>changelog</code>.</p></dd>
 
 			<dt>Changeset</dt>
 			<dd><p>A Liquigraph changeset describes one or more create or update statement. These statements must be written in <a href="http://neo4j.com/developer/cypher-query-language/">Cypher Query Language</a> and are wrapped <strong>in a single transaction</strong> (1 transaction per changeset). A changeset can be run only once (incremental) and cannot be altered (immutable) against the same graph database instance, by default. Finally, a changeset is uniquely identified within the changelog by its mandatory ID and author attributes.</p>
