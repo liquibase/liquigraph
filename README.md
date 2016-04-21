@@ -8,3 +8,7 @@
 ## Getting started
 
 Please read [the website](http://fbiville.github.io/liquigraph/).
+
+## Homebrew
+
+Proceed to the recipe [repository](https://www.github.com/fbiville/homebrew-liquigraph/).
