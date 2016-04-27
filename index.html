@@ -119,19 +119,31 @@ liquigraph.runMigrations(configuration);
 			</ol>
 			<p>You can now check your installation by executing the following command (reminder to non-Unix users: replace <code>.sh</code> with <code>.bat</code>):</p>
 			<h3>Running Liquigraph</h3>
+			<h4>Interactive mode</h4>
 			<pre><code class="bash">$&gt; cd LIQUIGRAPH_DIR/liquigraph-cli
 $&gt; ./liquigraph.sh --help</code></pre>
-			<p>A description should be prompted. Then, simulate the changes (replace /tmp with whatever floats your boat):</p>
+			<p>A description should be displayed. Then, simulate the changes (replace <code>/tmp</code> with whatever floats your boat):</p>
 			<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
-			     --username neo4j --password s3cr3t \
-			     --graph-db-uri jdbc:neo4j://localhost:7474/ \
-			     --dry-run-output-directory /tmp
+		   --username neo4j \
+		   --password \ # leave empty (password prompt will appear)
+		   --graph-db-uri jdbc:neo4j://localhost:7474/ \
+		   --dry-run-output-directory /tmp
 # check contents
 $&gt; less /tmp/output.cypher</code></pre>
 			<p>And finally, run:</p>
 			<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
-			     --username neo4j --password s3cr3t \
-			     --graph-db-uri jdbc:neo4j://localhost:7474/</code></pre>
+		   --username neo4j \
+		   --password \ # leave empty (password prompt will appear)
+		   --graph-db-uri jdbc:neo4j://localhost:7474/</code></pre>
+			<h4>Non-interactive mode</h4>
+			<p>The above methods will prompt for your Neo4j password. If you wish to run liquigraph without password prompt (i.e. non interactively):</p>
+			<pre><code class="bash">$&gt; touch my_password.txt
+# update mypassword.txt to contain your password and chmod appropriately
+$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
+ 		   --username neo4j \
+ 		   --graph-db-uri jdbc:neo4j://localhost:7474/ \
+		   --password &lt; my_password.txt
+			</code></pre>
 		</div>
 	</section>	
 
