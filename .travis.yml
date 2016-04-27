@@ -12,17 +12,23 @@ jdk:
 os:
   - linux
 env:
-  matrix:
-    - NEO_VERSION=2.0.5
-      WITH_DOCKER=false
-    - NEO_VERSION=2.1.8
-      WITH_DOCKER=false
-    - NEO_VERSION=2.2.9
-      WITH_DOCKER=false
-      EXTRA_PROFILES=-Pwith-neo4j-io
-    - NEO_VERSION=2.3.3
-      WITH_DOCKER=true
-      EXTRA_PROFILES=-Pwith-neo4j-io
+  - NEO_VERSION=2.0.5
+    WITH_DOCKER=false
+  - NEO_VERSION=2.1.8
+    WITH_DOCKER=false
+  - NEO_VERSION=2.2.9
+    WITH_DOCKER=false
+    EXTRA_PROFILES=-Pwith-neo4j-io
+  - NEO_VERSION=2.3.3
+    WITH_DOCKER=true
+    EXTRA_PROFILES=-Pwith-neo4j-io
+  - NEO_VERSION=3.0.0
+    WITH_DOCKER=false
+    EXTRA_PROFILES=-Pwith-neo4j-io
+matrix:
+  exclude:
+    - env: NEO_VERSION=3.0.0
+      jdk: oraclejdk7
 before_script:
 # Workaround for Travis CI buffer overflow with OpenJDK 7
 # Details: https://github.com/travis-ci/travis-ci/issues/5227#issuecomment-165131913
