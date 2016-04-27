@@ -123,15 +123,23 @@ liquigraph.runMigrations(configuration);
 $&gt; ./liquigraph.sh --help</code></pre>
 			<p>A description should be prompted. Then, simulate the changes (replace /tmp with whatever floats your boat):</p>
 			<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
-			     --username neo4j --password s3cr3t \
+			     --username neo4j \
 			     --graph-db-uri jdbc:neo4j://localhost:7474/ \
 			     --dry-run-output-directory /tmp
 # check contents
 $&gt; less /tmp/output.cypher</code></pre>
 			<p>And finally, run:</p>
 			<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
-			     --username neo4j --password s3cr3t \
+			     --username neo4j \
 			     --graph-db-uri jdbc:neo4j://localhost:7474/</code></pre>
+			<p>The above methods will prompt for the neo4j password. If you wish to run liquigraph without password prompt:</p>
+			<pre><code class="bash">
+$&gt; touch my_password.txt
+# update mypassword.txt to contain your password and chmod appropriately
+$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
+ 			     --username neo4j
+ 			     --graph-db-uri jdbc:neo4j://localhost:7474/ -p < my_password.txt
+			</code></pre>
 		</div>
 	</section>	
 
