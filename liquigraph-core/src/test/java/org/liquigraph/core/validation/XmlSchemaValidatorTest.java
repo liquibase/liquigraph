@@ -19,7 +19,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.core.io.xml.XmlSchemaValidator;
-import org.liquigraph.core.model.Changeset;
 import org.w3c.dom.Node;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,8 +29,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class XmlSchemaValidatorTest {
 
-    @Rule public ExpectedException thrown = ExpectedException.none();
-    private final XmlSchemaValidator validator = new XmlSchemaValidator();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private XmlSchemaValidator validator = new XmlSchemaValidator();
 
     @Test
     public void parses_changelog_without_author() throws Exception {
@@ -86,15 +87,6 @@ public class XmlSchemaValidatorTest {
         assertThat(errors)
             .containsExactly(
                 "Duplicate unique value [changelog] declared for identity constraint of element \"changelog\".");
-    }
-
-    @Test
-    public void parses_changelog_with_explicit_schema() throws Exception {
-        Collection<String> errors = validator.validateSchema(
-            asNode("changelog/changelog-with-schema-location.xml")
-        );
-
-        assertThat(errors).isEmpty();
     }
 
     private Node asNode(String path) throws Exception {
