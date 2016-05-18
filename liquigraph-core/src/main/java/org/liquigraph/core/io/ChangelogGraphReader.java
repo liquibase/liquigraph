@@ -45,12 +45,11 @@ public class ChangelogGraphReader {
             "REMOVE changeset.query";
 
     private static final String MATCH_CHANGESETS =
-        "MATCH (changelog:__LiquigraphChangelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
-            "WITH changeset, exec " +
-            "MATCH (changeset)<-[execChangeSet:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
-            "WITH changeset, query, exec " +
-            "ORDER BY exec.time ASC, execChangeSet.order ASC " +
-            "WITH changeset, COLLECT(query.query) AS queries, exec " +
+        "MATCH (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset), " +
+            "      (changeset)<-[execChangeSet:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
+            "WITH changeset, query " +
+            "ORDER BY execChangeSet.`order` ASC " +
+            "WITH changeset, COLLECT(query.query) AS queries " +
             "RETURN {" +
             "   id: changeset.id, " +
             "   author:changeset.author, " +

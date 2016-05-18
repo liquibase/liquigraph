@@ -42,16 +42,14 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         "              ewc.time = timestamp() " +
         "WITH changeset " +
         // deletes previous stored queries, if any
-        "OPTIONAL MATCH (changeset)<-[eq:EXECUTED_WITHIN_CHANGESET]-(queries:__LiquigraphQuery) " +
-        "DELETE eq, queries " +
-        "WITH changeset " +
+        "OPTIONAL MATCH (changeset)<-[eq:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
+        "DELETE eq, query " +
         "RETURN changeset ";
 
     private static final String QUERY_UPSERT =
         // stores the possibly updated queries
         "MATCH (changeset:__LiquigraphChangeset {id: {1}, author: {2}}) " +
-        "WITH changeset " +
-        "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order:{3}}]-(:__LiquigraphQuery {query: {4}})";
+        "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}})";
 
     private final Connection connection;
     private final PreconditionExecutor preconditionExecutor;
