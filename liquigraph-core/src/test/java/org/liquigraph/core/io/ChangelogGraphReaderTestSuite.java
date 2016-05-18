@@ -92,6 +92,56 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
         }
     }
 
+    @Test
+    public void migrates_pre_1_0_rc3_changelog_before_reading() throws SQLException {
+        try (Connection connection = graphDatabase().connection()) {
+            String[] queries = { "MATCH m RETURN m", "MATCH n RETURN n", "Match o Return o" };
+            given_inserted_data(format(
+                    "CREATE     (changelog:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {order: 1}]-" +
+                        "           (:__LiquigraphChangeset {" +
+                        "               author:'fbiville'," +
+                        "               id:'test1'," +
+                        "               checksum:'%s'," +
+                        "               query:'%s'" +
+                        "           }), " +
+                        "           (changelog)<-[:EXECUTED_WITHIN_CHANGELOG {order: 0}]-" +
+                        "           (:__LiquigraphChangeset {" +
+                        "               author:'fbiville'," +
+                        "               id:'test0'," +
+                        "               checksum:'%s'," +
+                        "               query:'%s'" +
+                        "           }), " +
+                        "           (changelog)<-[:EXECUTED_WITHIN_CHANGELOG {order: 2}]-" +
+                        "           (:__LiquigraphChangeset {" +
+                        "               author:'fbiville'," +
+                        "               id:'test2'," +
+                        "               checksum:'%s'," +
+                        "               query:'%s'" +
+                        "           })",
+                    checksum(singletonList(queries[1])),
+                    queries[1],
+                    checksum(singletonList(queries[0])),
+                    queries[0],
+                    checksum(singletonList(queries[2])),
+                    queries[2]),
+                    connection
+            );
+
+            Collection<Changeset> changesets = reader.read(graphDatabase().connection());
+
+            assertThat(changesets).hasSize(3);
+            for (Changeset changeset : changesets) {
+                assertThat(changeset.getId()).startsWith("test");
+                assertThat(changeset.getAuthor()).isEqualTo("fbiville");
+                int i = Integer.parseInt(changeset.getId().substring("test".length()));
+                assertThat(i).isBetween(0, 2);
+                assertThat(changeset.getChecksum()).isEqualTo(checksum(singletonList(queries[i])));
+                assertThat(changeset.getQueries()).containsExactly(queries[i]);
+            }
+            connection.commit();
+        }
+    }
+
     private void given_inserted_data(String query, Connection connection) throws SQLException {
         connection.createStatement().executeQuery(query);
     }

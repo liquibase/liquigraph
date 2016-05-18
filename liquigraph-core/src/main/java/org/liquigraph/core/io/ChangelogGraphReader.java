@@ -32,6 +32,18 @@ import static java.util.Collections.unmodifiableCollection;
 
 public class ChangelogGraphReader {
 
+    private static final String MIGRATE_PRE_1_0_RC3_CHANGELOG =
+        "MATCH (:__LiquigraphChangelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
+            "WHERE EXISTS(exec.`order`) AND EXISTS(changeset.query) " +
+            "SET exec.time = exec.`order` " +
+            "WITH exec, changeset " +
+            "REMOVE exec.`order` " +
+            "WITH changeset " +
+            "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`: 0}]-(query:__LiquigraphQuery) " +
+            "SET query.query = changeset.query " +
+            "WITH changeset " +
+            "REMOVE changeset.query";
+
     private static final String MATCH_CHANGESETS =
         "MATCH (changelog:__LiquigraphChangelog)<-[exec:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
             "WITH changeset, exec " +
@@ -48,10 +60,12 @@ public class ChangelogGraphReader {
 
     public final Collection<Changeset> read(Connection connection) {
         Collection<Changeset> changesets = newLinkedList();
-        try (Statement statement = connection.createStatement();
-            ResultSet result = statement.executeQuery(MATCH_CHANGESETS)) {
-            while (result.next()) {
-                changesets.add(mapRow(result.getObject("changeset")));
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(MIGRATE_PRE_1_0_RC3_CHANGELOG);
+            try (ResultSet result = statement.executeQuery(MATCH_CHANGESETS)) {
+                while (result.next()) {
+                    changesets.add(mapRow(result.getObject("changeset")));
+                }
             }
             connection.commit();
         }
