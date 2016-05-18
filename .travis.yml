@@ -21,7 +21,7 @@ env:
       WITH_DOCKER=false
       EXTRA_PROFILES=-Pwith-neo4j-io
     - NEO_VERSION=2.3.3
-      WITH_DOCKER=true
+      WITH_DOCKER=false
       EXTRA_PROFILES=-Pwith-neo4j-io
 before_script:
 # Workaround for Travis CI buffer overflow with OpenJDK 7
