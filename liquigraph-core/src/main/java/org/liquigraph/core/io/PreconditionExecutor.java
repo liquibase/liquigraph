@@ -31,12 +31,9 @@ import static java.lang.String.format;
 
 public class PreconditionExecutor {
 
-    public final PreconditionResult executePrecondition(Connection connection, Precondition precondition) {
+    public final boolean executePrecondition(Connection connection, Precondition precondition) {
         checkArgument(connection != null, "Connection should not be null");
-        return new PreconditionResult(
-            precondition.getPolicy(),
-            applyPrecondition(connection, precondition.getQuery())
-        );
+        return applyPrecondition(connection, precondition.getQuery());
     }
 
     private boolean applyPrecondition(Connection connection, Query query) {

@@ -30,7 +30,6 @@ import java.util.Map;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.get;
 import static java.lang.String.format;
-import static org.liquigraph.core.io.PreconditionResult.NO_PRECONDITION;
 
 public class ChangelogGraphWriter implements ChangelogWriter {
 
@@ -50,6 +49,8 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         // stores the possibly updated queries
         "MATCH (changeset:__LiquigraphChangeset {id: {1}, author: {2}}) " +
         "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}})";
+
+    private static final boolean NO_PRECONDITION = true;
 
     private final Connection connection;
     private final PreconditionExecutor preconditionExecutor;
@@ -81,15 +82,15 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     private StatementExecution executeStatement(Changeset changeset) {
         try (Statement statement = connection.createStatement()) {
             Precondition precondition = changeset.getPrecondition();
-            PreconditionResult preconditionResult = executePrecondition(precondition);
+            boolean preconditionResult = executePrecondition(precondition);
 
-            if (preconditionResult.executedSuccessfully()) {
+            if (preconditionResult) {
                 for (String query : changeset.getQueries()) {
                     statement.execute(query);
                 }
             }
             else {
-                switch (preconditionResult.errorPolicy()) {
+                switch (precondition.getPolicy()) {
                     /*
                      * ignore MARK_AS_EXECUTED:
                      * the changeset should just be inserted in the history graph
@@ -115,7 +116,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         return StatementExecution.SUCCESS;
     }
 
-    private PreconditionResult executePrecondition(Precondition precondition) {
+    private boolean executePrecondition(Precondition precondition) {
         if (precondition == null) {
             return NO_PRECONDITION;
         }

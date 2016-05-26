@@ -50,13 +50,12 @@ public class PreconditionExecutorTest {
     public void executes_simple_precondition() throws SQLException {
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
-            PreconditionResult result = executor.executePrecondition(
+            boolean result = executor.executePrecondition(
                 connection,
-                simplePrecondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "RETURN true AS result")
+                simplePrecondition("RETURN true AS result")
             );
 
-            assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.MARK_AS_EXECUTED);
-            assertThat(result.executedSuccessfully()).isTrue();
+            assertThat(result).isTrue();
         }
     }
 
@@ -64,13 +63,12 @@ public class PreconditionExecutorTest {
     public void executes_nested_and_precondition_queries() throws SQLException {
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
-            PreconditionResult result = executor.executePrecondition(
+            boolean result = executor.executePrecondition(
                 connection,
-                andPrecondition(PreconditionErrorPolicy.FAIL, "RETURN true AS result", "RETURN false AS result")
+                andPrecondition("RETURN true AS result", "RETURN false AS result")
             );
 
-            assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.FAIL);
-            assertThat(result.executedSuccessfully()).isFalse();
+            assertThat(result).isFalse();
         }
     }
 
@@ -78,35 +76,32 @@ public class PreconditionExecutorTest {
     public void executes_nested_or_precondition_queries() throws SQLException {
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
-            PreconditionResult result = executor.executePrecondition(
+            boolean result = executor.executePrecondition(
                 connection,
-                orPrecondition(PreconditionErrorPolicy.CONTINUE, "RETURN true AS result", "RETURN false AS result")
+                orPrecondition("RETURN true AS result", "RETURN false AS result")
             );
 
-            assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.CONTINUE);
-            assertThat(result.executedSuccessfully()).isTrue();
+            assertThat(result).isTrue();
         }
     }
 
     @Test
     public void executes_nested_mixed_precondition_queries_like_a_charm() throws SQLException {
-        Precondition precondition = precondition(PreconditionErrorPolicy.MARK_AS_EXECUTED);
         AndQuery andQuery = new AndQuery();
         andQuery.setQueries(newArrayList(
             orPreconditionQuery("RETURN false AS result", "RETURN true AS result"),
             simplePreconditionQuery("RETURN true AS result")
         ));
-        precondition.setQuery(andQuery);
+        Precondition precondition = precondition(andQuery);
 
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
-            PreconditionResult result = executor.executePrecondition(
+            boolean result = executor.executePrecondition(
                 connection,
                 precondition
             );
 
-            assertThat(result.errorPolicy()).isEqualTo(PreconditionErrorPolicy.MARK_AS_EXECUTED);
-            assertThat(result.executedSuccessfully()).isTrue();
+            assertThat(result).isTrue();
         }
     }
 
@@ -123,7 +118,7 @@ public class PreconditionExecutorTest {
         try (Statement ignored = connection.createStatement()) {
             executor.executePrecondition(
                 connection,
-                simplePrecondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "toto")
+                simplePrecondition("toto")
             );
         }
     }
@@ -137,7 +132,7 @@ public class PreconditionExecutorTest {
         try (Statement ignored = connection.createStatement()) {
             executor.executePrecondition(
                 connection,
-                simplePrecondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "RETURN true")
+                simplePrecondition("RETURN true")
             );
         }
     }
@@ -152,23 +147,16 @@ public class PreconditionExecutorTest {
         executor.executePrecondition(graphDatabaseRule.connection(), precondition);
     }
 
-    private Precondition simplePrecondition(PreconditionErrorPolicy fail, String query) {
-        SimpleQuery simpleQuery = simplePreconditionQuery(query);
-        Precondition precondition = precondition(fail);
-        precondition.setQuery(simpleQuery);
-        return precondition;
+    private Precondition simplePrecondition(String query) {
+        return precondition(simplePreconditionQuery(query));
     }
 
-    private Precondition andPrecondition(PreconditionErrorPolicy errorPolicy, String firstQuery, String secondQuery) {
-        Precondition precondition = precondition(errorPolicy);
-        precondition.setQuery(andPreconditionQuery(firstQuery, secondQuery));
-        return precondition;
+    private Precondition andPrecondition(String firstQuery, String secondQuery) {
+        return precondition(andPreconditionQuery(firstQuery, secondQuery));
     }
 
-    private Precondition orPrecondition(PreconditionErrorPolicy errorPolicy, String firstQuery, String secondQuery) {
-        Precondition precondition = precondition(errorPolicy);
-        precondition.setQuery(orPreconditionQuery(firstQuery, secondQuery));
-        return precondition;
+    private Precondition orPrecondition(String firstQuery, String secondQuery) {
+        return precondition(orPreconditionQuery(firstQuery, secondQuery));
     }
 
     private AndQuery andPreconditionQuery(String firstQuery, String secondQuery) {
@@ -189,9 +177,10 @@ public class PreconditionExecutorTest {
         );
     }
 
-    private Precondition precondition(PreconditionErrorPolicy policy) {
+    private Precondition precondition(Query query) {
         Precondition precondition = new Precondition();
-        precondition.setPolicy(policy);
+        precondition.setPolicy(PreconditionErrorPolicy.MARK_AS_EXECUTED);
+        precondition.setQuery(query);
         return precondition;
     }
 
