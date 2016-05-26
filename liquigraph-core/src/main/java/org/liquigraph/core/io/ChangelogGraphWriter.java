@@ -119,11 +119,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         if (precondition == null) {
             return NO_PRECONDITION;
         }
-        try (Statement ignored = connection.createStatement()) {
-            return preconditionExecutor.executePrecondition(connection, precondition);
-        } catch (SQLException e) {
-            throw propagate(e);
-        }
+        return preconditionExecutor.executePrecondition(connection, precondition);
     }
 
     private void insertChangeset(Connection connection, Changeset changeset) {
