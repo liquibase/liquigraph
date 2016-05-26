@@ -21,11 +21,11 @@
         <xs:restriction base="xs:string" />
     </xs:simpleType>
 
-    <xs:complexType name="PreconditionChildType">
+    <xs:complexType name="ConditionChildType">
         <xs:sequence>
             <xs:choice minOccurs="1" maxOccurs="unbounded">
-                <xs:element name="and" type="PreconditionChildType" minOccurs="0" />
-                <xs:element name="or" type="PreconditionChildType" minOccurs="0" />
+                <xs:element name="and" type="ConditionChildType" minOccurs="0" />
+                <xs:element name="or" type="ConditionChildType" minOccurs="0" />
                 <xs:element name="query" type="QueryType" minOccurs="0" />
             </xs:choice>
         </xs:sequence>
@@ -34,13 +34,23 @@
     <xs:complexType name="PreconditionType">
         <xs:sequence>
             <xs:choice minOccurs="1" maxOccurs="1">
-                <xs:element name="and" type="PreconditionChildType" minOccurs="0" />
-                <xs:element name="or" type="PreconditionChildType" minOccurs="0" />
+                <xs:element name="and" type="ConditionChildType" minOccurs="0" />
+                <xs:element name="or" type="ConditionChildType" minOccurs="0" />
                 <xs:element name="query" type="QueryType" minOccurs="0" />
             </xs:choice>
         </xs:sequence>
 
         <xs:attribute name="if-not-met" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="PostconditionType">
+        <xs:sequence>
+            <xs:choice minOccurs="1" maxOccurs="1">
+                <xs:element name="and" type="ConditionChildType" minOccurs="0" />
+                <xs:element name="or" type="ConditionChildType" minOccurs="0" />
+                <xs:element name="query" type="QueryType" minOccurs="0" />
+            </xs:choice>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="ImportType">
@@ -51,6 +61,7 @@
         <xs:sequence>
             <xs:element name="precondition" type="PreconditionType" minOccurs="0" maxOccurs="1" />
             <xs:element name="query" type="QueryType" minOccurs="1" maxOccurs="unbounded" />
+            <xs:element name="postcondition" type="PostconditionType" minOccurs="0" maxOccurs="1" />
         </xs:sequence>
 
         <xs:attribute name="id" type="xs:string" use="required" />

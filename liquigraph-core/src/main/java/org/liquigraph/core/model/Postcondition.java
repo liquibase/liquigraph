@@ -16,24 +16,13 @@
 package org.liquigraph.core.model;
 
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
 import java.util.Objects;
 
-public class Precondition implements Condition {
+public class Postcondition implements Condition {
 
-    private PreconditionErrorPolicy policy;
     private Query query;
-
-    @XmlAttribute(name = "if-not-met", required = true)
-    public PreconditionErrorPolicy getPolicy() {
-        return policy;
-    }
-
-    public void setPolicy(PreconditionErrorPolicy policy) {
-        this.policy = policy;
-    }
 
     @XmlElementRefs({
         @XmlElementRef(name = "and", type = AndQuery.class),
@@ -51,7 +40,7 @@ public class Precondition implements Condition {
 
     @Override
     public int hashCode() {
-        return Objects.hash(policy, query);
+        return Objects.hash(query);
     }
 
     @Override
@@ -62,15 +51,14 @@ public class Precondition implements Condition {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        final Precondition other = (Precondition) obj;
-        return Objects.equals(this.policy, other.policy) && Objects.equals(this.query, other.query);
+        final Postcondition other = (Postcondition) obj;
+        return Objects.equals(this.query, other.query);
     }
 
     @Override
     public String toString() {
-        return "Precondition{" +
-                "policy=" + policy +
-                ", query='" + query + '\'' +
+        return "Postcondition{" +
+                "query='" + query + '\'' +
                 '}';
     }
 }
