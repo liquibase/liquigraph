@@ -48,7 +48,7 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
                 connection
             );
 
-            Collection<Changeset> changesets = reader.read(graphDatabase().connection());
+            Collection<Changeset> changesets = reader.read(connection);
 
             assertThat(changesets).hasSize(1);
             Changeset changeset = changesets.iterator().next();
@@ -80,7 +80,7 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
                 connection
             );
 
-            Collection<Changeset> changesets = reader.read(graphDatabase().connection());
+            Collection<Changeset> changesets = reader.read(connection);
 
             assertThat(changesets).hasSize(1);
             Changeset changeset = changesets.iterator().next();
@@ -127,7 +127,7 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
                     connection
             );
 
-            Collection<Changeset> changesets = reader.read(graphDatabase().connection());
+            Collection<Changeset> changesets = reader.read(connection);
 
             assertThat(changesets).hasSize(3);
             for (Changeset changeset : changesets) {
