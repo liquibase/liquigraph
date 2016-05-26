@@ -23,6 +23,8 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -34,7 +36,7 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource
 
     private final String dbName;
     private final String uri;
-    private Connection connection;
+    private Collection<Connection> connections = new ArrayList<>();
     private GraphDatabaseService db;
     
     public EmbeddedGraphDatabaseRule(String name) {
@@ -44,7 +46,15 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource
 
     @Override
     public Connection connection() {
-        return connection;
+        try {
+            Properties props = properties();
+            Connection connection = DriverManager.getConnection(uri, props);
+            connection.setAutoCommit(false);
+            connections.add(connection);
+            return connection;
+        } catch (SQLException e) {
+            throw propagate(e);
+        }
     }
 
     @Override
@@ -66,18 +76,17 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource
         try {
             db = new TestGraphDatabaseFactory().newImpermanentDatabase();
             Class.forName("org.neo4j.jdbc.Driver");
-            Properties props = properties();
-            connection = DriverManager.getConnection(uri, props);
-            connection.setAutoCommit(false);
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (ClassNotFoundException e) {
             throw propagate(e);
         }
     }
 
     protected void after() {
         try {
-            if (!connection.isClosed()) {
-                connection.close();
+            for (Connection connection : connections) {
+                if (!connection.isClosed()) {
+                    connection.close();
+                }
             }
             db.shutdown();
         } catch (SQLException e) {

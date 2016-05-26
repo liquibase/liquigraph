@@ -15,60 +15,32 @@
  */
 package org.liquigraph.core.model;
 
+
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import java.util.List;
 import java.util.Objects;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.lang.String.format;
+public class Postcondition implements Condition {
 
-@XmlSeeAlso(Query.class)
-@XmlRootElement(name = "and")
-public class AndQuery implements CompoundQuery {
-
-    private List<Query> queries = newArrayList();
+    private Query query;
 
     @XmlElementRefs({
         @XmlElementRef(name = "and", type = AndQuery.class),
         @XmlElementRef(name = "or", type = OrQuery.class),
         @XmlElementRef(name = "query", type = SimpleQuery.class)
     })
-    public List<Query> getQueries() {
-        return queries;
-    }
-
-    public void setQueries(List<Query> queries) {
-        this.queries = queries;
-    }
-
     @Override
-    public Query getFirstQuery() {
-        CompoundQueries.checkQueryListState(queries);
-        return queries.get(0);
+    public Query getQuery() {
+        return query;
     }
 
-    @Override
-    public Query getSecondQuery() {
-        CompoundQueries.checkQueryListState(queries);
-        return queries.get(1);
-    }
-
-    @Override
-    public boolean compose(boolean firstResult, boolean secondResult) {
-        return firstResult && secondResult;
-    }
-
-    @Override
-    public String compose(String firstQuery, String secondQuery) {
-        return format("((%s) AND (%s))", firstQuery, secondQuery);
+    public void setQuery(Query query) {
+        this.query = query;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(queries);
+        return Objects.hash(query);
     }
 
     @Override
@@ -79,12 +51,14 @@ public class AndQuery implements CompoundQuery {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        final AndQuery other = (AndQuery) obj;
-        return Objects.equals(this.queries, other.queries);
+        final Postcondition other = (Postcondition) obj;
+        return Objects.equals(this.query, other.query);
     }
 
     @Override
     public String toString() {
-        return format("<%s> AND <%s>", getFirstQuery(), getSecondQuery());
+        return "Postcondition{" +
+                "query='" + query + '\'' +
+                '}';
     }
 }

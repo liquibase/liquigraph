@@ -18,10 +18,10 @@ package org.liquigraph.core.api;
 import com.google.common.annotations.VisibleForTesting;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.io.ChangelogGraphReader;
+import org.liquigraph.core.io.ConditionExecutor;
+import org.liquigraph.core.io.ConditionPrinter;
 import org.liquigraph.core.io.GraphJdbcConnector;
 import org.liquigraph.core.io.LiquigraphJdbcConnector;
-import org.liquigraph.core.io.PreconditionExecutor;
-import org.liquigraph.core.io.PreconditionPrinter;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.io.xml.ChangelogPreprocessor;
 import org.liquigraph.core.io.xml.ImportResolver;
@@ -46,8 +46,8 @@ public final class Liquigraph {
                 new ChangelogParser(new XmlSchemaValidator(), new ChangelogPreprocessor(new ImportResolver())),
                 new ChangelogGraphReader(),
                 new ChangelogDiffMaker(),
-                new PreconditionExecutor(),
-                new PreconditionPrinter(),
+                new ConditionExecutor(),
+                new ConditionPrinter(),
                 new PersistedChangesetValidator()
         );
     }

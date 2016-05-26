@@ -34,11 +34,11 @@ import static java.nio.file.StandardOpenOption.APPEND;
 
 public class ChangelogFileWriter implements ChangelogWriter {
 
-    private final PreconditionPrinter preconditionPrinter;
+    private final ConditionPrinter conditionPrinter;
     private final File outputFile;
 
-    public ChangelogFileWriter(PreconditionPrinter preconditionPrinter, File outputFile) {
-        this.preconditionPrinter = preconditionPrinter;
+    public ChangelogFileWriter(ConditionPrinter conditionPrinter, File outputFile) {
+        this.conditionPrinter = conditionPrinter;
         this.outputFile = outputFile;
     }
 
@@ -69,8 +69,9 @@ public class ChangelogFileWriter implements ChangelogWriter {
     }
 
     private void writeChangeset(Changeset changeset, Path path) throws IOException {
-        Files.write(path, preconditionPrinter.print(changeset.getPrecondition()), Charsets.UTF_8, APPEND);
+        Files.write(path, conditionPrinter.print(changeset.getPrecondition()), Charsets.UTF_8, APPEND);
         Files.write(path, changesetToString(changeset), Charsets.UTF_8, APPEND);
+        Files.write(path, conditionPrinter.print(changeset.getPostcondition()), Charsets.UTF_8, APPEND);
     }
 
     private Collection<String> changesetToString(Changeset changeset) {

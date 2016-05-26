@@ -15,8 +15,11 @@
  */
 package org.liquigraph.core.io;
 
+import com.google.common.base.Supplier;
 import org.liquigraph.core.exception.PreconditionNotMetException;
 import org.liquigraph.core.model.Changeset;
+import org.liquigraph.core.model.Condition;
+import org.liquigraph.core.model.Postcondition;
 import org.liquigraph.core.model.Precondition;
 
 import java.sql.Connection;
@@ -30,7 +33,6 @@ import java.util.Map;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.get;
 import static java.lang.String.format;
-import static org.liquigraph.core.io.PreconditionResult.NO_PRECONDITION;
 
 public class ChangelogGraphWriter implements ChangelogWriter {
 
@@ -51,12 +53,19 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         "MATCH (changeset:__LiquigraphChangeset {id: {1}, author: {2}}) " +
         "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}})";
 
-    private final Connection connection;
-    private final PreconditionExecutor preconditionExecutor;
+    private static final boolean NO_PRECONDITION = true;
+    private static final boolean NO_POSTCONDITION = false;
 
-    public ChangelogGraphWriter(Connection connection, PreconditionExecutor preconditionExecutor) {
-        this.connection = connection;
-        this.preconditionExecutor = preconditionExecutor;
+    private final Connection writeConnection;
+    private final Supplier<Connection> connectionSupplier;
+    private final ConditionExecutor conditionExecutor;
+
+    public ChangelogGraphWriter(Connection writeConnection,
+                                Supplier<Connection> connectionSupplier,
+                                ConditionExecutor conditionExecutor) {
+        this.writeConnection = writeConnection;
+        this.connectionSupplier = connectionSupplier;
+        this.conditionExecutor = conditionExecutor;
     }
 
     /**
@@ -74,66 +83,102 @@ public class ChangelogGraphWriter implements ChangelogWriter {
             if (statementExecution == StatementExecution.IGNORE_FAILURE) {
                 continue;
             }
-            insertChangeset(connection, changeset);
+            insertChangeset(changeset);
         }
     }
 
     private StatementExecution executeStatement(Changeset changeset) {
-        try (Statement statement = connection.createStatement()) {
+        try {
             Precondition precondition = changeset.getPrecondition();
-            PreconditionResult preconditionResult = executePrecondition(precondition);
+            boolean preconditionResult = executePrecondition(precondition);
 
-            if (preconditionResult.executedSuccessfully()) {
-                for (String query : changeset.getQueries()) {
-                    statement.execute(query);
-                }
+            if (!preconditionResult) {
+                return handleFailedPrecondition(precondition, changeset);
             }
-            else {
-                switch (preconditionResult.errorPolicy()) {
-                    /*
-                     * ignore MARK_AS_EXECUTED:
-                     * the changeset should just be inserted in the history graph
-                     * without actually being executed
-                     */
-                    case CONTINUE:
-                        return StatementExecution.IGNORE_FAILURE;
-                    case FAIL:
-                        throw new PreconditionNotMetException(
-                            format(
-                                "Changeset <%s>: precondition query %s failed with policy <%s>. Aborting.",
-                                changeset.getId(),
-                                precondition.getQuery(),
-                                precondition.getPolicy()
-                            )
-                        );
+
+            boolean postcondition;
+            do {
+                try (Statement statement = writeConnection.createStatement()) {
+                    for (String query : changeset.getQueries()) {
+                        statement.execute(query);
+                    }
+                    writeConnection.commit();
                 }
-            }
-            connection.commit();
+
+                postcondition = executePostcondition(changeset.getPostcondition());
+            } while (postcondition);
         } catch (SQLException e) {
             throw propagate(e);
         }
         return StatementExecution.SUCCESS;
     }
 
-    private PreconditionResult executePrecondition(Precondition precondition) {
+    private boolean executePrecondition(Precondition precondition) {
         if (precondition == null) {
             return NO_PRECONDITION;
         }
-        try (Statement ignored = connection.createStatement()) {
-            return preconditionExecutor.executePrecondition(connection, precondition);
+        return executeCondition(precondition);
+    }
+
+    private static StatementExecution handleFailedPrecondition(Precondition precondition,
+                                                               Changeset changeset) {
+        switch (precondition.getPolicy()) {
+            case MARK_AS_EXECUTED:
+            /*
+             * the changeset should just be inserted in the history graph
+             * without actually being executed
+             */
+                return StatementExecution.SUCCESS;
+            case CONTINUE:
+                return StatementExecution.IGNORE_FAILURE;
+            case FAIL:
+                throw new PreconditionNotMetException(
+                        format(
+                                "Changeset id=<%s>, author=<%s>: precondition query %s failed with policy <%s>. Aborting.",
+                                changeset.getId(),
+                                changeset.getAuthor(),
+                                precondition.getQuery(),
+                                precondition.getPolicy()
+                        )
+                );
+            default:
+                throw new IllegalArgumentException(
+                        format(
+                                "Changeset id=<%s>, author=<%s>: unsupported policy <%s>. Aborting.",
+                                changeset.getId(),
+                                changeset.getAuthor(),
+                                precondition.getPolicy()
+                        )
+                );
+        }
+    }
+
+    private boolean executePostcondition(Postcondition postcondition) {
+        if (postcondition == null) {
+            return NO_POSTCONDITION;
+        }
+        return executeCondition(postcondition);
+    }
+
+    private boolean executeCondition(Condition condition) {
+        try (Connection readConnection = connectionSupplier.get()) {
+            boolean conditionResult = conditionExecutor.executeCondition(readConnection, condition);
+            // Make sure the condition does not actually modify the data
+            readConnection.rollback();
+            return conditionResult;
         } catch (SQLException e) {
             throw propagate(e);
         }
     }
 
-    private void insertChangeset(Connection connection, Changeset changeset) {
-        try (PreparedStatement changesetStmt = connection.prepareStatement(CHANGESET_UPSERT);
-             PreparedStatement queryStmt = connection.prepareStatement(QUERY_UPSERT)) {
+    private void insertChangeset(Changeset changeset) {
+        try (PreparedStatement changesetStmt = writeConnection.prepareStatement(CHANGESET_UPSERT);
+             PreparedStatement queryStmt = writeConnection.prepareStatement(QUERY_UPSERT)) {
 
             insertChangesetNode(changeset, changesetStmt);
             insertQueryNodes(changeset, queryStmt);
 
-            connection.commit();
+            writeConnection.commit();
         } catch (SQLException e) {
             throw propagate(e);
         }
