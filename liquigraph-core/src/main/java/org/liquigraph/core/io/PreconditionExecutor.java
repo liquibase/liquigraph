@@ -18,7 +18,7 @@ package org.liquigraph.core.io;
 import org.liquigraph.core.exception.PreconditionExecutionException;
 import org.liquigraph.core.model.CompoundQuery;
 import org.liquigraph.core.model.Precondition;
-import org.liquigraph.core.model.PreconditionQuery;
+import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
 
 import java.sql.Connection;
@@ -39,7 +39,7 @@ public class PreconditionExecutor {
         );
     }
 
-    private boolean applyPrecondition(Connection connection, PreconditionQuery query) {
+    private boolean applyPrecondition(Connection connection, Query query) {
         if (query instanceof SimpleQuery) {
             SimpleQuery simpleQuery = (SimpleQuery) query;
             return execute(connection, simpleQuery.getQuery());

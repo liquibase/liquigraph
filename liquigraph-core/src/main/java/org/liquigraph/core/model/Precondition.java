@@ -24,7 +24,7 @@ import java.util.Objects;
 public class Precondition {
 
     private PreconditionErrorPolicy policy;
-    private PreconditionQuery query;
+    private Query query;
 
     @XmlAttribute(name = "if-not-met", required = true)
     public PreconditionErrorPolicy getPolicy() {
@@ -40,11 +40,11 @@ public class Precondition {
         @XmlElementRef(name = "or", type = OrQuery.class),
         @XmlElementRef(name = "query", type = SimpleQuery.class)
     })
-    public PreconditionQuery getQuery() {
+    public Query getQuery() {
         return query;
     }
 
-    public void setQuery(PreconditionQuery query) {
+    public void setQuery(Query query) {
         this.query = query;
     }
 

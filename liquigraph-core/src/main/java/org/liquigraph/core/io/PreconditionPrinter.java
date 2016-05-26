@@ -17,7 +17,7 @@ package org.liquigraph.core.io;
 
 import org.liquigraph.core.model.CompoundQuery;
 import org.liquigraph.core.model.Precondition;
-import org.liquigraph.core.model.PreconditionQuery;
+import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
 
 import java.util.Collection;
@@ -37,7 +37,7 @@ public class PreconditionPrinter {
         return lines;
     }
 
-    private String traverseQuery(PreconditionQuery query) {
+    private String traverseQuery(Query query) {
         if (query instanceof SimpleQuery) {
             return ((SimpleQuery) query).getQuery();
         }

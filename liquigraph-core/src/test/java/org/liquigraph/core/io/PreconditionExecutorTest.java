@@ -25,7 +25,7 @@ import org.liquigraph.core.model.AndQuery;
 import org.liquigraph.core.model.OrQuery;
 import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
-import org.liquigraph.core.model.PreconditionQuery;
+import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
 
 import java.sql.Connection;
@@ -92,7 +92,7 @@ public class PreconditionExecutorTest {
     public void executes_nested_mixed_precondition_queries_like_a_charm() throws SQLException {
         Precondition precondition = precondition(PreconditionErrorPolicy.MARK_AS_EXECUTED);
         AndQuery andQuery = new AndQuery();
-        andQuery.setPreconditionQueries(newArrayList(
+        andQuery.setQueries(newArrayList(
             orPreconditionQuery("RETURN false AS result", "RETURN true AS result"),
             simplePreconditionQuery("RETURN true AS result")
         ));
@@ -148,7 +148,7 @@ public class PreconditionExecutorTest {
         thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.PreconditionExecutorTest$1>");
 
         Precondition precondition = new Precondition();
-        precondition.setQuery(new PreconditionQuery() {});
+        precondition.setQuery(new Query() {});
         executor.executePrecondition(graphDatabaseRule.connection(), precondition);
     }
 
@@ -173,18 +173,18 @@ public class PreconditionExecutorTest {
 
     private AndQuery andPreconditionQuery(String firstQuery, String secondQuery) {
         AndQuery andQuery = new AndQuery();
-        andQuery.setPreconditionQueries(simpleQueries(firstQuery, secondQuery));
+        andQuery.setQueries(simpleQueries(firstQuery, secondQuery));
         return andQuery;
     }
 
     private OrQuery orPreconditionQuery(String firstQuery, String secondQuery) {
         OrQuery orQuery = new OrQuery();
-        orQuery.setPreconditionQueries(simpleQueries(firstQuery, secondQuery));
+        orQuery.setQueries(simpleQueries(firstQuery, secondQuery));
         return orQuery;
     }
 
-    private List<PreconditionQuery> simpleQueries(String firstQuery, String secondQuery) {
-        return Lists.<PreconditionQuery>newArrayList(
+    private List<Query> simpleQueries(String firstQuery, String secondQuery) {
+        return Lists.<Query>newArrayList(
             simplePreconditionQuery(firstQuery), simplePreconditionQuery(secondQuery)
         );
     }

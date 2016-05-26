@@ -15,10 +15,10 @@
  */
 package org.liquigraph.core.model;
 
-public interface CompoundQuery extends PreconditionQuery {
+public interface CompoundQuery extends Query {
 
-    PreconditionQuery getFirstQuery();
-    PreconditionQuery getSecondQuery();
+    Query getFirstQuery();
+    Query getSecondQuery();
     boolean compose(boolean firstResult, boolean secondResult);
     String compose(String firstQuery, String secondQuery);
 }

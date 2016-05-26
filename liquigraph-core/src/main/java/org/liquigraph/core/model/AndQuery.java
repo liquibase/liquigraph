@@ -25,35 +25,35 @@ import java.util.Objects;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 
-@XmlSeeAlso(PreconditionQuery.class)
+@XmlSeeAlso(Query.class)
 @XmlRootElement(name = "and")
 public class AndQuery implements CompoundQuery {
 
-    private List<PreconditionQuery> preconditionQueries = newArrayList();
+    private List<Query> queries = newArrayList();
 
     @XmlElementRefs({
         @XmlElementRef(name = "and", type = AndQuery.class),
         @XmlElementRef(name = "or", type = OrQuery.class),
         @XmlElementRef(name = "query", type = SimpleQuery.class)
     })
-    public List<PreconditionQuery> getPreconditionQueries() {
-        return preconditionQueries;
+    public List<Query> getQueries() {
+        return queries;
     }
 
-    public void setPreconditionQueries(List<PreconditionQuery> preconditionQueries) {
-        this.preconditionQueries = preconditionQueries;
-    }
-
-    @Override
-    public PreconditionQuery getFirstQuery() {
-        CompoundQueries.checkQueryListState(preconditionQueries);
-        return preconditionQueries.get(0);
+    public void setQueries(List<Query> queries) {
+        this.queries = queries;
     }
 
     @Override
-    public PreconditionQuery getSecondQuery() {
-        CompoundQueries.checkQueryListState(preconditionQueries);
-        return preconditionQueries.get(1);
+    public Query getFirstQuery() {
+        CompoundQueries.checkQueryListState(queries);
+        return queries.get(0);
+    }
+
+    @Override
+    public Query getSecondQuery() {
+        CompoundQueries.checkQueryListState(queries);
+        return queries.get(1);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class AndQuery implements CompoundQuery {
 
     @Override
     public int hashCode() {
-        return Objects.hash(preconditionQueries);
+        return Objects.hash(queries);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class AndQuery implements CompoundQuery {
             return false;
         }
         final AndQuery other = (AndQuery) obj;
-        return Objects.equals(this.preconditionQueries, other.preconditionQueries);
+        return Objects.equals(this.queries, other.queries);
     }
 
     @Override

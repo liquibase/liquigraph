@@ -24,7 +24,7 @@ import org.liquigraph.core.model.CompoundQuery;
 import org.liquigraph.core.model.OrQuery;
 import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
-import org.liquigraph.core.model.PreconditionQuery;
+import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -48,7 +48,7 @@ public class PreconditionPrinterTest {
         thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.PreconditionPrinterTest$1>");
 
         Precondition precondition = new Precondition();
-        precondition.setQuery(new PreconditionQuery() {});
+        precondition.setQuery(new Query() {});
         preconditionPrinter.print(precondition);
     }
 
@@ -87,22 +87,22 @@ public class PreconditionPrinterTest {
             "((FROM a RETURN a) OR (((FROM b RETURN b) AND (FROM c RETURN c))))");
     }
 
-    private Precondition precondition(PreconditionQuery query, PreconditionErrorPolicy aContinue) {
+    private Precondition precondition(Query query, PreconditionErrorPolicy aContinue) {
         Precondition precondition = new Precondition();
         precondition.setQuery(query);
         precondition.setPolicy(aContinue);
         return precondition;
     }
 
-    private CompoundQuery orQuery(PreconditionQuery query1, PreconditionQuery query2) {
+    private CompoundQuery orQuery(Query query1, Query query2) {
         OrQuery orQuery = new OrQuery();
-        orQuery.setPreconditionQueries(newArrayList(query1, query2));
+        orQuery.setQueries(newArrayList(query1, query2));
         return orQuery;
     }
 
-    private CompoundQuery andQuery(PreconditionQuery query1, PreconditionQuery query2) {
+    private CompoundQuery andQuery(Query query1, Query query2) {
         AndQuery andQuery = new AndQuery();
-        andQuery.setPreconditionQueries(newArrayList(query1, query2));
+        andQuery.setQueries(newArrayList(query1, query2));
         return andQuery;
     }
 
