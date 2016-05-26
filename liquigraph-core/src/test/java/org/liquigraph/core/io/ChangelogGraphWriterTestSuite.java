@@ -84,7 +84,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
         }
         catch (PreconditionNotMetException pnme) {
             assertThat(pnme)
-                .hasMessage("Changeset <identifier>: precondition query <RETURN false AS result> failed with policy <FAIL>. Aborting.");
+                .hasMessage("Changeset id=<identifier>, author=<fbiville>: precondition query <RETURN false AS result> failed with policy <FAIL>. Aborting.");
         }
 
     }
