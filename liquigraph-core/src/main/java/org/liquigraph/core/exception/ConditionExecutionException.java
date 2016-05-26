@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.model;
+package org.liquigraph.core.exception;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
+import static java.lang.String.format;
 
-@XmlTransient
-@XmlSeeAlso({SimpleQuery.class, AndQuery.class, OrQuery.class})
-public interface PreconditionQuery {}
+public class ConditionExecutionException extends RuntimeException {
+
+    public ConditionExecutionException(String message, Object... arguments) {
+        super(format(message, arguments));
+    }
+}

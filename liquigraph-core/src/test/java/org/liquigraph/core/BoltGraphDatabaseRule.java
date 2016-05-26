@@ -25,6 +25,8 @@ import org.neo4j.harness.TestServerBuilders;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static com.google.common.base.Optional.absent;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +36,7 @@ public class BoltGraphDatabaseRule extends ExternalResource
 
     private final TestServerBuilder builder;
     private ServerControls controls;
+    private Collection<Connection> connections = new ArrayList<>();
 
     public BoltGraphDatabaseRule() {
         builder = TestServerBuilders.newInProcessBuilder();
@@ -44,6 +47,7 @@ public class BoltGraphDatabaseRule extends ExternalResource
         try {
             Connection connection = DriverManager.getConnection(uri());
             connection.setAutoCommit(false);
+            connections.add(connection);
             return connection;
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -72,6 +76,11 @@ public class BoltGraphDatabaseRule extends ExternalResource
     protected void after() {
         try {
             emptyDatabase();
+            for (Connection connection : connections) {
+                if (!connection.isClosed()) {
+                    connection.close();
+                }
+            }
         } catch (SQLException e) {
             throw Throwables.propagate(e);
         } finally {

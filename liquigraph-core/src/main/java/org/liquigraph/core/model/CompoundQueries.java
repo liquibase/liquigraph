@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class CompoundQueries {
 
-    public static void checkQueryListState(Collection<PreconditionQuery> queries) {
+    public static void checkQueryListState(Collection<Query> queries) {
         checkState(queries.size() == 2);
     }
 }

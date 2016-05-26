@@ -26,35 +26,35 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.liquigraph.core.model.CompoundQueries.checkQueryListState;
 
-@XmlSeeAlso(PreconditionQuery.class)
+@XmlSeeAlso(Query.class)
 @XmlRootElement(name = "or")
 public class OrQuery implements CompoundQuery {
 
-    private List<PreconditionQuery> preconditionQueries = newArrayList();
+    private List<Query> queries = newArrayList();
 
     @XmlElementRefs({
         @XmlElementRef(name = "and", type = AndQuery.class),
         @XmlElementRef(name = "or", type = OrQuery.class),
         @XmlElementRef(name = "query", type = SimpleQuery.class)
     })
-    public List<PreconditionQuery> getPreconditionQueries() {
-        return preconditionQueries;
+    public List<Query> getQueries() {
+        return queries;
     }
 
-    public void setPreconditionQueries(List<PreconditionQuery> preconditionQueries) {
-        this.preconditionQueries = preconditionQueries;
-    }
-
-    @Override
-    public PreconditionQuery getFirstQuery() {
-        checkQueryListState(preconditionQueries);
-        return preconditionQueries.get(0);
+    public void setQueries(List<Query> queries) {
+        this.queries = queries;
     }
 
     @Override
-    public PreconditionQuery getSecondQuery() {
-        checkQueryListState(preconditionQueries);
-        return preconditionQueries.get(1);
+    public Query getFirstQuery() {
+        checkQueryListState(queries);
+        return queries.get(0);
+    }
+
+    @Override
+    public Query getSecondQuery() {
+        checkQueryListState(queries);
+        return queries.get(1);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class OrQuery implements CompoundQuery {
 
     @Override
     public int hashCode() {
-        return Objects.hash(preconditionQueries);
+        return Objects.hash(queries);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class OrQuery implements CompoundQuery {
             return false;
         }
         final OrQuery other = (OrQuery) obj;
-        return Objects.equals(this.preconditionQueries, other.preconditionQueries);
+        return Objects.equals(this.queries, other.queries);
     }
 
     @Override

@@ -39,6 +39,7 @@ public class Changeset {
     private boolean runOnChange;
     private boolean runAlways;
     private Precondition precondition;
+    private Postcondition postcondition;
 
     @XmlAttribute(name = "id", required = true)
     public String getId() {
@@ -124,6 +125,15 @@ public class Changeset {
         this.precondition = precondition;
     }
 
+    @XmlElement(name = "postcondition", required = false)
+    public Postcondition getPostcondition() {
+        return postcondition;
+    }
+
+    public void setPostcondition(Postcondition postcondition) {
+        this.postcondition = postcondition;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(id, author, checksum);
@@ -154,6 +164,7 @@ public class Changeset {
                 ", runOnChange=" + runOnChange +
                 ", runAlways=" + runAlways +
                 ", precondition=" + precondition +
+                ", postcondition=" + postcondition +
                 '}';
     }
 

@@ -25,6 +25,8 @@ import org.neo4j.jdbc.http.HttpDriver;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static com.google.common.base.Throwables.propagate;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +37,7 @@ public class HttpGraphDatabaseRule extends ExternalResource
     private final String uri;
     private final String username;
     private final String password;
+    private Collection<Connection> connections = new ArrayList<>();
 
     public HttpGraphDatabaseRule() {
         uri = "jdbc:neo4j:http://localhost:7474";
@@ -60,6 +63,7 @@ public class HttpGraphDatabaseRule extends ExternalResource
         try {
             Connection connection = DriverManager.getConnection(uri, username, password);
             connection.setAutoCommit(false);
+            connections.add(connection);
             return connection;
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -93,6 +97,11 @@ public class HttpGraphDatabaseRule extends ExternalResource
     protected void after() {
         try {
             emptyDatabase();
+            for (Connection connection : connections) {
+                if (!connection.isClosed()) {
+                    connection.close();
+                }
+            }
         } catch (SQLException e) {
             throw propagate(e);
         }

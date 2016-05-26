@@ -22,9 +22,9 @@ import java.util.Objects;
 
 import static java.lang.String.format;
 
-@XmlSeeAlso(PreconditionQuery.class)
+@XmlSeeAlso(Query.class)
 @XmlRootElement(name = "query")
-public class SimpleQuery implements PreconditionQuery {
+public class SimpleQuery implements Query {
 
     private String query;
 
