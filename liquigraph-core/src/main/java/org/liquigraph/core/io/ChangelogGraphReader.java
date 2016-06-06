@@ -16,7 +16,6 @@
 package org.liquigraph.core.io;
 
 import org.liquigraph.core.model.Changeset;
-import org.neo4j.graphdb.Node;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -76,24 +75,12 @@ public class ChangelogGraphReader {
 
     @SuppressWarnings("unchecked")
     private Changeset mapRow(Object line) throws SQLException {
-        if (line instanceof Node) {
-            return changeset((Node) line);
-        }
         if (line instanceof Map) {
             return changeset((Map<String, Object>) line);
         }
         throw new IllegalArgumentException(format(
            "Unsupported row.\n\t" +
            "Cannot parse: %s", line));
-    }
-
-    private Changeset changeset(Node node) {
-        Changeset changeset = new Changeset();
-        changeset.setAuthor(String.valueOf(node.getProperty("author")));
-        changeset.setId(String.valueOf(node.getProperty("id")));
-        changeset.setQueries(adaptQueries(node.getProperty("query")));
-        changeset.setChecksum(String.valueOf(node.getProperty("checksum")));
-        return changeset;
     }
 
     private Changeset changeset(Map<String, Object> node) {

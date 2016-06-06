@@ -22,7 +22,7 @@ import org.liquigraph.core.GraphDatabaseRule;
 public class ChangelogGraphWriterEmbeddedTest extends ChangelogGraphWriterTestSuite {
 
     @Rule
-    public GraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neotestwriter");
+    public GraphDatabaseRule graph = new EmbeddedGraphDatabaseRule();
 
     @Override
     public GraphDatabaseRule graphDatabase() {

@@ -15,6 +15,7 @@
  */
 package org.liquigraph.core.io;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,6 +36,7 @@ public class GraphJdbcConnectorTest {
 
     private GraphJdbcConnector connector = new GraphJdbcConnector();
 
+    @Ignore("TODO: This scheme isn't supported any longer")
     @Test
     public void instantiates_a_local_graph_database() throws SQLException {
         try (Connection connection = connector.connect(new ConfigurationBuilder()
