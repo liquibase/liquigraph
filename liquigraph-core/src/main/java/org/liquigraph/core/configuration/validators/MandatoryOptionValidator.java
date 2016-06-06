@@ -15,8 +15,6 @@
  */
 package org.liquigraph.core.configuration.validators;
 
-import org.neo4j.jdbc.Driver;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -55,11 +53,10 @@ public class MandatoryOptionValidator {
         if (uri == null) {
             errors.add("'uri' should not be null");
         }
-        else if (!uri.startsWith(Driver.CON_PREFIX)) {
+        else if (!uri.startsWith("jdbc:neo4j:http") && !uri.startsWith("jdbc:neo4j:bolt")) {
             errors.add(format("Invalid JDBC URI. Supported configurations:%n" +
-                "\t - jdbc:neo4j://<host>:<port>/%n" +
-                "\t - jdbc:neo4j:file:/path/to/db%n" +
-                "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.%n" +
+                "\t - jdbc:neo4j:http(s)://<host>:<port>/%n" +
+                "\t - jdbc:neo4j:bolt://<host>:<port>/%n" +
                 "Given: %s", uri
             ));
         }

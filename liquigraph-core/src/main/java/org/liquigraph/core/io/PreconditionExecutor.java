@@ -55,9 +55,8 @@ public class PreconditionExecutor {
     }
 
     private boolean execute(Connection connection, String query) {
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
             resultSet.next();
             return resultSet.getBoolean("result");
         }

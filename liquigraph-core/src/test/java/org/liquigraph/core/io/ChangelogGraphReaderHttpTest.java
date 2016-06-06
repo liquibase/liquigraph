@@ -16,13 +16,12 @@
 package org.liquigraph.core.io;
 
 import org.junit.Rule;
-import org.liquigraph.core.EmbeddedGraphDatabaseRule;
 import org.liquigraph.core.GraphDatabaseRule;
+import org.liquigraph.core.HttpGraphDatabaseRule;
 
-public class ChangelogGraphReaderEmbeddedTest extends ChangelogGraphReaderTestSuite {
+public class ChangelogGraphReaderHttpTest extends ChangelogGraphReaderTestSuite {
 
-    @Rule
-    public GraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neotestreader");
+    @Rule public GraphDatabaseRule graph = new HttpGraphDatabaseRule();
 
     @Override
     public GraphDatabaseRule graphDatabase() {

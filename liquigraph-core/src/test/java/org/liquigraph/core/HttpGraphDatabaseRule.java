@@ -20,6 +20,7 @@ import org.junit.Assume;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.neo4j.jdbc.http.HttpDriver;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -28,16 +29,15 @@ import java.sql.SQLException;
 import static com.google.common.base.Throwables.propagate;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RemoteGraphDatabaseRule extends ExternalResource
-                                     implements GraphDatabaseRule {
+public class HttpGraphDatabaseRule extends ExternalResource
+                                   implements GraphDatabaseRule {
 
     private final String uri;
     private final String username;
     private final String password;
-    private Connection connection;
 
-    public RemoteGraphDatabaseRule() {
-        uri = "jdbc:neo4j://127.0.0.1:7474";
+    public HttpGraphDatabaseRule() {
+        uri = "jdbc:neo4j:http://localhost:7474";
         username = "neo4j";
         password = "j4oen";
     }
@@ -56,8 +56,14 @@ public class RemoteGraphDatabaseRule extends ExternalResource
     }
 
     @Override
-    public Connection connection() {
-        return connection;
+    public Connection newConnection() {
+        try {
+            Connection connection = DriverManager.getConnection(uri, username, password);
+            connection.setAutoCommit(false);
+            return connection;
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -77,28 +83,32 @@ public class RemoteGraphDatabaseRule extends ExternalResource
 
     protected void before() {
         try {
-            Class.forName("org.neo4j.jdbc.Driver");
-            connection = DriverManager.getConnection(uri, username, password);
-            connection.setAutoCommit(false);
-            emptyDatabase(connection);
-        } catch (ClassNotFoundException | SQLException e) {
-            throw propagate(e);
-        }
-    }
-
-    protected void after() {
-        try {
-            if (!connection.isClosed()) {
-                connection.close();
-            }
+            DriverManager.registerDriver(new HttpDriver());
         } catch (SQLException e) {
             throw propagate(e);
         }
     }
 
-    private void emptyDatabase(Connection connection) throws SQLException {
-        try (java.sql.Statement statement = connection.createStatement()) {
-            assertThat(statement.execute("MATCH (n) OPTIONAL MATCH (n)-[r]->() DELETE n,r")).isTrue();
+    @Override
+    protected void after() {
+        try {
+            emptyDatabase();
+        } catch (SQLException e) {
+            throw propagate(e);
+        }
+    }
+
+    private void emptyDatabase() throws SQLException {
+        try (Connection connection = newConnection()) {
+            try (java.sql.Statement statement = connection.createStatement()) {
+                assertThat(statement.execute("OPTIONAL MATCH (n) DETACH DELETE n")).isTrue();
+            }
+            connection.commit();
+        }
+        try (Connection connection = newConnection();
+             java.sql.Statement statement = connection.createStatement()) {
+
+            assertThat(statement.executeQuery("MATCH (n) RETURN n").next()).isFalse();
         }
     }
 

@@ -47,10 +47,8 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
     /**
      * Graph JDBC URI
      * <ul>
-     *  <li>jdbc:neo4j://&lt;host&gt;:&lt;port&gt;/</li>
-     *  <li>jdbc:neo4j:file:/path/to/db</li>
-     *  <li>jdbc:neo4j:mem</li>
-     *  <li>jdbc:neo4j:mem:name</li>
+     *  <li>jdbc:neo4j:http(s)://&lt;host&gt;:&lt;port&gt;/</li>
+     *  <li>jdbc:neo4j:bolt://&lt;host&gt;:&lt;port&gt;/</li>
      * </ul>
      */
     @Parameter(property = "jdbcUri", required = true)

@@ -19,13 +19,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
-import org.liquigraph.core.io.FixedConnectionConnector;
+import org.liquigraph.core.io.GraphJdbcConnector;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,10 +31,7 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 
     @Before
     public void prepare() {
-        liquigraph = new Liquigraph(
-                // bypasses the configured URI
-                new FixedConnectionConnector(graphDatabase().connection())
-        );
+        liquigraph = new Liquigraph(new GraphJdbcConnector());
     }
 
     @Test
@@ -53,7 +46,7 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                         .build()
         );
 
-        try (Connection connection = graphDatabase().connection()) {
+        try (Connection connection = graphDatabase().newConnection()) {
             try (Statement statement = connection.createStatement();
                  ResultSet resultSet = statement.executeQuery(
                          "MATCH (human:Human {name: 'fbiville'}) RETURN human"
@@ -94,7 +87,7 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                         .build()
         );
 
-        try (Connection connection = graphDatabase().connection();
+        try (Connection connection = graphDatabase().newConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
 
@@ -114,7 +107,7 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                         .build()
         );
 
-        try (Connection connection = graphDatabase().connection();
+        try (Connection connection = graphDatabase().newConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
 

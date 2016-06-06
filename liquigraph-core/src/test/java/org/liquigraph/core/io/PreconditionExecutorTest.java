@@ -19,14 +19,10 @@ import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.liquigraph.core.EmbeddedGraphDatabaseRule;
+import org.liquigraph.core.GraphDatabaseRule;
+import org.liquigraph.core.HttpGraphDatabaseRule;
 import org.liquigraph.core.exception.PreconditionExecutionException;
-import org.liquigraph.core.model.AndQuery;
-import org.liquigraph.core.model.OrQuery;
-import org.liquigraph.core.model.Precondition;
-import org.liquigraph.core.model.PreconditionErrorPolicy;
-import org.liquigraph.core.model.PreconditionQuery;
-import org.liquigraph.core.model.SimpleQuery;
+import org.liquigraph.core.model.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -39,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PreconditionExecutorTest {
 
     @Rule
-    public EmbeddedGraphDatabaseRule graphDatabaseRule = new EmbeddedGraphDatabaseRule("neotest");
+    public GraphDatabaseRule graphDatabaseRule = new HttpGraphDatabaseRule();
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -48,7 +44,7 @@ public class PreconditionExecutorTest {
 
     @Test
     public void executes_simple_precondition() throws SQLException {
-        Connection connection = graphDatabaseRule.connection();
+        Connection connection = graphDatabaseRule.newConnection();
         try (Statement ignored = connection.createStatement()) {
             PreconditionResult result = executor.executePrecondition(
                 connection,
@@ -62,7 +58,7 @@ public class PreconditionExecutorTest {
 
     @Test
     public void executes_nested_and_precondition_queries() throws SQLException {
-        Connection connection = graphDatabaseRule.connection();
+        Connection connection = graphDatabaseRule.newConnection();
         try (Statement ignored = connection.createStatement()) {
             PreconditionResult result = executor.executePrecondition(
                 connection,
@@ -76,7 +72,7 @@ public class PreconditionExecutorTest {
 
     @Test
     public void executes_nested_or_precondition_queries() throws SQLException {
-        Connection connection = graphDatabaseRule.connection();
+        Connection connection = graphDatabaseRule.newConnection();
         try (Statement ignored = connection.createStatement()) {
             PreconditionResult result = executor.executePrecondition(
                 connection,
@@ -98,7 +94,7 @@ public class PreconditionExecutorTest {
         ));
         precondition.setQuery(andQuery);
 
-        Connection connection = graphDatabaseRule.connection();
+        Connection connection = graphDatabaseRule.newConnection();
         try (Statement ignored = connection.createStatement()) {
             PreconditionResult result = executor.executePrecondition(
                 connection,
@@ -116,10 +112,12 @@ public class PreconditionExecutorTest {
         thrown.expectMessage(String.format(
             "%nError executing precondition:%n" +
             "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.%n" +
-            "\tActual cause: Error executing query toto\n" +
-            " with params {}"));
+            "\tActual cause: Some errors occurred : %n" +
+            "[Neo.ClientError.Statement.SyntaxError]:Invalid input 't': expected <init> (line 1, column 1 (offset: 0))%n" +
+            "\"toto\"%n" +
+            " ^"));
 
-        Connection connection = graphDatabaseRule.connection();
+        Connection connection = graphDatabaseRule.newConnection();
         try (Statement ignored = connection.createStatement()) {
             executor.executePrecondition(
                 connection,
@@ -133,7 +131,7 @@ public class PreconditionExecutorTest {
         thrown.expect(PreconditionExecutionException.class);
         thrown.expectMessage("Make sure your query <RETURN true> yields exactly one column named or aliased 'result'.");
 
-        Connection connection = graphDatabaseRule.connection();
+        Connection connection = graphDatabaseRule.newConnection();
         try (Statement ignored = connection.createStatement()) {
             executor.executePrecondition(
                 connection,
@@ -149,7 +147,7 @@ public class PreconditionExecutorTest {
 
         Precondition precondition = new Precondition();
         precondition.setQuery(new PreconditionQuery() {});
-        executor.executePrecondition(graphDatabaseRule.connection(), precondition);
+        executor.executePrecondition(graphDatabaseRule.newConnection(), precondition);
     }
 
     private Precondition simplePrecondition(PreconditionErrorPolicy fail, String query) {

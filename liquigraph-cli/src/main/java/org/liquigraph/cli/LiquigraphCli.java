@@ -54,10 +54,9 @@ public class LiquigraphCli {
     @Parameter(
             names = {"--graph-db-uri", "-g"},
             description = "Graph JDBC URI:\n" +
-                    "\t- jdbc:neo4j://host:port/\n" +
-                    "\t- jdbc:neo4j:file:/path/to/db\n" +
-                    "\t- jdbc:neo4j:mem\n" +
-                    "\t- jdbc:neo4j:mem:name\n",
+                    "\t- jdbc:neo4j:http://host:port/\n" +
+                    "\t- jdbc:neo4j:https://host:port/\n" +
+                    "\t- jdbc:neo4j:bolt://host:port/\n",
             required = true
     )
     private String graphDbUri;

@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.io;
+package org.liquigraph.core.api;
 
+import org.junit.Ignore;
 import org.junit.Rule;
-import org.liquigraph.core.EmbeddedGraphDatabaseRule;
 import org.liquigraph.core.GraphDatabaseRule;
-import org.liquigraph.core.RemoteGraphDatabaseRule;
+import org.liquigraph.core.HttpGraphDatabaseRule;
 
-public class ChangelogGraphWriterRemoteTest extends ChangelogGraphWriterTestSuite {
+@Ignore
+public class LiquigraphHttpTest extends LiquigraphTestSuite {
 
     @Rule
-    public GraphDatabaseRule graph = new RemoteGraphDatabaseRule();
+    public GraphDatabaseRule graph = new HttpGraphDatabaseRule();
 
     @Override
     public GraphDatabaseRule graphDatabase() {

@@ -23,7 +23,6 @@ import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
 import org.liquigraph.core.model.SimpleQuery;
-import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Node;
 
 import java.sql.Connection;
@@ -46,14 +45,14 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
 
     @Before
     public void prepare() throws SQLException {
-        writer = new ChangelogGraphWriter(graphDatabase().connection(), new PreconditionExecutor());
+        writer = new ChangelogGraphWriter(graphDatabase().newConnection(), new PreconditionExecutor());
     }
 
     @Test
     public void persists_changesets_in_graph() throws SQLException {
         writer.write(newArrayList(changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})")));
 
-        assertThatQueryIsExecutedAndHistoryPersisted(graphDatabase().connection());
+        assertThatQueryIsExecutedAndHistoryPersisted(graphDatabase().newConnection());
     }
 
     @Test
@@ -63,7 +62,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
 
         writer.write(newArrayList(changeset));
 
-        assertThatQueryIsExecutedAndHistoryPersisted(graphDatabase().connection());
+        assertThatQueryIsExecutedAndHistoryPersisted(graphDatabase().newConnection());
     }
 
     @Test
@@ -89,13 +88,12 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
 
         writer.write(newArrayList(changeset));
 
-        try (Statement statement = graphDatabase().connection().createStatement();
-             ResultSet resultSet = statement.executeQuery(
-                 "MATCH (changelog:__LiquigraphChangelog)<-[execution:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
-                 "OPTIONAL MATCH (node :SomeNode) " +
-                 "RETURN execution.order AS order, changeset, node"
-             )) {
-
+        try (Statement statement = graphDatabase().newConnection().createStatement()) {
+            ResultSet resultSet = statement.executeQuery(
+                    "MATCH (changelog:__LiquigraphChangelog)<-[execution:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset) " +
+                            "OPTIONAL MATCH (node :SomeNode) " +
+                            "RETURN execution.order AS order, changeset, node"
+            );
             assertThat(resultSet.next()).as("No more result in result set").isFalse();
         }
     }
@@ -107,15 +105,14 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
 
         writer.write(singletonList(changeset));
 
-        try (Statement statement = graphDatabase().connection().createStatement();
-             ResultSet resultSet = statement.executeQuery(
-                 "OPTIONAL MATCH  (node: SomeNode) " +
-                 "WITH node " +
-                 "MATCH  (changelog:__LiquigraphChangelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset), " +
-                 "       (changeset)<-[:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
-                 "RETURN ewc.time AS time, changeset, COLLECT(query.query) AS queries, node"
-             )) {
-
+        try (Statement statement = graphDatabase().newConnection().createStatement()) {
+            ResultSet resultSet = statement.executeQuery(
+                    "OPTIONAL MATCH  (node: SomeNode) " +
+                            "WITH node " +
+                            "MATCH  (changelog:__LiquigraphChangelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset), " +
+                            "       (changeset)<-[:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
+                            "RETURN ewc.time AS time, changeset, COLLECT(query.query) AS queries, node"
+            );
             assertThat(resultSet.next()).as("Result set should contain 1 row").isTrue();
             assertThatChangesetIsStored(resultSet);
             assertThatQueryIsNotExecuted(resultSet);
@@ -135,17 +132,16 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
 
         writer.write(singletonList(changeset));
 
-        try (Statement transaction = graphDatabase().connection().createStatement();
-             ResultSet resultSet = transaction.executeQuery("MATCH (n:Human) RETURN n.age AS age")) {
+        try (Statement transaction = graphDatabase().newConnection().createStatement()) {
 
+            ResultSet resultSet = transaction.executeQuery("MATCH (n:Human) RETURN n.age AS age");
             assertThat(resultSet.next()).isTrue();
             assertThat(resultSet.getLong("age")).isEqualTo(42);
             assertThat(resultSet.next()).as("No more result in result set").isFalse();
         }
 
-        try (Statement transaction = graphDatabase().connection().createStatement();
-             ResultSet resultSet = transaction.executeQuery("MATCH (queries:__LiquigraphQuery) RETURN COLLECT(queries.query) AS query")) {
-
+        try (Statement transaction = graphDatabase().newConnection().createStatement()) {
+            ResultSet resultSet = transaction.executeQuery("MATCH (queries:__LiquigraphQuery) RETURN COLLECT(queries.query) AS query");
             assertThat(resultSet.next()).isTrue();
             assertThat((Collection<String>)resultSet.getObject("query")).containsExactly(
                 "CREATE (n:Human) RETURN n", "MATCH (n:Human) SET n.age = 42 RETURN n"
@@ -166,10 +162,9 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
             writer.write(newArrayList(changeset));
         }
 
-        try (Statement transaction = graphDatabase().connection().createStatement();
-             ResultSet changesetSet = transaction.executeQuery("MATCH (changeset:__LiquigraphChangeset) RETURN changeset");
-             ResultSet propSet = transaction.executeQuery("MATCH (n:SomeNode) RETURN n.prop AS prop")) {
-
+        try (Statement transaction = graphDatabase().newConnection().createStatement()) {
+            ResultSet changesetSet = transaction.executeQuery("MATCH (changeset:__LiquigraphChangeset) RETURN changeset");
+            ResultSet propSet = transaction.executeQuery("MATCH (n:SomeNode) RETURN n.prop AS prop");
             assertThat(changesetSet.next()).isTrue();
 
             Object changesetNode = changesetSet.getObject("changeset");
@@ -203,10 +198,9 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
 
         writer.write(newArrayList(changeset));
 
-        try (Statement transaction = graphDatabase().connection().createStatement();
-             ResultSet changesetSet = transaction.executeQuery("MATCH (changeset:__LiquigraphChangeset) RETURN changeset");
-             ResultSet propSet = transaction.executeQuery("MATCH (n:SomeNode) RETURN n.prop AS prop")) {
-
+        try (Statement transaction = graphDatabase().newConnection().createStatement()) {
+            ResultSet changesetSet = transaction.executeQuery("MATCH (changeset:__LiquigraphChangeset) RETURN changeset");
+            ResultSet propSet = transaction.executeQuery("MATCH (n:SomeNode) RETURN n.prop AS prop");
             assertThat(changesetSet.next()).isTrue();
 
             Object changesetNode = changesetSet.getObject("changeset");
@@ -254,14 +248,13 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
     }
 
     private static void assertThatQueryIsExecutedAndHistoryPersisted(Connection connection) throws SQLException {
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(
-                 "MATCH  (node: SomeNode), " +
-                     "       (changelog:__LiquigraphChangelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset), " +
-                     "       (changeset)<-[:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
-                     "RETURN ewc.time AS time, changeset, COLLECT(query.query) AS queries, node"
-             )) {
-
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(
+                    "MATCH  (node: SomeNode), " +
+                            "       (changelog:__LiquigraphChangelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset), " +
+                            "       (changeset)<-[:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
+                            "RETURN ewc.time AS time, changeset, COLLECT(query.query) AS queries, node"
+            );
             assertThat(resultSet.next()).as("Result set should contain 1 row").isTrue();
             assertThatChangesetIsStored(resultSet);
             assertThatQueryIsExecuted(resultSet);

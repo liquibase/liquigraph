@@ -15,21 +15,17 @@
  */
 package org.liquigraph.core.io;
 
-import org.liquigraph.core.configuration.Configuration;
+import org.junit.Rule;
+import org.liquigraph.core.BoltGraphDatabaseRule;
+import org.liquigraph.core.GraphDatabaseRule;
 
-import java.sql.Connection;
+public class ChangelogGraphWriterBoltTest extends ChangelogGraphWriterTestSuite {
 
-public class FixedConnectionConnector implements LiquigraphJdbcConnector {
-
-    private final Connection connection;
-
-    public FixedConnectionConnector(Connection connection) {
-        this.connection = connection;
-    }
+    @Rule
+    public GraphDatabaseRule graph = new BoltGraphDatabaseRule();
 
     @Override
-    public Connection connect(Configuration configuration) {
-        return new KeepAliveConnection(connection);
+    public GraphDatabaseRule graphDatabase() {
+        return graph;
     }
-
 }

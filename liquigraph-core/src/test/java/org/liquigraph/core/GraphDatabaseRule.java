@@ -22,7 +22,7 @@ import java.sql.Connection;
 
 public interface GraphDatabaseRule extends TestRule {
 
-    Connection connection();
+    Connection newConnection();
     String uri();
     Optional<String> username();
     Optional<String> password();

@@ -35,7 +35,7 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
 
     @Test
     public void reads_changelog_from_graph_database() throws SQLException {
-        try (Connection connection = graphDatabase().connection()) {
+        try (Connection connection = graphDatabase().newConnection()) {
             String query = "MATCH n RETURN n";
             given_inserted_data(format(
                 "CREATE (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
@@ -56,13 +56,12 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
             assertThat(changeset.getChecksum()).isEqualTo(checksum(singletonList(query)));
             assertThat(changeset.getAuthor()).isEqualTo("fbiville");
             assertThat(changeset.getQueries()).containsExactly(query);
-            connection.commit();
         }
     }
 
     @Test
     public void reads_changeset_with_multiple_queries() throws SQLException {
-        try (Connection connection = graphDatabase().connection()) {
+        try (Connection connection = graphDatabase().newConnection()) {
             given_inserted_data(format(
                 "CREATE     (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
                     "           (changeset:__LiquigraphChangeset {" +
@@ -88,13 +87,12 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
             assertThat(changeset.getChecksum()).isEqualTo(checksum(asList("MATCH m RETURN m", "MATCH n RETURN n", "Match o Return o")));
             assertThat(changeset.getAuthor()).isEqualTo("fbiville");
             assertThat(changeset.getQueries()).containsExactly("MATCH m RETURN m", "MATCH n RETURN n", "MATCH o RETURN o");
-            connection.commit();
         }
     }
 
     @Test
     public void migrates_pre_1_0_rc3_changelog_before_reading() throws SQLException {
-        try (Connection connection = graphDatabase().connection()) {
+        try (Connection connection = graphDatabase().newConnection()) {
             String[] queries = { "MATCH m RETURN m", "MATCH n RETURN n", "Match o Return o" };
             given_inserted_data(format(
                     "CREATE     (changelog:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {order: 1}]-" +
@@ -138,7 +136,6 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
                 assertThat(changeset.getChecksum()).isEqualTo(checksum(singletonList(queries[i])));
                 assertThat(changeset.getQueries()).containsExactly(queries[i]);
             }
-            connection.commit();
         }
     }
 

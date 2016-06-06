@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.api;
+package org.liquigraph.core.io;
 
 import org.junit.Rule;
-import org.liquigraph.core.EmbeddedGraphDatabaseRule;
 import org.liquigraph.core.GraphDatabaseRule;
+import org.liquigraph.core.HttpGraphDatabaseRule;
 
-public class LiquigraphEmbeddedTest extends LiquigraphTestSuite {
+public class ChangelogGraphWriterHttpTest extends ChangelogGraphWriterTestSuite {
 
     @Rule
-    public GraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neo");
+    public GraphDatabaseRule graph = new HttpGraphDatabaseRule();
 
     @Override
     public GraphDatabaseRule graphDatabase() {
