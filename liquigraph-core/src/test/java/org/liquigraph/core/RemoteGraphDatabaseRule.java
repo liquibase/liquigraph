@@ -37,7 +37,7 @@ public class RemoteGraphDatabaseRule extends ExternalResource
     private Connection connection;
 
     public RemoteGraphDatabaseRule() {
-        uri = "jdbc:neo4j://127.0.0.1:7474";
+        uri = "jdbc:neo4j:bolt://127.0.0.1";
         username = "neo4j";
         password = "j4oen";
     }
@@ -77,11 +77,10 @@ public class RemoteGraphDatabaseRule extends ExternalResource
 
     protected void before() {
         try {
-            Class.forName("org.neo4j.jdbc.Driver");
             connection = DriverManager.getConnection(uri, username, password);
             connection.setAutoCommit(false);
             emptyDatabase(connection);
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             throw propagate(e);
         }
     }
