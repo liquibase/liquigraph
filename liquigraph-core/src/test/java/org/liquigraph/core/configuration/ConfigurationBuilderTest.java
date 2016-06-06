@@ -23,6 +23,7 @@ import org.junit.rules.TemporaryFolder;
 import java.nio.file.Path;
 
 import static java.lang.String.format;
+import static org.junit.Assume.assumeTrue;
 
 public class ConfigurationBuilderTest {
 
@@ -66,13 +67,13 @@ public class ConfigurationBuilderTest {
     @Test
     public void fails_on_unsupported_protocol() {
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage(
-            "\t - Invalid JDBC URI. Supported configurations:\n" +
-            "\t - jdbc:neo4j://<host>:<port>/\n" +
-            "\t - jdbc:neo4j:file:/path/to/db\n" +
-            "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.\n" +
+        thrown.expectMessage(String.format(
+            "\t - Invalid JDBC URI. Supported configurations:%n" +
+            "\t - jdbc:neo4j://<host>:<port>/%n" +
+            "\t - jdbc:neo4j:file:/path/to/db%n" +
+            "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.%n" +
             "Given: ssh://sorry@buddy"
-        );
+        ));
 
         new ConfigurationBuilder()
             .withMasterChangelogLocation("changelog/changelog.xml")
@@ -108,7 +109,7 @@ public class ConfigurationBuilderTest {
     public void output_folder_must_be_writable() throws Exception {
         outputCypherFolder.create();
         Path path = outputCypherFolder.getRoot().toPath();
-        path.toAbsolutePath().toFile().setWritable(false);
+        assumeTrue("Folder can be made non-writable", path.toAbsolutePath().toFile().setWritable(false));
 
         thrown.expect(RuntimeException.class);
         thrown.expectMessage(format("<%s> must be writable", path.toString()));

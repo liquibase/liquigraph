@@ -113,11 +113,11 @@ public class PreconditionExecutorTest {
     @Test
     public void fails_with_invalid_cypher_query() throws SQLException {
         thrown.expect(PreconditionExecutionException.class);
-        thrown.expectMessage(
-            "Error executing precondition:\n" +
-            "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.\n" +
+        thrown.expectMessage(String.format(
+            "%nError executing precondition:%n" +
+            "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.%n" +
             "\tActual cause: Error executing query toto\n" +
-            " with params {}");
+            " with params {}"));
 
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {

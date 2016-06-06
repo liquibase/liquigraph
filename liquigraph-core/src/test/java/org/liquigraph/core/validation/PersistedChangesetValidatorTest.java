@@ -70,8 +70,8 @@ public class PersistedChangesetValidatorTest {
 
         assertThat(errors).containsExactly(
             format(
-                "Changeset with ID <identifier> and author <author> has conflicted checksums.\n" +
-                "\t - Declared: <%s>\n" +
+                "Changeset with ID <identifier> and author <author> has conflicted checksums.%n" +
+                "\t - Declared: <%s>%n" +
                 "\t - Persisted: <%s>.",
                 checksum(singletonList("MATCH m RETURN m")),
                 checksum(singletonList("MATCH (m)-->(z) RETURN m, z"))

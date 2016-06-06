@@ -29,6 +29,7 @@ import static java.lang.String.format;
 
 public final class ChangelogParser {
 
+    private static final String SEPARATOR = System.lineSeparator() + "\t";
     private final ChangelogPreprocessor preprocessor;
     private final Unmarshaller unmarshaller;
     private final XmlSchemaValidator validator;
@@ -83,7 +84,6 @@ public final class ChangelogParser {
     }
 
     private String formatErrorMessage(Collection<String> errors) {
-        String separator = "\n\t";
-        return separator + Joiner.on(separator).join(errors);
+        return SEPARATOR + Joiner.on(SEPARATOR).join(errors);
     }
 }
