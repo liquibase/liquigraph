@@ -23,6 +23,7 @@ import org.junit.rules.TemporaryFolder;
 import java.nio.file.Path;
 
 import static java.lang.String.format;
+import static org.junit.Assume.assumeTrue;
 
 public class ConfigurationBuilderTest {
 
@@ -108,7 +109,7 @@ public class ConfigurationBuilderTest {
     public void output_folder_must_be_writable() throws Exception {
         outputCypherFolder.create();
         Path path = outputCypherFolder.getRoot().toPath();
-        path.toAbsolutePath().toFile().setWritable(false);
+        assumeTrue("Folder can be made non-writable", path.toAbsolutePath().toFile().setWritable(false));
 
         thrown.expect(RuntimeException.class);
         thrown.expectMessage(format("<%s> must be writable", path.toString()));
