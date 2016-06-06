@@ -97,7 +97,10 @@ public class RemoteGraphDatabaseRule extends ExternalResource
 
     private void emptyDatabase(Connection connection) throws SQLException {
         try (java.sql.Statement statement = connection.createStatement()) {
-            assertThat(statement.execute("MATCH (n) OPTIONAL MATCH (n)-[r]->() DELETE n,r")).isTrue();
+            statement.execute("MATCH (n) DETACH DELETE n");
+        }
+        try (java.sql.Statement statement = connection.createStatement()) {
+            assertThat(statement.executeQuery("MATCH (n) RETURN n").next()).isFalse();
         }
     }
 
