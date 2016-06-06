@@ -83,7 +83,7 @@ public final class ChangelogParser {
     }
 
     private String formatErrorMessage(Collection<String> errors) {
-        String separator = "\n\t";
+        String separator =  System.getProperty("line.separator") + "\t";
         return separator + Joiner.on(separator).join(errors);
     }
 }

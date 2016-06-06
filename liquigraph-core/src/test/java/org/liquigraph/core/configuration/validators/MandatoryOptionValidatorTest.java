@@ -35,13 +35,13 @@ public class MandatoryOptionValidatorTest {
             "foo"
         );
 
-        assertThat(errors).containsExactly(
-            "Invalid JDBC URI. Supported configurations:\n" +
-            "\t - jdbc:neo4j://<host>:<port>/\n" +
-            "\t - jdbc:neo4j:file:/path/to/db\n" +
-            "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.\n" +
+        assertThat(errors).containsExactly(String.format(
+            "Invalid JDBC URI. Supported configurations:%n" +
+            "\t - jdbc:neo4j://<host>:<port>/%n" +
+            "\t - jdbc:neo4j:file:/path/to/db%n" +
+            "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.%n" +
             "Given: foo"
-        );
+        ));
     }
 
     @Test
