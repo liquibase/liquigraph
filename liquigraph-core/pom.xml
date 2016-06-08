@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-jdbc-driver</artifactId>
-            <version>3.0-RC1</version>
+            <version>3.0-M03</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

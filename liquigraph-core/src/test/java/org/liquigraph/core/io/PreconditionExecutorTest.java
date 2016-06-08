@@ -16,18 +16,12 @@
 package org.liquigraph.core.io;
 
 import com.google.common.collect.Lists;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.core.EmbeddedGraphDatabaseRule;
 import org.liquigraph.core.exception.PreconditionExecutionException;
-import org.liquigraph.core.model.AndQuery;
-import org.liquigraph.core.model.OrQuery;
-import org.liquigraph.core.model.Precondition;
-import org.liquigraph.core.model.PreconditionErrorPolicy;
-import org.liquigraph.core.model.PreconditionQuery;
-import org.liquigraph.core.model.SimpleQuery;
+import org.liquigraph.core.model.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -111,15 +105,15 @@ public class PreconditionExecutorTest {
         }
     }
 
-    @Ignore("TODO: Bug in Neo4J. Currently throws an internal exception")
     @Test
     public void fails_with_invalid_cypher_query() throws SQLException {
         thrown.expect(PreconditionExecutionException.class);
         thrown.expectMessage(String.format(
             "%nError executing precondition:%n" +
             "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.%n" +
-            "\tActual cause: Error executing query toto\n" +
-            " with params {}"));
+            "\tActual cause: Invalid input 't': expected <init> (line 1, column 1 (offset: 0))\n" +
+            "\"toto\"\n" +
+            " ^"));
 
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
