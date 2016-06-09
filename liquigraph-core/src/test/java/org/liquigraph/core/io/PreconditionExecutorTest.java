@@ -21,12 +21,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.core.EmbeddedGraphDatabaseRule;
 import org.liquigraph.core.exception.PreconditionExecutionException;
-import org.liquigraph.core.model.AndQuery;
-import org.liquigraph.core.model.OrQuery;
-import org.liquigraph.core.model.Precondition;
-import org.liquigraph.core.model.PreconditionErrorPolicy;
-import org.liquigraph.core.model.PreconditionQuery;
-import org.liquigraph.core.model.SimpleQuery;
+import org.liquigraph.core.model.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -39,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PreconditionExecutorTest {
 
     @Rule
-    public EmbeddedGraphDatabaseRule graphDatabaseRule = new EmbeddedGraphDatabaseRule("neotest");
+    public EmbeddedGraphDatabaseRule graphDatabaseRule = new EmbeddedGraphDatabaseRule();
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -116,8 +111,9 @@ public class PreconditionExecutorTest {
         thrown.expectMessage(String.format(
             "%nError executing precondition:%n" +
             "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.%n" +
-            "\tActual cause: Error executing query toto\n" +
-            " with params {}"));
+            "\tActual cause: Invalid input 't': expected <init> (line 1, column 1 (offset: 0))\n" +
+            "\"toto\"\n" +
+            " ^"));
 
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {

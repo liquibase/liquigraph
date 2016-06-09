@@ -22,7 +22,7 @@ import org.liquigraph.core.GraphDatabaseRule;
 public class LiquigraphEmbeddedTest extends LiquigraphTestSuite {
 
     @Rule
-    public GraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neo");
+    public GraphDatabaseRule graph = new EmbeddedGraphDatabaseRule();
 
     @Override
     public GraphDatabaseRule graphDatabase() {

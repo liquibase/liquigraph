@@ -22,7 +22,7 @@ import org.liquigraph.core.GraphDatabaseRule;
 public class ChangelogGraphReaderEmbeddedTest extends ChangelogGraphReaderTestSuite {
 
     @Rule
-    public GraphDatabaseRule graph = new EmbeddedGraphDatabaseRule("neotestreader");
+    public GraphDatabaseRule graph = new EmbeddedGraphDatabaseRule();
 
     @Override
     public GraphDatabaseRule graphDatabase() {

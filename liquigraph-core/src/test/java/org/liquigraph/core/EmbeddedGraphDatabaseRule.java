@@ -17,14 +17,13 @@ package org.liquigraph.core;
 
 import com.google.common.base.Optional;
 import org.junit.rules.ExternalResource;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.test.TestGraphDatabaseFactory;
+import org.neo4j.harness.ServerControls;
+import org.neo4j.harness.TestServerBuilder;
+import org.neo4j.harness.TestServerBuilders;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
-import java.util.UUID;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Throwables.propagate;
@@ -32,14 +31,12 @@ import static com.google.common.base.Throwables.propagate;
 public class EmbeddedGraphDatabaseRule extends ExternalResource
                                        implements GraphDatabaseRule {
 
-    private final String dbName;
-    private final String uri;
+    private final TestServerBuilder builder;
+    private ServerControls controls;
     private Connection connection;
-    private GraphDatabaseService db;
-    
-    public EmbeddedGraphDatabaseRule(String name) {
-        dbName = name + "-" + UUID.randomUUID().toString();
-        uri = "jdbc:neo4j:instance:" + dbName;
+
+    public EmbeddedGraphDatabaseRule() {
+        builder = TestServerBuilders.newInProcessBuilder();
     }
 
     @Override
@@ -49,7 +46,7 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource
 
     @Override
     public String uri() {
-        return uri;
+        return "jdbc:neo4j:" + controls.boltURI() + "?noSsl";
     }
 
     @Override
@@ -64,12 +61,10 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource
 
     protected void before() {
         try {
-            db = new TestGraphDatabaseFactory().newImpermanentDatabase();
-            Class.forName("org.neo4j.jdbc.Driver");
-            Properties props = properties();
-            connection = DriverManager.getConnection(uri, props);
+            controls = builder.newServer();
+            connection = DriverManager.getConnection(uri());
             connection.setAutoCommit(false);
-        } catch (ClassNotFoundException | SQLException e) {
+        } catch (SQLException e) {
             throw propagate(e);
         }
     }
@@ -79,15 +74,10 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource
             if (!connection.isClosed()) {
                 connection.close();
             }
-            db.shutdown();
+            controls.close();
         } catch (SQLException e) {
             throw propagate(e);
         }
     }
 
-    private Properties properties() {
-        Properties props = new Properties();
-        props.put(dbName, db);
-        return props;
-    }
 }

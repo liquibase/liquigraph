@@ -15,18 +15,18 @@
  */
 package org.liquigraph.core.io;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.liquigraph.core.RemoteGraphDatabaseRule;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.liquigraph.core.io.lock.LockableConnection;
-import org.neo4j.jdbc.internal.Neo4jConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.MapEntry.entry;
 import static org.liquigraph.core.RemoteGraphDatabaseRule.assumeRemoteGraphDatabaseIsProvisioned;
 
 public class GraphJdbcConnectorTest {
@@ -36,6 +36,7 @@ public class GraphJdbcConnectorTest {
 
     private GraphJdbcConnector connector = new GraphJdbcConnector();
 
+    @Ignore("TODO: This scheme isn't supported any longer")
     @Test
     public void instantiates_a_local_graph_database() throws SQLException {
         try (Connection connection = connector.connect(new ConfigurationBuilder()
@@ -52,13 +53,14 @@ public class GraphJdbcConnectorTest {
     @Test
     public void instantiates_a_remote_graph_database() throws SQLException {
         assumeRemoteGraphDatabaseIsProvisioned();
+        final RemoteGraphDatabaseRule rule = new RemoteGraphDatabaseRule();
 
         try (Connection connection = connector.connect(new ConfigurationBuilder()
             .withRunMode()
             .withMasterChangelogLocation("changelog/changelog.xml")
-            .withUri("jdbc:neo4j://127.0.0.1:7474")
-            .withUsername("neo4j")
-            .withPassword("j4oen")
+            .withUri(rule.uri())
+            .withUsername(rule.username().get())
+            .withPassword(rule.password().get())
             .build()
         )) {
             assertThat(connection).isInstanceOf(LockableConnection.class);
