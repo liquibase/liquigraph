@@ -20,7 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.core.EmbeddedGraphDatabaseRule;
-import org.liquigraph.core.exception.PreconditionExecutionException;
+import org.liquigraph.core.exception.ConditionExecutionException;
 import org.liquigraph.core.model.AndQuery;
 import org.liquigraph.core.model.OrQuery;
 import org.liquigraph.core.model.Precondition;
@@ -36,7 +36,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PreconditionExecutorTest {
+public class ConditionExecutorTest {
 
     @Rule
     public EmbeddedGraphDatabaseRule graphDatabaseRule = new EmbeddedGraphDatabaseRule("neotest");
@@ -44,13 +44,13 @@ public class PreconditionExecutorTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private PreconditionExecutor executor = new PreconditionExecutor();
+    private ConditionExecutor executor = new ConditionExecutor();
 
     @Test
     public void executes_simple_precondition() throws SQLException {
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executePrecondition(
+            boolean result = executor.executeCondition(
                 connection,
                 simplePrecondition("RETURN true AS result")
             );
@@ -63,7 +63,7 @@ public class PreconditionExecutorTest {
     public void executes_nested_and_precondition_queries() throws SQLException {
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executePrecondition(
+            boolean result = executor.executeCondition(
                 connection,
                 andPrecondition("RETURN true AS result", "RETURN false AS result")
             );
@@ -76,7 +76,7 @@ public class PreconditionExecutorTest {
     public void executes_nested_or_precondition_queries() throws SQLException {
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executePrecondition(
+            boolean result = executor.executeCondition(
                 connection,
                 orPrecondition("RETURN true AS result", "RETURN false AS result")
             );
@@ -96,7 +96,7 @@ public class PreconditionExecutorTest {
 
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executePrecondition(
+            boolean result = executor.executeCondition(
                 connection,
                 precondition
             );
@@ -107,16 +107,16 @@ public class PreconditionExecutorTest {
 
     @Test
     public void fails_with_invalid_cypher_query() throws SQLException {
-        thrown.expect(PreconditionExecutionException.class);
+        thrown.expect(ConditionExecutionException.class);
         thrown.expectMessage(String.format(
-            "%nError executing precondition:%n" +
+            "%nError executing condition:%n" +
             "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.%n" +
             "\tActual cause: Error executing query toto\n" +
             " with params {}"));
 
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
-            executor.executePrecondition(
+            executor.executeCondition(
                 connection,
                 simplePrecondition("toto")
             );
@@ -125,12 +125,12 @@ public class PreconditionExecutorTest {
 
     @Test
     public void fails_with_badly_named_precondition_result_column() throws SQLException {
-        thrown.expect(PreconditionExecutionException.class);
+        thrown.expect(ConditionExecutionException.class);
         thrown.expectMessage("Make sure your query <RETURN true> yields exactly one column named or aliased 'result'.");
 
         Connection connection = graphDatabaseRule.connection();
         try (Statement ignored = connection.createStatement()) {
-            executor.executePrecondition(
+            executor.executeCondition(
                 connection,
                 simplePrecondition("RETURN true")
             );
@@ -140,11 +140,11 @@ public class PreconditionExecutorTest {
     @Test
     public void fails_with_unknown_query_type() {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.PreconditionExecutorTest$1>");
+        thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.ConditionExecutorTest$1>");
 
         Precondition precondition = new Precondition();
         precondition.setQuery(new Query() {});
-        executor.executePrecondition(graphDatabaseRule.connection(), precondition);
+        executor.executeCondition(graphDatabaseRule.connection(), precondition);
     }
 
     private Precondition simplePrecondition(String query) {

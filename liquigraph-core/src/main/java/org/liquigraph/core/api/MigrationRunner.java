@@ -20,9 +20,9 @@ import com.google.common.base.Supplier;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ChangelogWriter;
+import org.liquigraph.core.io.ConditionExecutor;
+import org.liquigraph.core.io.ConditionPrinter;
 import org.liquigraph.core.io.LiquigraphJdbcConnector;
-import org.liquigraph.core.io.PreconditionExecutor;
-import org.liquigraph.core.io.PreconditionPrinter;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
@@ -40,24 +40,24 @@ class MigrationRunner {
     private final ChangelogParser changelogParser;
     private final ChangelogGraphReader changelogReader;
     private final ChangelogDiffMaker changelogDiffMaker;
-    private final PreconditionExecutor preconditionExecutor;
-    private final PreconditionPrinter preconditionPrinter;
+    private final ConditionExecutor conditionExecutor;
+    private final ConditionPrinter conditionPrinter;
     private final PersistedChangesetValidator persistedChangesetValidator;
 
     public MigrationRunner(LiquigraphJdbcConnector connector,
                            ChangelogParser changelogParser,
                            ChangelogGraphReader changelogGraphReader,
                            ChangelogDiffMaker changelogDiffMaker,
-                           PreconditionExecutor preconditionExecutor,
-                           PreconditionPrinter preconditionPrinter,
+                           ConditionExecutor conditionExecutor,
+                           ConditionPrinter conditionPrinter,
                            PersistedChangesetValidator persistedChangesetValidator) {
 
         this.connector = connector;
         this.changelogParser = changelogParser;
         this.changelogReader = changelogGraphReader;
         this.changelogDiffMaker = changelogDiffMaker;
-        this.preconditionExecutor = preconditionExecutor;
-        this.preconditionPrinter = preconditionPrinter;
+        this.conditionExecutor = conditionExecutor;
+        this.conditionPrinter = conditionPrinter;
         this.persistedChangesetValidator = persistedChangesetValidator;
     }
 
@@ -102,8 +102,8 @@ class MigrationRunner {
         ChangelogWriter changelogWriter = configuration.resolveWriter(
             writeConnection,
             connectionSupplier,
-            preconditionExecutor,
-            preconditionPrinter
+            conditionExecutor,
+            conditionPrinter
         );
         changelogWriter.write(changelogsToInsert);
     }

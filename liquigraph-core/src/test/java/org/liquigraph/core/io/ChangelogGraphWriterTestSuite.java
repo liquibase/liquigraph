@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.exception.PreconditionNotMetException;
 import org.liquigraph.core.model.Changeset;
+import org.liquigraph.core.model.Postcondition;
 import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
 import org.liquigraph.core.model.SimpleQuery;
@@ -50,7 +51,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
     public void prepare() throws SQLException {
         ConnectionSupplier connectionSupplier = new ConnectionSupplier();
         connection = connectionSupplier.get();
-        writer = new ChangelogGraphWriter(connection, connectionSupplier, new PreconditionExecutor());
+        writer = new ChangelogGraphWriter(connection, connectionSupplier, new ConditionExecutor());
     }
 
     @After
@@ -240,6 +241,40 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
         }
     }
 
+    @Test
+    public void applies_changesets_in_graph_repeatedly_while_postcondition_is_true() throws SQLException {
+        try (Connection connection = graphDatabase().connection()) {
+            given_inserted_data(
+                "CREATE (n:SomeNode {prop: 0}), " +
+                "       (n)-[:IS_RELATED_TO]->(n2:OtherNode), " +
+                "       (n)-[:IS_RELATED_TO]->(n3:OtherNode)",
+                connection);
+
+            Changeset changeset = changeset("identifier", "fbiville",
+                "MATCH (n:SomeNode)-[r:IS_RELATED_TO]->(n2) " +
+                "WITH n, r, n2 " +
+                "LIMIT 1 " +
+                "DELETE r, n2 " +
+                "WITH n " +
+                "SET n.prop = n.prop + 1 ");
+            changeset.setPostcondition(postcondition(
+                "OPTIONAL MATCH (n:SomeNode) " +
+                "RETURN EXISTS((n)-->()) AS result"));
+
+            writer.write(newArrayList(changeset));
+
+            try (Statement transaction = connection.createStatement()) {
+                ResultSet resultSet = transaction.executeQuery(
+                    "MATCH (n:SomeNode) " +
+                    "RETURN n.prop AS prop");
+
+                assertThat(resultSet.next()).isTrue();
+
+                assertThat(resultSet.getLong("prop")).isEqualTo(2);
+            }
+        }
+    }
+
     private Precondition precondition(PreconditionErrorPolicy policy, String query) {
         Precondition precondition = new Precondition();
         precondition.setPolicy(policy);
@@ -247,6 +282,14 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
         simpleQuery.setQuery(query);
         precondition.setQuery(simpleQuery);
         return precondition;
+    }
+
+    private static Postcondition postcondition(String query) {
+        Postcondition postcondition = new Postcondition();
+        SimpleQuery simpleQuery = new SimpleQuery();
+        simpleQuery.setQuery(query);
+        postcondition.setQuery(simpleQuery);
+        return postcondition;
     }
 
     private Changeset changeset(String identifier, String author, String query, Precondition precondition) {
@@ -312,6 +355,11 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
         }
         assertThat(changeset).isInstanceOf(Node.class);
         return ((Node)changeset).getProperty(name);
+    }
+
+    private void given_inserted_data(String query, Connection connection) throws SQLException {
+        connection.createStatement().executeQuery(query);
+        connection.commit();
     }
 
     private class ConnectionSupplier implements Supplier<Connection> {

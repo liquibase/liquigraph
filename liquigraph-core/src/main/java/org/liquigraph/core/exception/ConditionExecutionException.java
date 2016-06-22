@@ -17,9 +17,9 @@ package org.liquigraph.core.exception;
 
 import static java.lang.String.format;
 
-public class PreconditionExecutionException extends RuntimeException {
+public class ConditionExecutionException extends RuntimeException {
 
-    public PreconditionExecutionException(String message, Object... arguments) {
+    public ConditionExecutionException(String message, Object... arguments) {
         super(format(message, arguments));
     }
 }

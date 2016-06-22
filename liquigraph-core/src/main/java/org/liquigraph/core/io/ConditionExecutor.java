@@ -15,9 +15,9 @@
  */
 package org.liquigraph.core.io;
 
-import org.liquigraph.core.exception.PreconditionExecutionException;
+import org.liquigraph.core.exception.ConditionExecutionException;
 import org.liquigraph.core.model.CompoundQuery;
-import org.liquigraph.core.model.Precondition;
+import org.liquigraph.core.model.Condition;
 import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
 
@@ -29,11 +29,11 @@ import java.sql.Statement;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 
-public class PreconditionExecutor {
+public class ConditionExecutor {
 
-    public final boolean executePrecondition(Connection connection, Precondition precondition) {
+    public final boolean executeCondition(Connection connection, Condition condition) {
         checkArgument(connection != null, "Connection should not be null");
-        return applyPrecondition(connection, precondition.getQuery());
+        return applyPrecondition(connection, condition.getQuery());
     }
 
     private boolean applyPrecondition(Connection connection, Query query) {
@@ -59,7 +59,7 @@ public class PreconditionExecutor {
             return resultSet.getBoolean("result");
         }
         catch (SQLException e) {
-            throw new PreconditionExecutionException("%nError executing precondition:%n" +
+            throw new ConditionExecutionException("%nError executing condition:%n" +
                "\tMake sure your query <%s> yields exactly one column named or aliased 'result'.%n" +
                "\tActual cause: %s", query, e.getMessage());
         }

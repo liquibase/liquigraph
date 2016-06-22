@@ -30,26 +30,26 @@ import org.liquigraph.core.model.SimpleQuery;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PreconditionPrinterTest {
+public class ConditionPrinterTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private PreconditionPrinter preconditionPrinter = new PreconditionPrinter();
+    private ConditionPrinter conditionPrinter = new ConditionPrinter();
 
     @Test
     public void prints_nothing_for_null_precondition_query() {
-        assertThat(preconditionPrinter.print(null)).isEmpty();
+        assertThat(conditionPrinter.print(null)).isEmpty();
     }
 
     @Test
     public void fails_to_print_when_given_an_unknown_query_type() {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.PreconditionPrinterTest$1>");
+        thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.ConditionPrinterTest$1>");
 
         Precondition precondition = new Precondition();
         precondition.setQuery(new Query() {});
-        preconditionPrinter.print(precondition);
+        conditionPrinter.print(precondition);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class PreconditionPrinterTest {
             PreconditionErrorPolicy.CONTINUE
         );
 
-        String contents = Joiner.on("\n").join(preconditionPrinter.print(precondition));
+        String contents = Joiner.on("\n").join(conditionPrinter.print(precondition));
 
         assertThat(contents).isEqualTo(
             "//Liquigraph precondition[if-not-met: CONTINUE]\n" +
@@ -80,7 +80,7 @@ public class PreconditionPrinterTest {
             PreconditionErrorPolicy.FAIL
         );
 
-        String contents = Joiner.on("\n").join(preconditionPrinter.print(precondition));
+        String contents = Joiner.on("\n").join(conditionPrinter.print(precondition));
 
         assertThat(contents).isEqualTo(
             "//Liquigraph precondition[if-not-met: FAIL]\n" +

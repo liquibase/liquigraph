@@ -16,6 +16,7 @@
 package org.liquigraph.core.io;
 
 import org.liquigraph.core.model.CompoundQuery;
+import org.liquigraph.core.model.Condition;
 import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
@@ -25,7 +26,7 @@ import java.util.Collection;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 
-public class PreconditionPrinter {
+public class ConditionPrinter {
 
     public Collection<String> print(Precondition precondition) {
         if (precondition == null) {
@@ -33,8 +34,15 @@ public class PreconditionPrinter {
         }
         Collection<String> lines = newArrayList();
         lines.add(format("//Liquigraph precondition[if-not-met: %s]", precondition.getPolicy()));
-        lines.add(traverseQuery(precondition.getQuery()));
+        lines.addAll(print((Condition) precondition));
         return lines;
+    }
+
+    public Collection<String> print(Condition precondition) {
+        if (precondition == null) {
+            return newArrayList();
+        }
+        return newArrayList(traverseQuery(precondition.getQuery()));
     }
 
     private String traverseQuery(Query query) {

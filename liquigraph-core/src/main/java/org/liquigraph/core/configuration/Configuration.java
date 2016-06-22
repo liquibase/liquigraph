@@ -20,8 +20,8 @@ import com.google.common.base.Supplier;
 import org.liquigraph.core.io.ChangelogFileWriter;
 import org.liquigraph.core.io.ChangelogGraphWriter;
 import org.liquigraph.core.io.ChangelogWriter;
-import org.liquigraph.core.io.PreconditionExecutor;
-import org.liquigraph.core.io.PreconditionPrinter;
+import org.liquigraph.core.io.ConditionExecutor;
+import org.liquigraph.core.io.ConditionPrinter;
 
 import java.sql.Connection;
 
@@ -89,16 +89,16 @@ public final class Configuration {
 
     public ChangelogWriter resolveWriter(Connection writeConnection,
                                          Supplier<Connection> connectionSupplier,
-                                         PreconditionExecutor preconditionExecutor,
-                                         PreconditionPrinter preconditionPrinter) {
+                                         ConditionExecutor conditionExecutor,
+                                         ConditionPrinter conditionPrinter) {
 
         ExecutionMode executionMode = executionMode();
         if (executionMode == RunMode.RUN_MODE) {
-            return new ChangelogGraphWriter(writeConnection, connectionSupplier, preconditionExecutor);
+            return new ChangelogGraphWriter(writeConnection, connectionSupplier, conditionExecutor);
         }
         if (executionMode instanceof DryRunMode) {
             DryRunMode dryRunMode = (DryRunMode) executionMode;
-            return new ChangelogFileWriter(preconditionPrinter, dryRunMode.getOutputFile());
+            return new ChangelogFileWriter(conditionPrinter, dryRunMode.getOutputFile());
         }
         throw new IllegalStateException("Unsupported <executionMode>: " + executionMode);
     }

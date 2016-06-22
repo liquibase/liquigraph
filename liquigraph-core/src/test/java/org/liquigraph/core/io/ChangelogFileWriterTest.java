@@ -52,10 +52,10 @@ public class ChangelogFileWriterTest {
 
     @Before
     public void prepare() throws IOException {
-        PreconditionPrinter preconditionPrinter = given_precondition_printer_prints_nothing();
+        ConditionPrinter conditionPrinter = given_precondition_printer_prints_nothing();
         outputFile = new File(temporaryFolder.newFolder(), "output.cypher");
         writer = new ChangelogFileWriter(
-            preconditionPrinter,
+                conditionPrinter,
             outputFile
         );
     }
@@ -120,10 +120,10 @@ public class ChangelogFileWriterTest {
         return changeset;
     }
 
-    private PreconditionPrinter given_precondition_printer_prints_nothing() {
-        PreconditionPrinter preconditionPrinter = mock(PreconditionPrinter.class);
-        when(preconditionPrinter.print(any(Precondition.class))).thenReturn(Collections.<String>emptyList());
-        return preconditionPrinter;
+    private ConditionPrinter given_precondition_printer_prints_nothing() {
+        ConditionPrinter conditionPrinter = mock(ConditionPrinter.class);
+        when(conditionPrinter.print(any(Precondition.class))).thenReturn(Collections.<String>emptyList());
+        return conditionPrinter;
     }
 
 }
