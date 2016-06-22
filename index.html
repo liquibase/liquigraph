@@ -203,6 +203,7 @@ That said, there may be situations where changesets should be run at every execu
 			<dd><p>Changeset preconditions act like guards. They make sure that the changeset query will be executed if and only if the precondition is met.</p>
 <p>A precondition can be simple (1 <a href="http://neo4j.com/developer/cypher-query-language/">Cypher</a> query) or compound (with boolean AND/OR operators).</p>
 <p>In any case, each of the subqueries/the simple query has to return <strong>exactly one column named <em>result</em></strong> of type boolean (true|false).</p>
+<p>Note that a precondition cannot modify the database itself: all changes will be rolled back.</p>
 <p>If the precondition fails, an error policy has to be selected amongst the following choices:</p>
 <ul>
 	<li>CONTINUE: ignores the precondition error and skips the associated changeset execution</li>
@@ -230,6 +231,24 @@ That said, there may be situations where changesets should be run at every execu
    &lt;query&gt;&lt;![CDATA[MATCH (p:User {twitter:'@fbiville'}) CREATE (p)-[:IS_OFFERED_FREE_PASS_TO]-&gt;(:Location {name:'Futuroscope'})]]&gt;&lt;/query&gt;
 &lt;/changeset&gt;</code></pre>
 </dd>
+
+			<dt>Changeset postcondition</dt>
+			<dd><p>Changeset postconditions allow a single changeset to be applied as many times as necessary to complete the migration, by repeating the changeset as long as the postcondition is met.</p>
+				<p>A postcondition can be simple (1 <a href="http://neo4j.com/developer/cypher-query-language/">Cypher</a> query) or compound (with boolean AND/OR operators).</p>
+				<p>In any case, each of the subqueries/the simple query has to return <strong>exactly one column named <em>result</em></strong> of type boolean (true|false).</p>
+				<p>Note that a postcondition cannot modify the database itself: all changes will be rolled back.</p>
+				<p>Once the postcondition returns false, the changeset is considered complete.</p>
+				<p>A repeatable changeset can be used to perform a migration on a large database without risking an OutOfMemoryError because of the large number of nodes or relationships impacted, by splitting the migration into smaller batches.</p>
+				<p>Here is a postcondition example, deleting all relationships in the database by batches of 10:</p>
+				<pre>
+<code class="xml">&lt;changeset id=&quot;delete-relationships&quot; author=&quot;you&quot;&gt;
+   &lt;query&gt;&lt;![CDATA[MATCH ()-[r]-&gt;() WITH r LIMIT 10 DELETE r]]&gt;&lt;/query&gt;
+   &lt;postcondition&gt;
+      &lt;query&gt;&lt;![CDATA[OPTIONAL MATCH ()-[r]-&gt;() WITH r LIMIT 1 RETURN (r IS NOT NULL) AS result]]&gt;&lt;/query&gt;
+   &lt;/postcondition&gt;
+&lt;/changeset&gt;</code>
+				</pre>
+			</dd>
 		</dl>
 	</section>
 
