@@ -69,6 +69,7 @@
         <xs:attribute name="contexts" type="xs:string" use="optional" />
         <xs:attribute name="run-always" type="xs:boolean" use="optional" />
         <xs:attribute name="run-on-change" type="xs:boolean" use="optional" />
+        <xs:attribute name="database-tag" type="xs:string" use="optional" />
     </xs:complexType>
 
     <xs:element name="changelog">

@@ -173,6 +173,16 @@ public class ChangelogParserTest {
             .containsExactly("MATCH (n) RETURN n", "MATCH (m) RETURN m");
     }
 
+    @Test
+    public void parses_changesets_with_database_tags() {
+        Collection<Changeset> changesets = parser.parse(classLoader, "changelog/database_tag/changelog.xml");
+
+        assertThat(changesets)
+                .hasSize(1)
+                .extracting("databaseTag")
+                .containsExactly("v1.0.0");
+    }
+
     // fragile: uses reflection
     private void given_validation_errors(List<String> errors) throws Exception {
         XmlSchemaValidator validator = mock(XmlSchemaValidator.class);
