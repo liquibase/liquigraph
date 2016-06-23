@@ -15,6 +15,7 @@
  */
 package org.liquigraph.core.api;
 
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Before;
 import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
@@ -24,6 +25,7 @@ import org.liquigraph.core.io.GraphJdbcConnector;
 import java.sql.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 
@@ -115,5 +117,31 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
             assertThat(resultSet.next()).isFalse();
             connection.commit();
         }
+    }
+
+    @Test
+    public void fails_migrations_with_edited_migration() throws SQLException {
+        liquigraph.runMigrations(
+                new ConfigurationBuilder()
+                        .withRunMode()
+                        .withMasterChangelogLocation("changelog/changelog.xml")
+                        .withUri(graphDatabase().uri())
+                        .build()
+        );
+
+        assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                liquigraph.runMigrations(
+                        new ConfigurationBuilder()
+                                .withRunMode()
+                                .withMasterChangelogLocation("changelog/changelog-edited.xml")
+                                .withUri(graphDatabase().uri())
+                                .build()
+                );
+            }
+        })
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Changeset with ID <second-changelog> and author <team> has conflicted checksums");
     }
 }

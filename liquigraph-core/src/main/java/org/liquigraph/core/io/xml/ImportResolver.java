@@ -69,9 +69,6 @@ public class ImportResolver {
     }
 
     private String parentFolder(String changelog) {
-        if (!changelog.contains("/")) {
-            return "";
-        }
         return changelog.substring(0, changelog.lastIndexOf('/') + 1);
     }
 
