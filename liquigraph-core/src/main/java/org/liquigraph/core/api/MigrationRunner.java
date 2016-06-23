@@ -16,6 +16,7 @@
 package org.liquigraph.core.api;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Supplier;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ChangelogWriter;
@@ -65,8 +66,9 @@ class MigrationRunner {
     public void runMigrations(Configuration configuration) {
         Collection<Changeset> declaredChangesets = parseChangesets(configuration.classLoader(), configuration.masterChangelog());
 
-        try (Connection connection = connector.connect(configuration)) {
-            Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, connection);
+        Supplier<Connection> connectionSupplier = new ConnectionSupplier(configuration);
+        try (Connection writeConnection = connectionSupplier.get()) {
+            Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, writeConnection);
 
             Collection<Changeset> changelog = changelogDiffMaker.computeChangesetsToInsert(
                 configuration.executionContexts(),
@@ -74,7 +76,7 @@ class MigrationRunner {
                 persistedChangesets
             );
 
-            writeApplicableChangesets(configuration, connection, changelog);
+            writeApplicableChangesets(configuration, writeConnection, connectionSupplier, changelog);
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -84,8 +86,8 @@ class MigrationRunner {
         return changelogParser.parse(classLoader, masterChangelog);
     }
 
-    private Collection<Changeset> readPersistedChangesets(Collection<Changeset> declaredChangesets, Connection graphDatabase) {
-        Collection<Changeset> persistedChangesets = changelogReader.read(graphDatabase);
+    private Collection<Changeset> readPersistedChangesets(Collection<Changeset> declaredChangesets, Connection writeConnection) {
+        Collection<Changeset> persistedChangesets = changelogReader.read(writeConnection);
         Collection<String> errors = persistedChangesetValidator.validate(declaredChangesets, persistedChangesets);
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(formatErrorMessage(errors));
@@ -93,9 +95,13 @@ class MigrationRunner {
         return persistedChangesets;
     }
 
-    private void writeApplicableChangesets(Configuration configuration, Connection connection, Collection<Changeset> changelogsToInsert) {
+    private void writeApplicableChangesets(Configuration configuration,
+                                           Connection writeConnection,
+                                           Supplier<Connection> connectionSupplier,
+                                           Collection<Changeset> changelogsToInsert) {
         ChangelogWriter changelogWriter = configuration.resolveWriter(
-            connection,
+            writeConnection,
+            connectionSupplier,
             preconditionExecutor,
             preconditionPrinter
         );
@@ -105,5 +111,18 @@ class MigrationRunner {
     private String formatErrorMessage(Collection<String> errors) {
         String separator = "\n\t";
         return separator + Joiner.on(separator).join(errors);
+    }
+
+    private class ConnectionSupplier implements Supplier<Connection> {
+        private final Configuration configuration;
+
+        public ConnectionSupplier(Configuration configuration) {
+            this.configuration = configuration;
+        }
+
+        @Override
+        public Connection get() {
+            return connector.connect(configuration);
+        }
     }
 }

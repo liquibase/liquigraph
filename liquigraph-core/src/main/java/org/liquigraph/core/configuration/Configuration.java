@@ -16,6 +16,7 @@
 package org.liquigraph.core.configuration;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Supplier;
 import org.liquigraph.core.io.ChangelogFileWriter;
 import org.liquigraph.core.io.ChangelogGraphWriter;
 import org.liquigraph.core.io.ChangelogWriter;
@@ -86,13 +87,14 @@ public final class Configuration {
         return executionMode;
     }
 
-    public ChangelogWriter resolveWriter(Connection connection,
+    public ChangelogWriter resolveWriter(Connection writeConnection,
+                                         Supplier<Connection> connectionSupplier,
                                          PreconditionExecutor preconditionExecutor,
                                          PreconditionPrinter preconditionPrinter) {
 
         ExecutionMode executionMode = executionMode();
         if (executionMode == RunMode.RUN_MODE) {
-            return new ChangelogGraphWriter(connection, preconditionExecutor);
+            return new ChangelogGraphWriter(writeConnection, connectionSupplier, preconditionExecutor);
         }
         if (executionMode instanceof DryRunMode) {
             DryRunMode dryRunMode = (DryRunMode) executionMode;

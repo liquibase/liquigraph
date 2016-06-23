@@ -15,6 +15,7 @@
  */
 package org.liquigraph.core.io;
 
+import com.google.common.base.Supplier;
 import org.liquigraph.core.exception.PreconditionNotMetException;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.Precondition;
@@ -52,11 +53,15 @@ public class ChangelogGraphWriter implements ChangelogWriter {
 
     private static final boolean NO_PRECONDITION = true;
 
-    private final Connection connection;
+    private final Connection writeConnection;
+    private final Supplier<Connection> connectionSupplier;
     private final PreconditionExecutor preconditionExecutor;
 
-    public ChangelogGraphWriter(Connection connection, PreconditionExecutor preconditionExecutor) {
-        this.connection = connection;
+    public ChangelogGraphWriter(Connection writeConnection,
+                                Supplier<Connection> connectionSupplier,
+                                PreconditionExecutor preconditionExecutor) {
+        this.writeConnection = writeConnection;
+        this.connectionSupplier = connectionSupplier;
         this.preconditionExecutor = preconditionExecutor;
     }
 
@@ -75,7 +80,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
             if (statementExecution == StatementExecution.IGNORE_FAILURE) {
                 continue;
             }
-            insertChangeset(connection, changeset);
+            insertChangeset(changeset);
         }
     }
 
@@ -88,11 +93,11 @@ public class ChangelogGraphWriter implements ChangelogWriter {
                 return handleFailedPrecondition(precondition, changeset);
             }
 
-            try (Statement statement = connection.createStatement()) {
+            try (Statement statement = writeConnection.createStatement()) {
                 for (String query : changeset.getQueries()) {
                     statement.execute(query);
                 }
-                connection.commit();
+                writeConnection.commit();
             }
         } catch (SQLException e) {
             throw propagate(e);
@@ -104,10 +109,10 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         if (precondition == null) {
             return NO_PRECONDITION;
         }
-        try {
-            boolean preconditionResult = preconditionExecutor.executePrecondition(connection, precondition);
+        try (Connection readConnection = connectionSupplier.get()) {
+            boolean preconditionResult = preconditionExecutor.executePrecondition(readConnection, precondition);
             // Make sure the precondition does not actually modify the data
-            connection.rollback();
+            readConnection.rollback();
             return preconditionResult;
         } catch (SQLException e) {
             throw propagate(e);
@@ -147,14 +152,14 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         }
     }
 
-    private void insertChangeset(Connection connection, Changeset changeset) {
-        try (PreparedStatement changesetStmt = connection.prepareStatement(CHANGESET_UPSERT);
-             PreparedStatement queryStmt = connection.prepareStatement(QUERY_UPSERT)) {
+    private void insertChangeset(Changeset changeset) {
+        try (PreparedStatement changesetStmt = writeConnection.prepareStatement(CHANGESET_UPSERT);
+             PreparedStatement queryStmt = writeConnection.prepareStatement(QUERY_UPSERT)) {
 
             insertChangesetNode(changeset, changesetStmt);
             insertQueryNodes(changeset, queryStmt);
 
-            connection.commit();
+            writeConnection.commit();
         } catch (SQLException e) {
             throw propagate(e);
         }

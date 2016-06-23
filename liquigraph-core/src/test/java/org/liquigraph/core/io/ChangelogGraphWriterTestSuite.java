@@ -15,6 +15,7 @@
  */
 package org.liquigraph.core.io;
 
+import com.google.common.base.Supplier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,8 +48,9 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
 
     @Before
     public void prepare() throws SQLException {
-        connection = graphDatabase().connection();
-        writer = new ChangelogGraphWriter(connection, new PreconditionExecutor());
+        ConnectionSupplier connectionSupplier = new ConnectionSupplier();
+        connection = connectionSupplier.get();
+        writer = new ChangelogGraphWriter(connection, connectionSupplier, new PreconditionExecutor());
     }
 
     @After
@@ -310,5 +312,12 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
         }
         assertThat(changeset).isInstanceOf(Node.class);
         return ((Node)changeset).getProperty(name);
+    }
+
+    private class ConnectionSupplier implements Supplier<Connection> {
+        @Override
+        public Connection get() {
+            return graphDatabase().connection();
+        }
     }
 }
