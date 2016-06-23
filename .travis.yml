@@ -17,10 +17,13 @@ env:
       WITH_DOCKER=false
     - NEO_VERSION=2.1.8
       WITH_DOCKER=false
-    - NEO_VERSION=2.2.9
+    - NEO_VERSION=2.2.10
       WITH_DOCKER=false
       EXTRA_PROFILES=-Pwith-neo4j-io
-    - NEO_VERSION=2.3.4
+    - NEO_VERSION=2.3.3
+      WITH_DOCKER=true
+      EXTRA_PROFILES=-Pwith-neo4j-io
+    - NEO_VERSION=2.3.5
       WITH_DOCKER=false
       EXTRA_PROFILES=-Pwith-neo4j-io
 before_script:
