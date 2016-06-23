@@ -36,6 +36,9 @@ import static java.lang.String.format;
 
 public class ChangelogGraphWriter implements ChangelogWriter {
 
+    private static final boolean NO_PRECONDITION = true;
+    private static final boolean NO_POSTCONDITION = false;
+
     private static final String CHANGESET_UPSERT =
         "MERGE (changelog:__LiquigraphChangelog) " +
         "MERGE (changelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset {id: {1}, author: {3}}) " +
@@ -53,8 +56,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         "MATCH (changeset:__LiquigraphChangeset {id: {1}, author: {2}}) " +
         "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}})";
 
-    private static final boolean NO_PRECONDITION = true;
-    private static final boolean NO_POSTCONDITION = false;
+    private static final String CHANGELOG_TAG_UPDATE = "MATCH (c:__LiquigraphChangelog) SET c.tag = {0}";
 
     private final Connection writeConnection;
     private final Supplier<Connection> connectionSupplier;
@@ -177,8 +179,22 @@ public class ChangelogGraphWriter implements ChangelogWriter {
 
             insertChangesetNode(changeset, changesetStmt);
             insertQueryNodes(changeset, queryStmt);
+            updateDatabaseTag(changeset, writeConnection);
 
             writeConnection.commit();
+        } catch (SQLException e) {
+            throw propagate(e);
+        }
+    }
+
+    private void updateDatabaseTag(Changeset changeset, Connection connection) {
+        String tag = changeset.getDatabaseTag();
+        if (tag == null) {
+            return;
+        }
+        try (PreparedStatement statement = connection.prepareStatement(CHANGELOG_TAG_UPDATE)) {
+            statement.setString(0, tag);
+            statement.execute();
         } catch (SQLException e) {
             throw propagate(e);
         }

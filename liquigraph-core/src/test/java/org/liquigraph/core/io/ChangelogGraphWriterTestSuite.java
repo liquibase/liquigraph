@@ -32,7 +32,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -245,33 +247,52 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
     public void applies_changesets_in_graph_repeatedly_while_postcondition_is_true() throws SQLException {
         try (Connection connection = graphDatabase().connection()) {
             given_inserted_data(
-                "CREATE (n:SomeNode {prop: 0}), " +
-                "       (n)-[:IS_RELATED_TO]->(n2:OtherNode), " +
-                "       (n)-[:IS_RELATED_TO]->(n3:OtherNode)",
-                connection);
+                    "CREATE (n:SomeNode {prop: 0}), " +
+                            "       (n)-[:IS_RELATED_TO]->(n2:OtherNode), " +
+                            "       (n)-[:IS_RELATED_TO]->(n3:OtherNode)",
+                    connection);
 
             Changeset changeset = changeset("identifier", "fbiville",
-                "MATCH (n:SomeNode)-[r:IS_RELATED_TO]->(n2) " +
-                "WITH n, r, n2 " +
-                "LIMIT 1 " +
-                "DELETE r, n2 " +
-                "WITH n " +
-                "SET n.prop = n.prop + 1 ");
+                    "MATCH (n:SomeNode)-[r:IS_RELATED_TO]->(n2) " +
+                            "WITH n, r, n2 " +
+                            "LIMIT 1 " +
+                            "DELETE r, n2 " +
+                            "WITH n " +
+                            "SET n.prop = n.prop + 1 ");
             changeset.setPostcondition(postcondition(
-                "OPTIONAL MATCH (n:SomeNode) " +
-                "RETURN EXISTS((n)-->()) AS result"));
+                    "OPTIONAL MATCH (n:SomeNode) " +
+                            "RETURN EXISTS((n)-->()) AS result"));
 
             writer.write(newArrayList(changeset));
 
             try (Statement transaction = connection.createStatement()) {
                 ResultSet resultSet = transaction.executeQuery(
-                    "MATCH (n:SomeNode) " +
-                    "RETURN n.prop AS prop");
+                        "MATCH (n:SomeNode) " +
+                                "RETURN n.prop AS prop");
 
                 assertThat(resultSet.next()).isTrue();
 
                 assertThat(resultSet.getLong("prop")).isEqualTo(2);
             }
+        }
+    }
+
+    @Test
+    public void persists_changesets_with_database_tags() throws Exception {
+        Collection<Changeset> changesets = asList(
+                changeset("identifier", "fbiville", "CREATE (n)", "v1.0.0"),
+                changeset("identifier2", "fbiville", "CREATE (n)", "v1.0.1"),
+                changeset("identifier3", "fbiville", "CREATE (n)", "v2.0.0")
+        );
+
+        writer.write(changesets);
+
+        try (Statement transaction = graphDatabase().connection().createStatement();
+             ResultSet changelogTag = transaction.executeQuery("MATCH (c:__LiquigraphChangelog) RETURN c.tag AS tag")) {
+
+            assertThat(changelogTag.next()).isTrue();
+            assertThat(changelogTag.getString("tag")).isEqualTo("v2.0.0");
+            assertThat(changelogTag.next()).isFalse();
         }
     }
 
@@ -295,6 +316,12 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
     private Changeset changeset(String identifier, String author, String query, Precondition precondition) {
         Changeset changeset = changeset(identifier, author, query);
         changeset.setPrecondition(precondition);
+        return changeset;
+    }
+
+    private Changeset changeset(String identifier, String author, String query, String tag) {
+        Changeset changeset = changeset(identifier, author, query);
+        changeset.setDatabaseTag(tag);
         return changeset;
     }
 
