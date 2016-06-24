@@ -24,6 +24,8 @@ import org.junit.runners.model.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static com.google.common.base.Throwables.propagate;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +36,7 @@ public class RemoteGraphDatabaseRule extends ExternalResource
     private final String uri;
     private final String username;
     private final String password;
-    private Connection connection;
+    private Collection<Connection> connections = new ArrayList<>();
 
     public RemoteGraphDatabaseRule() {
         uri = "jdbc:neo4j://127.0.0.1:7474";
@@ -57,7 +59,14 @@ public class RemoteGraphDatabaseRule extends ExternalResource
 
     @Override
     public Connection connection() {
-        return connection;
+        try {
+            Connection connection = DriverManager.getConnection(uri, username, password);
+            connection.setAutoCommit(false);
+            connections.add(connection);
+            return connection;
+        } catch (SQLException e) {
+            throw propagate(e);
+        }
     }
 
     @Override
@@ -78,9 +87,10 @@ public class RemoteGraphDatabaseRule extends ExternalResource
     protected void before() {
         try {
             Class.forName("org.neo4j.jdbc.Driver");
-            connection = DriverManager.getConnection(uri, username, password);
-            connection.setAutoCommit(false);
-            emptyDatabase(connection);
+            try (Connection connection = connection()) {
+                emptyDatabase(connection);
+                connection.commit();
+            }
         } catch (ClassNotFoundException | SQLException e) {
             throw propagate(e);
         }
@@ -88,8 +98,10 @@ public class RemoteGraphDatabaseRule extends ExternalResource
 
     protected void after() {
         try {
-            if (!connection.isClosed()) {
-                connection.close();
+            for (Connection connection : connections) {
+                if (!connection.isClosed()) {
+                    connection.close();
+                }
             }
         } catch (SQLException e) {
             throw propagate(e);
