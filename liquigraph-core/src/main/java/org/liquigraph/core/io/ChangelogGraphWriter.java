@@ -56,7 +56,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         "MATCH (changeset:__LiquigraphChangeset {id: {1}, author: {2}}) " +
         "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}})";
 
-    private static final String CHANGELOG_TAG_UPDATE = "MATCH (c:__LiquigraphChangelog) SET c.tag = {0}";
+    private static final String CHANGELOG_TAG_UPDATE = "MATCH (c:__LiquigraphChangelog) SET c.tag = {0}, c.tag_timestamp=timestamp()";
 
     private final Connection writeConnection;
     private final Supplier<Connection> connectionSupplier;

@@ -32,9 +32,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.Date;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -288,10 +287,11 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
         writer.write(changesets);
 
         try (Statement transaction = graphDatabase().connection().createStatement();
-             ResultSet changelogTag = transaction.executeQuery("MATCH (c:__LiquigraphChangelog) RETURN c.tag AS tag")) {
+             ResultSet changelogTag = transaction.executeQuery("MATCH (c:__LiquigraphChangelog) RETURN c.tag AS tag, c.tag_timestamp AS ts")) {
 
             assertThat(changelogTag.next()).isTrue();
             assertThat(changelogTag.getString("tag")).isEqualTo("v2.0.0");
+            assertThat(changelogTag.getLong("ts")).isPositive().isLessThanOrEqualTo(new Date().getTime());
             assertThat(changelogTag.next()).isFalse();
         }
     }
