@@ -15,10 +15,6 @@
  */
 package org.liquigraph.core.io.lock;
 
-import org.liquigraph.core.exception.LiquigraphLockException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -36,7 +32,6 @@ import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 
 /**
@@ -49,22 +44,18 @@ import java.util.concurrent.Executor;
  * only if the connection has not been properly closed.
  */
 public final class LockableConnection implements Connection {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LockableConnection.class);
     private final Connection delegate;
-    private final UUID uuid;
-    private final Thread task;
+    private final LiquigraphLock lock;
 
-    private LockableConnection(Connection delegate) {
+    private LockableConnection(Connection delegate, LiquigraphLock lock) {
         this.delegate = delegate;
-        this.uuid = UUID.randomUUID();
-        this.task = new Thread(new ShutdownTask(this));
+        this.lock = lock;
     }
 
-    public static LockableConnection acquire(Connection delegate) {
-        LockableConnection connection = new LockableConnection(delegate);
+    public static LockableConnection acquire(Connection delegate, LiquigraphLock lock) {
+        LockableConnection connection = new LockableConnection(delegate, lock);
         try {
-            connection.acquireLock();
+            lock.acquire(connection);
             return connection;
         } catch (RuntimeException e) {
             try {
@@ -85,8 +76,7 @@ public final class LockableConnection implements Connection {
      */
     @Override
     public void close() throws SQLException {
-        removeShutdownHook();
-        releaseLock();
+        lock.release(this);
         delegate.close();
     }
 
@@ -300,66 +290,5 @@ public final class LockableConnection implements Connection {
 
     public void setSchema(String schema) throws SQLException {
         delegate.setSchema(schema);
-    }
-
-    final void releaseLock() {
-        try (PreparedStatement statement = prepareStatement(
-            "MATCH (lock:__LiquigraphLock {uuid:{1}}) DELETE lock")) {
-
-            statement.setString(1, uuid.toString());
-            statement.execute();
-            commit();
-        } catch (SQLException e) {
-            LOGGER.error(
-                "Cannot remove __LiquigraphLock during cleanup.",
-                e
-            );
-        }
-    }
-
-    private final void acquireLock() {
-        addShutdownHook();
-        ensureLockUnicity();
-        tryWriteLock();
-    }
-
-    private final void addShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(task);
-    }
-
-    private final void removeShutdownHook() {
-        Runtime.getRuntime().removeShutdownHook(task);
-    }
-
-    private final void ensureLockUnicity() {
-        try (Statement statement = delegate.createStatement()) {
-            statement.execute("CREATE CONSTRAINT ON (lock:__LiquigraphLock) ASSERT lock.name IS UNIQUE");
-            commit();
-        }
-        catch (SQLException e) {
-            throw new LiquigraphLockException(
-                "Could not ensure __LiquigraphLock unicity\n\t" +
-                    "Please make sure your instance is in a clean state\n\t" +
-                    "No more than 1 lock should be there simultaneously!",
-                e
-            );
-        }
-    }
-
-    private final void tryWriteLock() {
-        try (PreparedStatement statement = delegate.prepareStatement(
-            "CREATE (:__LiquigraphLock {name:'John', uuid:{1}})")) {
-
-            statement.setString(1, uuid.toString());
-            statement.execute();
-            commit();
-        }
-        catch (SQLException e) {
-            throw new LiquigraphLockException(
-                "Cannot create __LiquigraphLock lock\n\t" +
-                "Likely another Liquigraph execution is going on or has crashed.",
-                e
-            );
-        }
     }
 }

@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
-import org.liquigraph.core.io.GraphJdbcConnector;
 
 import java.sql.*;
 
@@ -33,7 +32,7 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 
     @Before
     public void prepare() {
-        liquigraph = new Liquigraph(new GraphJdbcConnector());
+        liquigraph = new Liquigraph();
     }
 
     @Test
