@@ -15,20 +15,25 @@
  */
 package org.liquigraph.core.io.lock;
 
-/**
- * Lock-related cleanup task for {@link LockableConnection}
- */
-final class ShutdownTask implements Runnable {
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-    private final LiquigraphLock lock;
+import static org.mockito.Mockito.verify;
 
-    public ShutdownTask(LiquigraphLock lock) {
-        this.lock = lock;
+@RunWith(MockitoJUnitRunner.class)
+public class ShutdownTaskTest {
+    @InjectMocks
+    private ShutdownTask task;
+    @Mock
+    private LiquigraphLock lock;
+
+    @Test
+    public void should_release_lock_when_run() {
+        task.run();
+
+        verify(lock).release();
     }
-
-    @Override
-    public void run() {
-        lock.release();
-    }
-
 }
