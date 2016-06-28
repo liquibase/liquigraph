@@ -15,7 +15,6 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import org.liquigraph.core.io.ChangelogFileWriter;
 import org.liquigraph.core.io.ChangelogGraphWriter;
@@ -31,30 +30,25 @@ import java.sql.Connection;
  * create a configuration instance tailored to your environment.
  *
  * @see ConfigurationBuilder
+ * @see ConnectionConfiguration
  */
 public final class Configuration {
 
     private final ClassLoader classLoader;
     private final String masterChangelog;
-    private final String uri;
-    private final Optional<String> username;
-    private final Optional<String> password;
+    private final ConnectionConfiguration connectionConfiguration;
     private final ExecutionContexts executionContexts;
     private final ExecutionMode executionMode;
 
     Configuration(ClassLoader classLoader,
                   String masterChangelog,
-                  String uri,
-                  Optional<String> username,
-                  Optional<String> password,
+                  ConnectionConfiguration connectionConfiguration,
                   ExecutionContexts executionContexts,
                   ExecutionMode executionMode) {
 
         this.classLoader = classLoader;
         this.masterChangelog = masterChangelog;
-        this.uri = uri;
-        this.username = username;
-        this.password = password;
+        this.connectionConfiguration = connectionConfiguration;
         this.executionContexts = executionContexts;
         this.executionMode = executionMode;
     }
@@ -67,16 +61,8 @@ public final class Configuration {
         return masterChangelog;
     }
 
-    public String uri() {
-        return uri;
-    }
-
-    public Optional<String> username() {
-        return username;
-    }
-
-    public Optional<String> password() {
-        return password;
+    public ConnectionConfiguration dataSourceConfiguration() {
+        return connectionConfiguration;
     }
 
     public ExecutionContexts executionContexts() {
