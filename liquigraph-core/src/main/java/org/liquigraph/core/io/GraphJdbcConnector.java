@@ -15,15 +15,11 @@
  */
 package org.liquigraph.core.io;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.io.lock.LiquigraphLock;
 import org.liquigraph.core.io.lock.LockableConnection;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class GraphJdbcConnector implements LiquigraphJdbcConnector {
     private final LiquigraphLock lock = new LiquigraphLock();
@@ -38,30 +34,8 @@ public class GraphJdbcConnector implements LiquigraphJdbcConnector {
      */
     @Override
     public final Connection connect(Configuration configuration) {
-        try {
-            Class.forName("org.neo4j.jdbc.Driver");
-            Connection connection = DriverManager.getConnection(makeUri(configuration));
-            connection.setAutoCommit(false);
-            return LockableConnection.acquire(connection, lock);
-        } catch (ClassNotFoundException | SQLException e) {
-            throw Throwables.propagate(e);
-        }
+        Connection connection = configuration.dataSourceConfiguration().get();
+        return LockableConnection.acquire(connection, lock);
     }
-
-  private String makeUri(Configuration configuration) {
-    Optional<String> username = configuration.username();
-    if (!username.isPresent()) {
-      return configuration.uri();
-    }
-    return authenticatedUri(configuration);
-  }
-
-  private String authenticatedUri(Configuration configuration) {
-    String uri = configuration.uri();
-    String firstDelimiter = uri.contains("?") ? "," : "?";
-    return uri
-      + firstDelimiter + "user=" + configuration.username().get()
-      + ",password=" + configuration.password().or("");
-  }
 
 }

@@ -17,12 +17,13 @@ package org.liquigraph.core.configuration;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import org.liquigraph.core.configuration.validators.DatasourceConfigurationValidator;
 import org.liquigraph.core.configuration.validators.ExecutionModeValidator;
 import org.liquigraph.core.configuration.validators.MandatoryOptionValidator;
 
+import javax.sql.DataSource;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.logging.Level;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
@@ -37,13 +38,15 @@ import static java.lang.String.format;
 public final class ConfigurationBuilder {
 
     private String masterChangelog;
-    private String uri;
+    private Optional<DataSource> dataSource = absent();
+    private Optional<String> uri = absent();
     private Optional<String> username = absent();
     private Optional<String> password = absent();
     private ExecutionContexts executionContexts = ExecutionContexts.DEFAULT_CONTEXT;
     private ExecutionMode executionMode;
 
     private MandatoryOptionValidator mandatoryOptionValidator = new MandatoryOptionValidator();
+    private DatasourceConfigurationValidator datasourceConnectionValidator = new DatasourceConfigurationValidator();
     private ExecutionModeValidator executionModeValidator = new ExecutionModeValidator();
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
@@ -60,12 +63,27 @@ public final class ConfigurationBuilder {
 
     /**
      * Specifies the JDBC connection URI of the graph database instance.
+     * Alternatively, you can set a {@code DataSource} directly
      *
      * @param uri connection URI
+     * @see {@link this#withDataSource(DataSource)}
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withUri(String uri) {
-        this.uri = uri;
+        this.uri = fromNullable(uri);
+        return this;
+    }
+
+    /**
+     * Specifies the data source of the graph database instance.
+     * Alternatively, you can set the URI
+     *
+     * @param dataSource data source
+     * @see {@link this#withUri(String)}
+     * @return itself for chaining purposes
+     */
+    public ConfigurationBuilder withDataSource(DataSource dataSource) {
+        this.dataSource = fromNullable(dataSource);
         return this;
     }
 
@@ -159,7 +177,8 @@ public final class ConfigurationBuilder {
      */
     public Configuration build() {
         Collection<String> errors = newLinkedList();
-        errors.addAll(mandatoryOptionValidator.validate(classLoader, masterChangelog, uri));
+        errors.addAll(mandatoryOptionValidator.validate(classLoader, masterChangelog));
+        errors.addAll(datasourceConnectionValidator.validate(uri, dataSource));
         errors.addAll(executionModeValidator.validate(executionMode));
 
         if (!errors.isEmpty()) {
@@ -169,12 +188,17 @@ public final class ConfigurationBuilder {
         return new Configuration(
             classLoader,
             masterChangelog,
-            uri,
-            username,
-            password,
+            dataSourceConfiguration(),
             executionContexts,
             executionMode
         );
+    }
+
+    private ConnectionConfiguration dataSourceConfiguration() {
+        if (uri.isPresent()) {
+            return new ConnectionConfigurationByUri(uri.get(), username, password);
+        }
+        return new ConnectionConfigurationByDataSource(dataSource.get(), username, password);
     }
 
     private String formatErrors(Collection<String> errors) {

@@ -28,31 +28,15 @@ public class MandatoryOptionValidatorTest {
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     @Test
-    public void fails_on_invalid_jdbc_uri() {
+    public void fails_on_invalid_changelog_location() {
         Collection<String> errors = validator.validate(
             classLoader,
-            "changelog/changelog.xml",
-            "foo"
-        );
-
-        assertThat(errors).containsExactly(String.format(
-            "Invalid JDBC URI. Supported configurations:%n" +
-            "\t - jdbc:neo4j:http(s)://<host>:<port>/%n" +
-            "\t - jdbc:neo4j:bolt://<host>:<port>/%n" +
-            "Given: foo"
-        ));
-    }
-
-    @Test
-    public void fails_on_incomplete_graph_instance_configuration() {
-        Collection<String> errors = validator.validate(
-            classLoader,
-            "changelog/changelog.xml",
-            null
+            "unlikelytobefoundchangelog.xml"
         );
 
         assertThat(errors).containsExactly(
-            "'uri' should not be null"
+            "'masterChangelog' points to a non-existing location: unlikelytobefoundchangelog.xml"
         );
     }
+
 }

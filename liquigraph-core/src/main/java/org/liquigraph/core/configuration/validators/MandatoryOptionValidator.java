@@ -24,10 +24,9 @@ import static java.lang.String.format;
 
 public class MandatoryOptionValidator {
 
-    public Collection<String> validate(ClassLoader classLoader, String masterChangelog, String uri) {
+    public Collection<String> validate(ClassLoader classLoader, String masterChangelog) {
         Collection<String> errors = new LinkedList<>();
         errors.addAll(validateMasterChangelog(masterChangelog, classLoader));
-        errors.addAll(validateGraphInstance(uri));
         return errors;
     }
 
@@ -44,21 +43,6 @@ public class MandatoryOptionValidator {
             } catch (IOException e) {
                 errors.add(format("'masterChangelog' read error. Cause: %s", e.getMessage()));
             }
-        }
-        return errors;
-    }
-
-    private static Collection<String> validateGraphInstance(String uri) {
-        Collection<String> errors = new LinkedList<>();
-        if (uri == null) {
-            errors.add("'uri' should not be null");
-        }
-        else if (!uri.startsWith("jdbc:neo4j:http") && !uri.startsWith("jdbc:neo4j:bolt")) {
-            errors.add(format("Invalid JDBC URI. Supported configurations:%n" +
-                "\t - jdbc:neo4j:http(s)://<host>:<port>/%n" +
-                "\t - jdbc:neo4j:bolt://<host>:<port>/%n" +
-                "Given: %s", uri
-            ));
         }
         return errors;
     }

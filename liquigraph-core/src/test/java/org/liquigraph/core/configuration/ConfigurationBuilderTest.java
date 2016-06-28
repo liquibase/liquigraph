@@ -15,23 +15,31 @@
  */
 package org.liquigraph.core.configuration;
 
+import com.google.common.base.Charsets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
+import javax.sql.DataSource;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeTrue;
+import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ConfigurationBuilderTest {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Rule
-    public TemporaryFolder outputCypherFolder = new TemporaryFolder();
+    @Rule public ExpectedException thrown = none();
+    @Rule public TemporaryFolder outputCypherFolder = new TemporaryFolder();
+    @Rule public TemporaryFolder changesetFolder = new TemporaryFolder();
 
     @Test
     public void fails_on_null_changelog_location() {
@@ -57,7 +65,7 @@ public class ConfigurationBuilderTest {
     @Test
     public void fails_on_null_uri() {
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage("'uri' should not be null");
+        thrown.expectMessage("- Exactly one of JDBC URI or DataSource need to be configured");
 
         new ConfigurationBuilder()
             .withMasterChangelogLocation("changelog/changelog.xml")
@@ -84,7 +92,7 @@ public class ConfigurationBuilderTest {
     public void add_ups_all_misconfiguration_errors() {
         thrown.expect(RuntimeException.class);
         thrown.expectMessage(" - 'masterChangelog' should not be null");
-        thrown.expectMessage(" - 'uri' should not be null");
+        thrown.expectMessage(" - Exactly one of JDBC URI or DataSource need to be configured");
 
         new ConfigurationBuilder().build();
     }
@@ -119,4 +127,21 @@ public class ConfigurationBuilderTest {
                     .withDryRunMode(path)
                     .build();
     }
+
+    @Test
+    public void directly_configures_datasource() throws Exception {
+        DataSource dataSource = mock(DataSource.class);
+        Connection expectedConnection = mock(Connection.class);
+        when(dataSource.getConnection()).thenReturn(expectedConnection);
+
+        Configuration configuration = new ConfigurationBuilder()
+            .withClassLoader(this.getClass().getClassLoader())
+            .withMasterChangelogLocation("changelog/changelog.xml")
+            .withDataSource(dataSource)
+            .build();
+
+        assertThat(configuration.dataSourceConfiguration().get())
+            .isSameAs(expectedConnection);
+    }
+
 }
