@@ -19,8 +19,7 @@ import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.liquigraph.core.GraphDatabaseRule;
-import org.liquigraph.core.HttpGraphDatabaseRule;
+import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.exception.ConditionExecutionException;
 import org.liquigraph.core.model.AndQuery;
 import org.liquigraph.core.model.OrQuery;
@@ -37,10 +36,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ConditionExecutorTest {
-
-    @Rule
-    public GraphDatabaseRule graphDatabaseRule = new HttpGraphDatabaseRule();
+public abstract class ConditionExecutorTestSuite implements GraphIntegrationTestSuite {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -49,40 +45,43 @@ public class ConditionExecutorTest {
 
     @Test
     public void executes_simple_precondition() throws SQLException {
-        Connection connection = graphDatabaseRule.newConnection();
-        try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executeCondition(
-                connection,
-                simplePrecondition("RETURN true AS result")
-            );
+        try (Connection connection = graphDatabase().newConnection()) {
+            try (Statement ignored = connection.createStatement()) {
+                boolean result = executor.executeCondition(
+                        connection,
+                        simplePrecondition("RETURN true AS result")
+                );
 
-            assertThat(result).isTrue();
+                assertThat(result).isTrue();
+            }
         }
     }
 
     @Test
     public void executes_nested_and_precondition_queries() throws SQLException {
-        Connection connection = graphDatabaseRule.newConnection();
-        try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executeCondition(
-                connection,
-                andPrecondition("RETURN true AS result", "RETURN false AS result")
-            );
+        try (Connection connection = graphDatabase().newConnection()) {
+            try (Statement ignored = connection.createStatement()) {
+                boolean result = executor.executeCondition(
+                        connection,
+                        andPrecondition("RETURN true AS result", "RETURN false AS result")
+                );
 
-            assertThat(result).isFalse();
+                assertThat(result).isFalse();
+            }
         }
     }
 
     @Test
     public void executes_nested_or_precondition_queries() throws SQLException {
-        Connection connection = graphDatabaseRule.newConnection();
-        try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executeCondition(
-                connection,
-                orPrecondition("RETURN true AS result", "RETURN false AS result")
-            );
+        try (Connection connection = graphDatabase().newConnection()) {
+            try (Statement ignored = connection.createStatement()) {
+                boolean result = executor.executeCondition(
+                        connection,
+                        orPrecondition("RETURN true AS result", "RETURN false AS result")
+                );
 
-            assertThat(result).isTrue();
+                assertThat(result).isTrue();
+            }
         }
     }
 
@@ -95,14 +94,15 @@ public class ConditionExecutorTest {
         ));
         Precondition precondition = precondition(andQuery);
 
-        Connection connection = graphDatabaseRule.newConnection();
-        try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executeCondition(
-                connection,
-                precondition
-            );
+        try (Connection connection = graphDatabase().newConnection()) {
+            try (Statement ignored = connection.createStatement()) {
+                boolean result = executor.executeCondition(
+                        connection,
+                        precondition
+                );
 
-            assertThat(result).isTrue();
+                assertThat(result).isTrue();
+            }
         }
     }
 
@@ -117,12 +117,13 @@ public class ConditionExecutorTest {
             "\"toto\"%n" +
             " ^"));
 
-        Connection connection = graphDatabaseRule.newConnection();
-        try (Statement ignored = connection.createStatement()) {
-            executor.executeCondition(
-                connection,
-                simplePrecondition("toto")
-            );
+        try (Connection connection = graphDatabase().newConnection()) {
+            try (Statement ignored = connection.createStatement()) {
+                executor.executeCondition(
+                        connection,
+                        simplePrecondition("toto")
+                );
+            }
         }
     }
 
@@ -131,23 +132,26 @@ public class ConditionExecutorTest {
         thrown.expect(ConditionExecutionException.class);
         thrown.expectMessage("Make sure your query <RETURN true> yields exactly one column named or aliased 'result'.");
 
-        Connection connection = graphDatabaseRule.newConnection();
-        try (Statement ignored = connection.createStatement()) {
-            executor.executeCondition(
-                connection,
-                simplePrecondition("RETURN true")
-            );
+        try (Connection connection = graphDatabase().newConnection()) {
+            try (Statement ignored = connection.createStatement()) {
+                executor.executeCondition(
+                        connection,
+                        simplePrecondition("RETURN true")
+                );
+            }
         }
     }
 
     @Test
-    public void fails_with_unknown_query_type() {
+    public void fails_with_unknown_query_type() throws SQLException {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.ConditionExecutorTest$1>");
+        thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.ConditionExecutorTestSuite$1>");
 
         Precondition precondition = new Precondition();
         precondition.setQuery(new Query() {});
-        executor.executeCondition(graphDatabaseRule.newConnection(), precondition);
+        try (Connection connection = graphDatabase().newConnection()) {
+            executor.executeCondition(connection, precondition);
+        }
     }
 
     private Precondition simplePrecondition(String query) {
