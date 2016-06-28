@@ -27,6 +27,7 @@ import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
 import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
+import org.neo4j.test.RegexMatcher;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -109,13 +110,12 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
     @Test
     public void fails_with_invalid_cypher_query() throws SQLException {
         thrown.expect(ConditionExecutionException.class);
-        thrown.expectMessage(String.format(
-            "%nError executing condition:%n" +
-            "\tMake sure your query <toto> yields exactly one column named or aliased 'result'.%n" +
-            "\tActual cause: Some errors occurred : %n" +
-            "[Neo.ClientError.Statement.SyntaxError]:Invalid input 't': expected <init> (line 1, column 1 (offset: 0))%n" +
+        thrown.expectMessage(RegexMatcher.pattern(String.format(
+            "(?ms)%nError executing condition:%n" +
+            "\tMake sure your query \\<toto\\> yields exactly one column named or aliased 'result'.%n" +
+            "\tActual cause: .*Invalid input 't': expected \\<init\\> \\(line 1, column 1 \\(offset: 0\\)\\)%n" +
             "\"toto\"%n" +
-            " ^"));
+            " \\^.*")));
 
         try (Connection connection = graphDatabase().newConnection()) {
             try (Statement ignored = connection.createStatement()) {
