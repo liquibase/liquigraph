@@ -8,6 +8,10 @@ Please proceed to [this page](https://github.com/fbiville/liquigraph/tree/master
 [![Build Status](https://travis-ci.org/fbiville/liquigraph.png?branch=master)](https://travis-ci.org/fbiville/liquigraph)
 [![Coverage Status](https://coveralls.io/repos/fbiville/liquigraph/badge.png)](https://coveralls.io/r/fbiville/liquigraph)
 
+## Mailing list
+
+Please subscribe [here](https://groups.google.com/forum/?hl=en-GB#!forum/liquigraph-dev).
+
 ## Getting started
 
 Please read [the website](http://fbiville.github.io/liquigraph/).
