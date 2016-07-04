@@ -372,7 +372,7 @@ footer a:hover {
 
 
 /* custom */
-.inner { width:60%;}
+.inner { width:50%;}
 pre {font-family: Consolas,monospace};
 header { text-align:center !important;}
 h1 { text-align:center; margin-bottom:20px;}
@@ -390,14 +390,4 @@ nav { width:50%; margin:20px auto; text-align:center;}
 nav ul { margin:0 auto;}
 nav li { display:inline-block; padding:5px; font-size:14pt; list-style-type:none;}
 
-#main_summary { margin:0 auto;}
-#main_summary a { font-size:18pt;}
-
-#back_top { position:fixed; bottom:0; right:0; padding:20px; background-color:white;}
-
-code { margin-bottom:0}
-
-#versions { text-align: center;}
-#versions ul { margin-top: 3%;}
-#versions li { font-weight: bold; display: inline-block;}
 footer {text-align:center;}

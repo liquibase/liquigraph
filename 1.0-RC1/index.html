@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Liquigraph by fbiville</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1 id="headline"><a href=""><img src="images/liquigraph-logo.png" alt="Liquigraph" id="logo" title="Liquigraph: graph migrations made easy" /></a></h1>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/fbiville/liquigraph" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+	
+	<section id="five_minute_guide">
+		<h1>5-minute guide</h1>
+		<div>
+			<p>Open your favourite editor and paste:</p>
+			<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;changelog&gt;
+    &lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
+        &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
+    &lt;/changeset&gt;
+    &lt;changeset id=&quot;hello-world-fixed&quot; author=&quot;you&quot;&gt;
+        &lt;query&gt;MATCH (n:Sentence {text:&#39;Hello monde!&#39;}) SET n.text=&#39;Hello world!&#39; RETURN n&lt;/query&gt;
+    &lt;/changeset&gt;
+&lt;/changelog&gt;</code></pre>
+		</div>
+        	<nav>
+          	  <ul>
+            	    <li><a href="#maven">Maven users</a></li>
+            	    <li><a href="#shell">Shell aficionados</a></li>
+          	  </ul>
+        	</nav>
+		<div id="maven">
+			<h2>The Maven way</h2>
+			<p>Save these migrations in <span class='path'>${your_project}/src/main/resources/changelog.xml</span>.</p>
+			<p>Then, include Liquigraph plugin in your <span class="path">pom.xml</span>:
+			<pre><code>&lt;plugin&gt;
+    &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
+    &lt;artifactId&gt;liquigraph-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;1.0.RC1&lt;/version&gt;
+    &lt;configuration&gt;
+        &lt;changelog&gt;changelog.xml&lt;/changelog&gt;&lt;!-- classpath location --&gt;
+        &lt;jdbcUri&gt;jdbc:neo4j://localhost:7474&lt;/jdbcUri&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;</code></pre>
+			<p>And then, simulate the changes:</p>
+			<pre><code># check Neo4j is started, and then
+$&gt; mvn liquigraph:dry-run
+# prints queries that would be run
+$&gt; less target/output.cypher</code></pre>
+			<p>And finally, run:</p>
+			<pre><code>$&gt; mvn liquigraph:run</code></pre>
+		</div>
+		<div id="shell">
+			<h2>Highway to shell</h2>
+			<p>Save these migrations in <span class='path'>${your_project}/migrations/changelog.xml</span>.</p>
+			<p class="nota-bene">Note for Windows users: current RC does not support your OS. We're working hard to fix that.</p> 
+			<p>Then, download <a href="https://github.com/fbiville/liquigraph/releases/download/liquigraph-1.0.RC1/liquigraph.run">liquigraph.run</a>, export it in your path and `chmod +x` it. You can now run:</p>
+			<pre><code>$&gt; liquigraph.run --help</code></pre>
+			<p>A description should be prompted. Then, simulate the changes:</p>
+			<pre><code>$&gt; liquigraph.run --changelog "${your_project}/migrations/changelog.xml" \
+			     --graph-db-uri jdbc:neo4j://localhost:7474/ \
+			     --dry-run-output-directory /tmp
+# check contents
+$&gt; less /tmp/output.cypher</code></pre>
+			<p>And finally, run:</p>
+			<pre><code>$&gt; liquigraph.run --changelog "${your_project}/migrations/changelog.xml" \
+			     --graph-db-uri jdbc:neo4j://localhost:7474/</code></pre>
+		</div>
+	</section>	
+
+	<section id="detailed_section">
+		<h1>Detailed section</h1>
+		<p><a href="http://www.liquibase.org/">Liquibase</a> users should have no problems grasping the concepts of Liquigraph. The latter is heavily inspired from the first.</p>
+		<h2>Definitions</h2>
+		<dl>
+			<dt>Changelog</dt>
+			<dd>A Liquigraph changelog defines a set of migrations to be performed. There can be only one changelog per project.</dd>
+
+			<dt>Changeset</dt>
+			<dd>A Liquigraph changeset describes one create or update statement. This statement must be written in <a href="http://neo4j.com/developer/cypher-query-language/">Cypher Query Language</a> and is wrapped in its own transaction. A changeset can be run only once (incremental) and cannot be altered (immutable) against the same graph database instance, by default. Finally, a changeset is uniquely identified within the changelog by its mandatory ID and author attributes.</dd>
+
+			<dt>Execution context</dt>
+			<dd><p>An execution context is a simple string, defined at changeset level. A changeset can have 0, 1 or more execution contexts (in the latter case, they're comma-separated). For instance:</p>
+<pre><code>&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; contexts=&quot;foo,bar&quot;&gt;
+   &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
+&lt;/changeset&gt;</code></pre>
+<p>If no execution contexts are specified at runtime, all changesets will match.<br/>If one or more execution contexts are specified at runtime, changesets will be selected:</p>
+<ul>
+	<li>if they do not declare any execution contexts</li>
+	<li>or one of their declared contexts match one of the runtime contexts</li>
+</ul></dd>
+
+			<dt>Changeset immutability</dt>
+			<dd><p>As previously mentioned, Liquigraph changesets are immutable by default (an error will be thrown if they have been altered). 
+That said, there may be situations where changesets should be run whenever their contents have changed. To achieve this, you just need to define one extra attribute:</p>
+<pre><code>&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-on-change=&quot;true&quot;&gt;
+   &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
+&lt;/changeset&gt;</code></pre></dd>
+
+			<dt>Changeset incrementality</dt>
+			<dd><p>As previously mentioned, Liquigraph changesets are incremental by default (they will be executed only once). 
+That said, there may be situations where changesets should be run at every execution. To achieve this, you just need to define one extra attribute:</p>
+<pre><code>&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-always=&quot;true&quot;&gt;
+   &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
+&lt;/changeset&gt;</code></pre></dd>
+
+			<dt>Changeset precondition</dt>
+			<dd><p>Changeset preconditions act like guards. They make sure that the changeset query will be executed if and only if the precondition is met.</p>
+<p>A precondition can be simple (1 <a href="http://neo4j.com/developer/cypher-query-language/">Cypher</a> query) or compound (with boolean AND/OR operators).</p>
+<p>In any case, each of the subqueries/the simple query has to return <strong>exactly one column named <em>result</em></strong> of type boolean (true|false).</p>
+<p>If the precondition fails, an error policy has to be selected amongst the following choices:</p>
+<ul>
+	<li>CONTINUE: ignores the precondition error and skips the associated changeset execution</li>
+	<li>MARK_AS_EXECUTED: ignores the precondition error and marks the changeset as executed (without actually executing it)</li>
+	<li>FAIL: halts the whole execution, reporting the precondition error</li>
+</ul>
+<p>Here is a basic precondition example (you are right: this is the dumbest precondition ever):</p>
+<pre><code>&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
+   &lt;precondition if-not-met=&quot;MARK_AS_EXECUTED&quot;&gt;
+      &lt;query&gt;RETURN true AS result&lt;/query&gt;
+   &lt;/precondition&gt;
+   &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
+&lt;/changeset&gt;</code></pre>
+<p>Here comes a slightly more complicated example:</p>
+<pre><code>&lt;changeset id=&quot;contest-winner-selection&quot; author=&quot;futuroscope-engineering&quot;&gt;
+   &lt;precondition if-not-met=&quot;FAIL&quot;&gt;
+      &lt;or&gt;
+         &lt;and&gt;
+            &lt;query&gt;MATCH (p:User {twitter:'@fbiville'}) RETURN NOT (p.underAge) AS result&lt;/query&gt;
+            &lt;query&gt;MATCH (p:User {twitter:'@fbiville'}) OPTIONAL MATCH (p)-[:SUFFERS_FROM]-&gt;(d:NEURO_DISORDER {name:'photosensitive epilepsy'}) RETURN (d IS NULL) AS result&lt;/query&gt;
+         &lt;/and&gt;
+         &lt;query&gt;MATCH (p:User {twitter:'@fbiville'}) OPTIONAL MATCH (p)&lt;-[:HAS_PARENTAL_CONTROL]-(parent:User) RETURN NOT (parent IS NULL) AS RESULT&lt;/query&gt;
+      &lt;/or&gt;
+   &lt;/precondition&gt;
+   &lt;query&gt;MATCH (p:User {twitter:'@fbiville'}) CREATE (p)-[:IS_OFFERED_FREE_PASS_TO]-&gt;(:Location {name:'Futuroscope'})&lt;/query&gt;
+&lt;/changeset&gt;</code></pre>
+</dd>
+		</dl>
+	</section>
+
+	<section id="troubleshooting">
+		<h1>Troubleshooting</h1>
+		<p>Feel free to ping <a href="https://twitter.com/fbiville">@fbiville</a> if you have any questions.</p>
+		<p>Bug reporting, improvement suggestion... belong <a href="https://github.com/fbiville/liquigraph/issues">here</a>.</p>
+	</section>
+
+        <footer><p>Liquigraph is maintained by <a href="https://github.com/fbiville">Florent Biville</a> &middot; Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p></footer>     
+      </div>
+    </div>
+  </body>
+</html>
