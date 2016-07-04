@@ -20,6 +20,8 @@ import java.sql.SQLException;
 public class LiquigraphLockException extends RuntimeException {
 
     public LiquigraphLockException(String message, SQLException cause) {
-        super(message, cause);
+        super(message, cause, true, true);
     }
+
+
 }
