@@ -15,6 +15,8 @@
  */
 package org.liquigraph.core.io.lock;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -34,6 +36,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+import static com.google.common.base.Throwables.propagate;
+
 /**
  * This JDBC connection decorator writes a (:__LiquigraphLock)
  * Neo4j node in order to prevent concurrent executions.
@@ -42,28 +46,45 @@ import java.util.concurrent.Executor;
  *
  * A shutdown hook is executed to remove the lock node if and
  * only if the connection has not been properly closed.
+ *
+ * Please note that any {@link Connection} passed to this decorator
+ * will be set to auto-commit: false`. The auto-commit property
+ * is restored on close. The latter is done in order to minimize
+ * side effects when connections are recycled by a connection pool,
+ * for instance.
  */
 public final class LockableConnection implements Connection {
     private final Connection delegate;
     private final LiquigraphLock lock;
+    private final boolean previousAutoCommit;
 
-    private LockableConnection(Connection delegate, LiquigraphLock lock) {
+    private LockableConnection(Connection delegate, boolean previousAutoCommit, LiquigraphLock lock) {
         this.delegate = delegate;
+        this.previousAutoCommit = previousAutoCommit;
         this.lock = lock;
     }
 
     public static LockableConnection acquire(Connection delegate, LiquigraphLock lock) {
-        LockableConnection connection = new LockableConnection(delegate, lock);
+        LockableConnection connection = null;
         try {
+            boolean previousAutoCommit = delegate.getAutoCommit();
+            delegate.setAutoCommit(false);
+
+            connection = new LockableConnection(delegate, previousAutoCommit, lock);
             lock.acquire(connection);
             return connection;
-        } catch (RuntimeException e) {
+        } catch (SQLException | RuntimeException e) {
             try {
-                connection.close();
+                if (connection != null) {
+                    connection.close();
+                }
+                else {
+                    delegate.close();
+                }
             } catch (SQLException exception) {
                 e.addSuppressed(exception);
             }
-            throw e;
+            throw propagate(e);
         }
     }
 
@@ -72,11 +93,18 @@ public final class LockableConnection implements Connection {
      * task shutdown hook before closing the underlying
      * connection.
      *
+     * Pending transactions are explicitly rolled back
+     * before resetting auto-commit. They could otherwise
+     * end up being committed in {@link this#delegate#close()}
+     * if auto-commit was reset to true.
+     *
      * @see ShutdownTask
      */
     @Override
     public void close() throws SQLException {
         lock.release(this);
+        rollback();
+        delegate.setAutoCommit(previousAutoCommit);
         delegate.close();
     }
 

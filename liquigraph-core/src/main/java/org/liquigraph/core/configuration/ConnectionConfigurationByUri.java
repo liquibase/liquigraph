@@ -54,13 +54,7 @@ public class ConnectionConfigurationByUri implements ConnectionConfiguration {
 
     @Override
     public Connection get() {
-        try {
-            Connection connection = driverManager.apply(uri());
-            connection.setAutoCommit(false);
-            return connection;
-        } catch (SQLException e) {
-            throw propagate(e);
-        }
+        return driverManager.apply(uri());
     }
 
     private String uri() {
