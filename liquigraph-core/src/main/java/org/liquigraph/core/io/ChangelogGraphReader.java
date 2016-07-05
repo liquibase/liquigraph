@@ -60,9 +60,10 @@ public class ChangelogGraphReader {
         Collection<Changeset> changesets = newArrayList();
         try (Statement statement = connection.createStatement()) {
             statement.execute(MIGRATE_PRE_1_0_RC3_CHANGELOG);
-            ResultSet result = statement.executeQuery(MATCH_CHANGESETS);
-            while (result.next()) {
-                changesets.add(mapRow(result.getObject("changeset")));
+            try (ResultSet result = statement.executeQuery(MATCH_CHANGESETS)) {
+                while (result.next()) {
+                    changesets.add(mapRow(result.getObject("changeset")));
+                }
             }
             connection.commit();
             return changesets;

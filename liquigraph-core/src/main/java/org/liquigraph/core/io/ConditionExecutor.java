@@ -52,12 +52,12 @@ public class ConditionExecutor {
     }
 
     private boolean execute(Connection connection, String query) {
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(query);
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
             resultSet.next();
             return resultSet.getBoolean("result");
         }
-        catch (SQLException | RuntimeException e) {
+        catch (SQLException e) {
             throw new ConditionExecutionException("%nError executing condition:%n" +
                "\tMake sure your query <%s> yields exactly one column named or aliased 'result'.%n" +
                "\tActual cause: %s", query, e.getMessage());
