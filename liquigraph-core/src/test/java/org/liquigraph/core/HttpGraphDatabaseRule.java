@@ -99,11 +99,7 @@ public class HttpGraphDatabaseRule extends ExternalResource
             emptyDatabase();
             for (Connection connection : connections) {
                 if (!connection.isClosed()) {
-                    try {
-                        connection.close();
-                    } catch (SQLException ignored) {
-                        // Temporary bypass for https://github.com/neo4j-contrib/neo4j-jdbc/issues/58
-                    }
+                    connection.close();
                 }
             }
         } catch (SQLException e) {
