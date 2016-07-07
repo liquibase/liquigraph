@@ -19,7 +19,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.liquigraph.core.HttpGraphDatabaseRule;
+import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.liquigraph.core.io.lock.LockableConnection;
 
@@ -27,14 +27,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.liquigraph.core.HttpGraphDatabaseRule.assumeRemoteGraphDatabaseIsProvisioned;
 
-public class GraphJdbcConnectorTest {
+public abstract class GraphJdbcConnectorTestSuite implements GraphIntegrationTestSuite {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    @Rule public ExpectedException thrown = ExpectedException.none();
 
-    private GraphJdbcConnector connector = new GraphJdbcConnector();
+    protected final GraphJdbcConnector connector = new GraphJdbcConnector();
 
     @Ignore("TODO: This scheme isn't supported any longer")
     @Test
@@ -52,15 +50,12 @@ public class GraphJdbcConnectorTest {
 
     @Test
     public void instantiates_a_remote_graph_database() throws SQLException {
-        assumeRemoteGraphDatabaseIsProvisioned();
-        final HttpGraphDatabaseRule rule = new HttpGraphDatabaseRule();
-
         try (Connection connection = connector.connect(new ConfigurationBuilder()
             .withRunMode()
             .withMasterChangelogLocation("changelog/changelog.xml")
-            .withUri(rule.uri())
-            .withUsername(rule.username().get())
-            .withPassword(rule.password().get())
+            .withUri(graphDatabase().uri())
+            .withUsername(graphDatabase().username().orNull())
+            .withPassword(graphDatabase().password().orNull())
             .build()
         )) {
             assertThat(connection).isInstanceOf(LockableConnection.class);
