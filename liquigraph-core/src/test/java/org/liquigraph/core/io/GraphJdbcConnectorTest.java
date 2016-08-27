@@ -20,13 +20,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.liquigraph.core.io.lock.LockableConnection;
-import org.neo4j.jdbc.internal.Neo4jConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.MapEntry.entry;
 import static org.liquigraph.core.RemoteGraphDatabaseRule.assumeRemoteGraphDatabaseIsProvisioned;
 
 public class GraphJdbcConnectorTest {

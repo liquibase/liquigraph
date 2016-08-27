@@ -19,3 +19,8 @@ Please read [the website](http://fbiville.github.io/liquigraph/).
 ## Homebrew
 
 Proceed to the recipe [repository](https://www.github.com/fbiville/homebrew-liquigraph/).
+
+## JDBC driver
+
+This branch uses a fork of the official JDBC driver, mainly for maintenance reasons.
+If you think there is an issue with the driver, be sure to report it [here](https://github.com/fbiville/neo4j-jdbc-2x/issues).
