@@ -66,7 +66,6 @@ public final class ConfigurationBuilder {
      * Alternatively, you can set a {@code DataSource} directly
      *
      * @param uri connection URI
-     * @see {@link this#withDataSource(DataSource)}
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withUri(String uri) {
@@ -79,7 +78,6 @@ public final class ConfigurationBuilder {
      * Alternatively, you can set the URI
      *
      * @param dataSource data source
-     * @see {@link this#withUri(String)}
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withDataSource(DataSource dataSource) {

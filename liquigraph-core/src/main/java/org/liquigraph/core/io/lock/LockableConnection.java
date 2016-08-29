@@ -95,7 +95,7 @@ public final class LockableConnection implements Connection {
      *
      * Pending transactions are explicitly rolled back
      * before resetting auto-commit. They could otherwise
-     * end up being committed in {@link this#delegate#close()}
+     * end up being committed in delegate#close()
      * if auto-commit was reset to true.
      *
      * @see ShutdownTask
