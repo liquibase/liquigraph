@@ -2,3 +2,5 @@ User-agent: *
 Disallow: /1.0-RC1/
 Disallow: /1.0-RC2/
 Disallow: /1.0-RC3/
+Disallow: /2.0.0/
+Disallow: /3.0.0/
