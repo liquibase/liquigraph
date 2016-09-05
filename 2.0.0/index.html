@@ -26,13 +26,21 @@
           <a href="https://github.com/fbiville/liquigraph" id="view-on-github" class="button"><span>View on GitHub</span></a>
         </section>
 
-	<hr/>	
+		<hr/>
+
+		<section id="tagline">
+			<h1>Liquigraph is a database refactoring tool</h1>
+			<p>It helps you maintaining your <a href="https://neo4j.com/">Neo4j</a> database state by defining and executing migrations in a variety of ways. 
+			This project is heavily inspired from <a href="http://www.liquibase.org/">Liquibase</a>.</p>
+		</section>
+
+		<hr/>
 
         <nav id="main_summary">
         	<ul>
-                	<li><a href="#five_minute_guide">5-minute guide</a></li>
-                      	<li><a href="#detailed_section">Detailed section</a></li>
-              	</ul>
+            	<li><a href="#five_minute_guide">5-minute guide</a></li>
+              	<li><a href="#detailed_section">Detailed section</a></li>
+          	</ul>
       	</nav>
 
 
@@ -41,7 +49,7 @@
 	<section id="five_minute_guide">
 		<h1>5-minute guide</h1>
 		<div>
-			<p>Open your favourite editor and paste:</p>
+			<p>Open your favourite editor and define two migrations (a.k.a. changesets) as follows:</p>
 			<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 &lt;changelog&gt;
     &lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
@@ -155,7 +163,6 @@ $&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
 
 	<section id="detailed_section">
 		<h1>Detailed section</h1>
-		<p><a href="http://www.liquibase.org/">Liquibase</a> users should have no problems grasping the concepts of Liquigraph. The latter is heavily inspired from the first.</p>
 		<h2>Definitions</h2>
 		<dl>
 			<dt>Changelog</dt>
