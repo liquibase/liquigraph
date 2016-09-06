@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.liquigraph.core.model.Checksums.checksum;
 
-abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuite {
+public abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuite {
 
     private Connection connection;
     private ChangelogGraphWriter writer;

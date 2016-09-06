@@ -31,7 +31,7 @@ import java.sql.Statement;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
+public abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 
     private Liquigraph liquigraph;
 

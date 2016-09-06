@@ -29,7 +29,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.liquigraph.core.model.Checksums.checksum;
 
-abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuite {
+public abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuite {
 
     private ChangelogGraphReader reader = new ChangelogGraphReader();
 
