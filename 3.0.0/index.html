@@ -51,7 +51,7 @@
 		<div>
 			<p>Open your favourite editor and define two migrations (a.k.a. changesets) as follows:</p>
 			<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;changelog&gt;
+&lt;changelog xmlns="https://fbiville.github.io/liquigraph/schema/1.0/liquigraph.xsd"&gt;
     &lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
         &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
     &lt;/changeset&gt;
