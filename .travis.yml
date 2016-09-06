@@ -3,9 +3,9 @@ language: java
 services:
   - docker
 jdk:
-#- openjdk7
-- oraclejdk7
-- oraclejdk8
+#  - openjdk7
+  - oraclejdk7
+  - oraclejdk8
 os:
   - linux
 env:
@@ -17,7 +17,7 @@ env:
     - NEO_VERSION=2.2.10
       WITH_DOCKER=false
       EXTRA_PROFILES=-Pwith-neo4j-io
-    - NEO_VERSION=2.3.3
+    - NEO_VERSION=2.3.6
       WITH_DOCKER=true
       EXTRA_PROFILES=-Pwith-neo4j-io
     - NEO_VERSION=2.3.7
