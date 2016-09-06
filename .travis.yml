@@ -6,9 +6,9 @@ language: java
 services:
   - docker
 jdk:
-#- openjdk7
-- oraclejdk7
-- oraclejdk8
+#  - openjdk7
+#  - oraclejdk7
+  - oraclejdk8
 os:
   - linux
 env:
