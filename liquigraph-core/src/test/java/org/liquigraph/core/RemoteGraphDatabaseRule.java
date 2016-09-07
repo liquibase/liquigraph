@@ -97,15 +97,18 @@ public class RemoteGraphDatabaseRule extends ExternalResource
     }
 
     protected void after() {
+        int openConnection = 0;
         try {
             for (Connection connection : connections) {
                 if (!connection.isClosed()) {
+                    openConnection++;
                     connection.close();
                 }
             }
         } catch (SQLException e) {
             throw propagate(e);
         }
+        assertThat(openConnection).as("Connections remaining open").isEqualTo(0);
     }
 
     private void emptyDatabase(Connection connection) throws SQLException {

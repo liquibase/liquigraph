@@ -48,40 +48,43 @@ public class ConditionExecutorTest {
 
     @Test
     public void executes_simple_precondition() throws SQLException {
-        Connection connection = graphDatabaseRule.connection();
-        try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executeCondition(
-                connection,
-                simplePrecondition("RETURN true AS result")
-            );
+        try (Connection connection = graphDatabaseRule.connection()) {
+            try (Statement ignored = connection.createStatement()) {
+                boolean result = executor.executeCondition(
+                        connection,
+                        simplePrecondition("RETURN true AS result")
+                );
 
-            assertThat(result).isTrue();
+                assertThat(result).isTrue();
+            }
         }
     }
 
     @Test
     public void executes_nested_and_precondition_queries() throws SQLException {
-        Connection connection = graphDatabaseRule.connection();
-        try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executeCondition(
-                connection,
-                andPrecondition("RETURN true AS result", "RETURN false AS result")
-            );
+        try (Connection connection = graphDatabaseRule.connection()) {
+            try (Statement ignored = connection.createStatement()) {
+                boolean result = executor.executeCondition(
+                        connection,
+                        andPrecondition("RETURN true AS result", "RETURN false AS result")
+                );
 
-            assertThat(result).isFalse();
+                assertThat(result).isFalse();
+            }
         }
     }
 
     @Test
     public void executes_nested_or_precondition_queries() throws SQLException {
-        Connection connection = graphDatabaseRule.connection();
-        try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executeCondition(
-                connection,
-                orPrecondition("RETURN true AS result", "RETURN false AS result")
-            );
+        try (Connection connection = graphDatabaseRule.connection()) {
+            try (Statement ignored = connection.createStatement()) {
+                boolean result = executor.executeCondition(
+                        connection,
+                        orPrecondition("RETURN true AS result", "RETURN false AS result")
+                );
 
-            assertThat(result).isTrue();
+                assertThat(result).isTrue();
+            }
         }
     }
 
@@ -94,14 +97,15 @@ public class ConditionExecutorTest {
         ));
         Precondition precondition = precondition(andQuery);
 
-        Connection connection = graphDatabaseRule.connection();
-        try (Statement ignored = connection.createStatement()) {
-            boolean result = executor.executeCondition(
-                connection,
-                precondition
-            );
+        try (Connection connection = graphDatabaseRule.connection()) {
+            try (Statement ignored = connection.createStatement()) {
+                boolean result = executor.executeCondition(
+                        connection,
+                        precondition
+                );
 
-            assertThat(result).isTrue();
+                assertThat(result).isTrue();
+            }
         }
     }
 
@@ -114,12 +118,13 @@ public class ConditionExecutorTest {
             "\tActual cause: Error executing query toto\n" +
             " with params {}"));
 
-        Connection connection = graphDatabaseRule.connection();
-        try (Statement ignored = connection.createStatement()) {
-            executor.executeCondition(
-                connection,
-                simplePrecondition("toto")
-            );
+        try (Connection connection = graphDatabaseRule.connection()) {
+            try (Statement ignored = connection.createStatement()) {
+                executor.executeCondition(
+                        connection,
+                        simplePrecondition("toto")
+                );
+            }
         }
     }
 
@@ -128,23 +133,26 @@ public class ConditionExecutorTest {
         thrown.expect(ConditionExecutionException.class);
         thrown.expectMessage("Make sure your query <RETURN true> yields exactly one column named or aliased 'result'.");
 
-        Connection connection = graphDatabaseRule.connection();
-        try (Statement ignored = connection.createStatement()) {
-            executor.executeCondition(
-                connection,
-                simplePrecondition("RETURN true")
-            );
+        try (Connection connection = graphDatabaseRule.connection()) {
+            try (Statement ignored = connection.createStatement()) {
+                executor.executeCondition(
+                        connection,
+                        simplePrecondition("RETURN true")
+                );
+            }
         }
     }
 
     @Test
-    public void fails_with_unknown_query_type() {
+    public void fails_with_unknown_query_type() throws SQLException {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.ConditionExecutorTest$1>");
 
         Precondition precondition = new Precondition();
         precondition.setQuery(new Query() {});
-        executor.executeCondition(graphDatabaseRule.connection(), precondition);
+        try (Connection connection = graphDatabaseRule.connection()) {
+            executor.executeCondition(connection, precondition);
+        }
     }
 
     private Precondition simplePrecondition(String query) {

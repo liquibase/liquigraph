@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Throwables.propagate;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmbeddedGraphDatabaseRule extends ExternalResource
                                        implements GraphDatabaseRule {
@@ -82,9 +83,11 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource
     }
 
     protected void after() {
+        int openConnection = 0;
         try {
             for (Connection connection : connections) {
                 if (!connection.isClosed()) {
+                    openConnection++;
                     connection.close();
                 }
             }
@@ -92,6 +95,7 @@ public class EmbeddedGraphDatabaseRule extends ExternalResource
         } catch (SQLException e) {
             throw propagate(e);
         }
+        assertThat(openConnection).as("Connections remaining open").isEqualTo(0);
     }
 
     private Properties properties() {
