@@ -17,24 +17,32 @@ package org.liquigraph.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Throwables.propagate;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 public class LiquigraphCli {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LiquigraphCli.class);
 
     @Parameter(
             names = {"--help", "-h"},
@@ -42,6 +50,13 @@ public class LiquigraphCli {
             help = true
     )
     private boolean help;
+
+    @Parameter(
+            names = {"--version", "-v"},
+            description = "Show the version",
+            help = true
+    )
+    private boolean version;
 
     @Parameter(
             names = {"--changelog", "-c"},
@@ -99,6 +114,11 @@ public class LiquigraphCli {
             return;
         }
 
+        if (cli.version) {
+            printVersion();
+            return;
+        }
+
         ConfigurationBuilder builder = new ConfigurationBuilder()
                 .withMasterChangelogLocation(fileName(cli.changelog))
                 .withUri(cli.graphDbUri)
@@ -118,6 +138,24 @@ public class LiquigraphCli {
         new Liquigraph().runMigrations(
                 builder.build()
         );
+    }
+
+    private static void printVersion() {
+        Optional<String> version = getVersion();
+        System.out.println(version.or("Unknown version!"));
+    }
+
+    private static Optional<String> getVersion() {
+        try (InputStream propsIs = LiquigraphCli.class.getResourceAsStream("/liquigraph-cli.properties")) {
+            if (propsIs != null) {
+                Properties props = new Properties();
+                props.load(propsIs);
+                return Optional.fromNullable(props.getProperty("liquigraph.version"));
+            }
+        } catch (IOException e) {
+            LOGGER.error("An exception occurred while loading the properties", e);
+        }
+        return Optional.absent();
     }
 
     private static String fileName(String changelog) {
