@@ -95,16 +95,19 @@ public class HttpGraphDatabaseRule extends ExternalResource
 
     @Override
     protected void after() {
+        int openConnections = 0;
         try {
             emptyDatabase();
             for (Connection connection : connections) {
                 if (!connection.isClosed()) {
+                    openConnections++;
                     connection.close();
                 }
             }
         } catch (SQLException e) {
             throw propagate(e);
         }
+        assertThat(openConnections).as("Connections remaining open").isEqualTo(0);
     }
 
     private void emptyDatabase() throws SQLException {

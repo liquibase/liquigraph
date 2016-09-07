@@ -74,10 +74,12 @@ public class BoltGraphDatabaseRule extends ExternalResource
     }
 
     protected void after() {
+        int openConnections = 0;
         try {
             emptyDatabase();
             for (Connection connection : connections) {
                 if (!connection.isClosed()) {
+                    openConnections++;
                     connection.close();
                 }
             }
@@ -86,6 +88,7 @@ public class BoltGraphDatabaseRule extends ExternalResource
         } finally {
             controls.close();
         }
+        assertThat(openConnections).as("Connections remaining open").isEqualTo(0);
     }
 
     private void emptyDatabase() throws SQLException {
