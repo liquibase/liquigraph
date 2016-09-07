@@ -16,6 +16,7 @@
 package org.liquigraph.core.api;
 
 import org.assertj.core.api.ThrowableAssert;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
@@ -34,13 +35,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 
     private Liquigraph liquigraph;
+    private Connection connection;
 
     @Before
     public void prepare() {
+        connection = graphDatabase().connection();
         liquigraph = new Liquigraph(
                 // bypasses the configured URI
-                new FixedConnectionConnector(graphDatabase().connection())
+                new FixedConnectionConnector(connection)
         );
+    }
+
+    @After
+    public void close()
+            throws SQLException {
+        connection.close();
     }
 
     @Test
