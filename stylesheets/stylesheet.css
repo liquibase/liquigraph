@@ -383,7 +383,7 @@ header h1 { margin-bottom:0;}
 
 dt { font-size:13pt; padding:10px 0;}
 .nota-bene, dd { border-left:5px solid #AAA; padding-left: 20px; font-size:11pt;}
-.path { background-color:white; color:red; font-family: monospace}
+.path { background-color: #f0f0f0; color:red; font-family: monospace; padding: 2px}
 #maven,#shell {text-align:left;}
 
 nav { width:50%; margin:20px auto; text-align:center;}
