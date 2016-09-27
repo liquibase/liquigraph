@@ -4,10 +4,10 @@
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'/>
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen"/>
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print"/>
-    <link rel="stylesheet" type="text/css" href="stylesheets/highlight.css" media="screen"/>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/pygment_trac.css" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/print.css" media="print"/>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/highlight.css" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/stylesheet.css" media="screen"/>
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -19,7 +19,7 @@
       <div class="inner">
 
         <header>
-        	<h1 id="headline"><a href=""><img src="images/liquigraph-logo.png" alt="Liquigraph" id="logo" title="Liquigraph: graph migrations made easy" /></a></h1>
+        	<h1 id="headline"><a href=""><img src="../images/liquigraph-logo.png" alt="Liquigraph" id="logo" title="Liquigraph: graph migrations made easy" /></a></h1>
         </header>
 
         <section id="downloads" class="clearfix">
@@ -30,7 +30,7 @@
 
 		<section id="tagline">
 			<h1>Liquigraph is a database refactoring tool</h1>
-			<p>It helps you maintaining your <a href="https://neo4j.com/">Neo4j</a> database state by defining and executing migrations in a variety of ways. 
+			<p>It helps you maintaining your <a href="https://neo4j.com/">Neo4j</a> database state by defining and executing migrations in a variety of ways.
 			This project is heavily inspired from <a href="http://www.liquibase.org/">Liquibase</a>.</p>
 		</section>
 
@@ -45,7 +45,7 @@
 
 
         <hr/>
-	
+
 	<section id="five_minute_guide">
 		<h1>5-minute guide</h1>
 		<div>
@@ -159,7 +159,7 @@ $&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
 		   --password &lt; my_password.txt
 			</code></pre>
 		</div>
-	</section>	
+	</section>
 
 	<section id="detailed_section">
 		<h1>Detailed section</h1>
@@ -173,7 +173,7 @@ $&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
     &lt;import resource=&quot;version_1/sub_changelog.xml&quot; /&gt;
     &lt;import resource=&quot;version_2/sub_changelog.xml&quot; /&gt;
     &lt;!-- and/or define directly changesets--&gt;
-    &lt;changeset [...] /&gt; 
+    &lt;changeset [...] /&gt;
     &lt;!-- [...] --&gt;
 &lt;/changelog&gt;</code></pre>
                         <p>Both <code>sub_changelog.xml</code> files could import changelogs and/or define <code>changeset</code> elements. Their root element is also <code>changelog</code>.</p></dd>
@@ -199,14 +199,14 @@ $&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
 </ul></dd>
 
 			<dt>Changeset immutability</dt>
-			<dd><p>As previously mentioned, Liquigraph changesets are immutable by default (an error will be thrown if they have been altered). 
+			<dd><p>As previously mentioned, Liquigraph changesets are immutable by default (an error will be thrown if they have been altered).
 That said, there may be situations where changesets should be run whenever their contents have changed. To achieve this, you just need to define one extra attribute:</p>
 <pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-on-change=&quot;true&quot;&gt;
    &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
 &lt;/changeset&gt;</code></pre></dd>
 
 			<dt>Changeset incrementality</dt>
-			<dd><p>As previously mentioned, Liquigraph changesets are incremental by default (they will be executed only once). 
+			<dd><p>As previously mentioned, Liquigraph changesets are incremental by default (they will be executed only once).
 That said, there may be situations where changesets should be run at every execution. To achieve this, you just need to define one extra attribute:</p>
 <pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-always=&quot;true&quot;&gt;
    &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
@@ -273,10 +273,10 @@ That said, there may be situations where changesets should be run at every execu
 
         <footer>
 		<div id="back_top"><a href="#container">Back to top</a></div>
-		<p>Liquigraph is maintained by <a href="https://github.com/fbiville">Florent Biville</a> &middot; Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p></footer>     
+		<p>Liquigraph is maintained by <a href="https://github.com/fbiville">Florent Biville</a> &middot; Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p></footer>
       </div>
     </div>
-    <script type="text/javascript" src="scripts/highlight.min.js"></script>
+    <script type="text/javascript" src="../scripts/highlight.min.js"></script>
     <script type="text/javascript">
 	hljs.initHighlightingOnLoad();
     </script>
