@@ -49,6 +49,7 @@
 	<section id="five_minute_guide">
 		<h1>5-minute guide</h1>
 		<div>
+      <h2>The Migration File</h2>
 			<p>Open your favourite editor and define two migrations (a.k.a. changesets) as follows:</p>
 			<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 &lt;changelog xmlns="https://fbiville.github.io/liquigraph/schema/1.0/liquigraph.xsd"&gt;
@@ -60,16 +61,13 @@
     &lt;/changeset&gt;
 &lt;/changelog&gt;</code></pre>
 		</div>
-        	<nav>
-          	  <ul>
-		    <li><a href="#core">Java API</a></li>
-            	    <li><a href="#maven">Maven users</a></li>
-            	    <li><a href="#shell">Shell aficionados</a></li>
-          	  </ul>
-        	</nav>
+    <div>
+      <p>These migrations can be run using the <a href="#core">Java API</a>,
+      via your <a href="#maven">Maven project</a>
+      or simply using <a href="#shell">the command line</a>. Choose the way that fits your project</p>
 		<div id="core">
 			<h2>Java API</h2>
-			<p>Save these migrations in <span class='path'>${your_project}/${root_classpath_folder}/changelog.xml</span>.</p>
+			<p>Save the migration file at <span class='path'>${your_project}/${root_classpath_folder}/changelog.xml</span>.</p>
 			<p>Then, include Liquigraph in your <span class="path">pom.xml</span>:
 			<pre><code class="xml">&lt;dependency&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
@@ -96,7 +94,7 @@ liquigraph.runMigrations(configuration);
 		</div>
 		<div id="maven">
 			<h2>The Maven way</h2>
-			<p>Save these migrations in <span class='path'>${your_project}/src/main/resources/changelog.xml</span>.</p>
+			<p>Save the migration file at <span class='path'>${your_project}/src/main/resources/changelog.xml</span>.</p>
 			<p>Then, include Liquigraph plugin in your <span class="path">pom.xml</span>:
 			<pre><code class="xml">&lt;plugin&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
@@ -122,7 +120,7 @@ liquigraph.runMigrations(configuration);
 		</div>
 		<div id="shell">
 			<h2>Highway to shell</h2>
-			<p>Save these migrations in <span class='path'>${your_project}/migrations/changelog.xml</span>.</p>
+			<p>Save the migration file at <span class='path'>${your_project}/migrations/changelog.xml</span>.</p>
 			<p><strong>Homebrew</strong> users, skip the following installation steps altogether. Specific instructions are <a href="https://github.com/fbiville/homebrew-liquigraph">here</a>.</p>
 			<h3>Prerequisites</h3>
 			<ol>
