@@ -90,7 +90,8 @@ public class ChangelogFileWriterTest {
     public void persists_several_changesets_on_file() throws IOException {
         Collection<Changeset> changesets = newArrayList(
             changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})"),
-            changeset("identifier2", "mgazanayi", "CREATE (n2: SomeNode {text:'yeah'})", "preprod,prod")
+            changeset("identifier2", "mgazanayi", "CREATE (n2: SomeNode {text:'yeah'})", "preprod,prod"),
+            changeset("identifier3", "fbiville", "CREATE (n3: SomeNode {text:'yeah!!'})", "prod", "v1.2.3")
         );
 
         writer.write(changesets);
@@ -102,8 +103,17 @@ public class ChangelogFileWriterTest {
             "CREATE (n: SomeNode {text:'yeah'})\n" +
             "//Liquigraph changeset[author: mgazanayi, id: identifier2]\n" +
             "//Liquigraph changeset[executionContexts: preprod,prod]\n" +
-            "CREATE (n2: SomeNode {text:'yeah'})"
+            "CREATE (n2: SomeNode {text:'yeah'})\n" +
+            "//Liquigraph changeset[author: fbiville, id: identifier3, databaseTag: v1.2.3]\n" +
+            "//Liquigraph changeset[executionContexts: prod]\n" +
+            "CREATE (n3: SomeNode {text:'yeah!!'})"
         );
+    }
+
+    private Changeset changeset(String identifier, String author, String query, String executionContexts, String tag) {
+        Changeset changeset = changeset(identifier, author, query, executionContexts);
+        changeset.setDatabaseTag(tag);
+        return changeset;
     }
 
     private Changeset changeset(String identifier, String author, String query, String executionContexts) {

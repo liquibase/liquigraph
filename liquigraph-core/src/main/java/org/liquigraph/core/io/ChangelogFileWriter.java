@@ -76,10 +76,18 @@ public class ChangelogFileWriter implements ChangelogWriter {
 
     private Collection<String> changesetToString(Changeset changeset) {
         Collection<String> lines = newArrayList();
-        lines.add(format("//Liquigraph changeset[author: %s, id: %s]", changeset.getAuthor(), changeset.getId()));
+        lines.add(format("//Liquigraph changeset[author: %s, id: %s%s]", changeset.getAuthor(), changeset.getId(), extractTag(changeset)));
         lines.add(format("//Liquigraph changeset[executionContexts: %s]", flatten(changeset.getExecutionsContexts())));
         lines.addAll(changeset.getQueries());
         return lines;
+    }
+
+    private String extractTag(Changeset changeset) {
+        String tag = changeset.getDatabaseTag();
+        if (tag == null) {
+            return "";
+        }
+        return String.format(", databaseTag: %s", tag);
     }
 
     private String flatten(Collection<String> executionsContexts) {

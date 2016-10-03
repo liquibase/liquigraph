@@ -40,6 +40,7 @@ public class Changeset {
     private boolean runAlways;
     private Precondition precondition;
     private Postcondition postcondition;
+    private String databaseTag;
 
     @XmlAttribute(name = "id", required = true)
     public String getId() {
@@ -134,6 +135,15 @@ public class Changeset {
         this.postcondition = postcondition;
     }
 
+    @XmlAttribute(name = "database-tag", required = false)
+    public String getDatabaseTag() {
+        return databaseTag;
+    }
+
+    public void setDatabaseTag(String databaseTag) {
+        this.databaseTag = databaseTag;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(id, author, checksum);
@@ -165,7 +175,7 @@ public class Changeset {
                 ", runAlways=" + runAlways +
                 ", precondition=" + precondition +
                 ", postcondition=" + postcondition +
+                ", databaseTag='" + databaseTag + '\'' +
                 '}';
     }
-
 }
