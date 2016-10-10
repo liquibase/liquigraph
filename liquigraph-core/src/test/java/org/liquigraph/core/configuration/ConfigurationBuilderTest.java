@@ -39,8 +39,8 @@ public class ConfigurationBuilderTest {
         thrown.expectMessage("'masterChangelog' should not be null");
 
         new ConfigurationBuilder()
-            .withUri("http://localhost:7474/db/data")
-            .build();
+                .withUri("http://localhost:7474/db/data")
+                .build();
     }
 
     @Test
@@ -49,9 +49,9 @@ public class ConfigurationBuilderTest {
         thrown.expectMessage("'masterChangelog' points to a non-existing location: changelog/non-existing.xml");
 
         new ConfigurationBuilder()
-            .withUri("http://localhost:7474/db/data")
-            .withMasterChangelogLocation("changelog/non-existing.xml")
-            .build();
+                .withUri("http://localhost:7474/db/data")
+                .withMasterChangelogLocation("changelog/non-existing.xml")
+                .build();
     }
 
     @Test
@@ -60,25 +60,25 @@ public class ConfigurationBuilderTest {
         thrown.expectMessage("- Exactly one of JDBC URI or DataSource need to be configured");
 
         new ConfigurationBuilder()
-            .withMasterChangelogLocation("changelog/changelog.xml")
-            .build();
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .build();
     }
 
     @Test
     public void fails_on_unsupported_protocol() {
         thrown.expect(RuntimeException.class);
         thrown.expectMessage(String.format(
-            "\t - Invalid JDBC URI. Supported configurations:%n" +
-            "\t - jdbc:neo4j://<host>:<port>/%n" +
-            "\t - jdbc:neo4j:file:/path/to/db%n" +
-            "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.%n" +
-            "Given: ssh://sorry@buddy"
+                "\t - Invalid JDBC URI. Supported configurations:%n"
+                + "\t - jdbc:neo4j://<host>:<port>/%n"
+                + "\t - jdbc:neo4j:file:/path/to/db%n"
+                + "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.%n"
+                + "Given: ssh://sorry@buddy"
         ));
 
         new ConfigurationBuilder()
-            .withMasterChangelogLocation("changelog/changelog.xml")
-            .withUri("ssh://sorry@buddy")
-            .build();
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("ssh://sorry@buddy")
+                .build();
     }
 
     @Test
@@ -99,10 +99,10 @@ public class ConfigurationBuilderTest {
         thrown.expectMessage(format("<%s> is not a directory", path.toString()));
 
         new ConfigurationBuilder()
-                    .withMasterChangelogLocation("changelog/changelog.xml")
-                    .withUri("file:///sorry@buddy")
-                    .withDryRunMode(path)
-                    .build();
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("file:///sorry@buddy")
+                .withDryRunMode(path)
+                .build();
     }
 
     @Test
@@ -115,9 +115,9 @@ public class ConfigurationBuilderTest {
         thrown.expectMessage(format("<%s> must be writable", path.toString()));
 
         new ConfigurationBuilder()
-                    .withMasterChangelogLocation("changelog/changelog.xml")
-                    .withUri("http:///sorry@buddy")
-                    .withDryRunMode(path)
-                    .build();
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("http:///sorry@buddy")
+                .withDryRunMode(path)
+                .build();
     }
 }

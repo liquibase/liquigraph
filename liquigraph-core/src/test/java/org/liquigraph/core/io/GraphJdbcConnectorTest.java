@@ -37,10 +37,10 @@ public class GraphJdbcConnectorTest {
     @Test
     public void instantiates_a_local_graph_database() throws SQLException {
         try (Connection connection = connector.connect(new ConfigurationBuilder()
-            .withRunMode()
-            .withMasterChangelogLocation("changelog/changelog.xml")
-            .withUri("jdbc:neo4j:mem")
-            .build()
+                .withRunMode()
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("jdbc:neo4j:mem")
+                .build()
         )) {
             assertThat(connection).isInstanceOf(LockableConnection.class);
         }
@@ -52,12 +52,11 @@ public class GraphJdbcConnectorTest {
         assumeRemoteGraphDatabaseIsProvisioned();
 
         try (Connection connection = connector.connect(new ConfigurationBuilder()
-            .withRunMode()
-            .withMasterChangelogLocation("changelog/changelog.xml")
-            .withUri("jdbc:neo4j://127.0.0.1:7474")
-            .withUsername("neo4j")
-            .withPassword("j4oen")
-            .build()
+                .withRunMode()
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("jdbc:neo4j://127.0.0.1:7474")
+                .withPassword("j4oen")
+                .build()
         )) {
             assertThat(connection).isInstanceOf(LockableConnection.class);
         }

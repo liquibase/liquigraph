@@ -29,25 +29,25 @@ import java.util.Collection;
 
 import static com.google.common.base.Throwables.propagate;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.liquigraph.core.configuration.ConfigurationBuilder;
 
 public class RemoteGraphDatabaseRule extends ExternalResource
-                                     implements GraphDatabaseRule {
+        implements GraphDatabaseRule {
 
     private final String uri;
-    private final String username;
+    private final String username = ConfigurationBuilder.DEFAULT_USERNAME;
     private final String password;
     private Collection<Connection> connections = new ArrayList<>();
 
     public RemoteGraphDatabaseRule() {
         uri = "jdbc:neo4j://127.0.0.1:7474";
-        username = "neo4j";
         password = "j4oen";
     }
 
     public static void assumeRemoteGraphDatabaseIsProvisioned() {
         Assume.assumeTrue(
-            "Neo4j remote instance is provisioned with Docker",
-            "true".equals(System.getenv("WITH_DOCKER"))
+                "Neo4j remote instance is provisioned with Docker",
+                "true".equals(System.getenv("WITH_DOCKER"))
         );
     }
 

@@ -34,15 +34,17 @@ import static com.google.common.collect.Lists.newLinkedList;
 import static java.lang.String.format;
 
 /**
- * Fluent {@link Configuration} builder.
- * It also validates configuration parameters.
+ * Fluent {@link Configuration} builder. It also validates configuration
+ * parameters.
  */
 public final class ConfigurationBuilder {
+
+    public static final String DEFAULT_USERNAME = "neo4j";
 
     private String masterChangelog;
     private Optional<DataSource> dataSource = absent();
     private Optional<String> uri = absent();
-    private Optional<String> username = absent();
+    private Optional<String> username = fromNullable(DEFAULT_USERNAME);
     private Optional<String> password = absent();
     private ExecutionContexts executionContexts = ExecutionContexts.DEFAULT_CONTEXT;
     private ExecutionMode executionMode;
@@ -53,8 +55,9 @@ public final class ConfigurationBuilder {
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     /**
-     * Specifies the location of the master changelog file.
-     * Please note that this location should point to a readable Liquigraph changelog file.
+     * Specifies the location of the master changelog file. Please note that
+     * this location should point to a readable Liquigraph changelog file.
+     *
      * @param masterChangelog Liquigraph changelog
      * @return itself for chaining purposes
      */
@@ -76,8 +79,8 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Specifies the data source of the graph database instance.
-     * Alternatively, you can set the URI
+     * Specifies the data source of the graph database instance. Alternatively,
+     * you can set the URI
      *
      * @param dataSource data source
      * @return itself for chaining purposes
@@ -88,9 +91,13 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Specifies the username allowed to connect to the remote graph database instance.
+     * Specifies the username allowed to connect to the remote graph database
+     * instance. If this method is not invoked, the default username (see
+     * {@link #DEFAULT_USERNAME}) will be used.
+     *
      * @param username username
      * @return itself for chaining purposes
+     * @see #withPassword(java.lang.String)
      */
     public ConfigurationBuilder withUsername(String username) {
         this.username = fromNullable(username);
@@ -98,9 +105,15 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Specifies the password allowed to connect to the remote graph database instance.
+     * Specifies the password allowed to connect to the remote graph database
+     * instance. This is the password for the user given with
+     * {@link #withUsername(java.lang.String)}. If no username is given, the
+     * default neo4j username (see {@link #DEFAULT_USERNAME}) will be used, so
+     * the password given should match the default user.
+     *
      * @param password password
      * @return itself for chaining purposes
+     * @see #withUsername(java.lang.String)
      */
     public ConfigurationBuilder withPassword(String password) {
         this.password = fromNullable(password);
@@ -110,8 +123,8 @@ public final class ConfigurationBuilder {
     /**
      * @see ConfigurationBuilder#withExecutionContexts(java.util.Collection)
      *
-     * @param executionContexts 0 or more Liquigraph execution contexts to allow changeset
-     *                          filtering
+     * @param executionContexts 0 or more Liquigraph execution contexts to allow
+     * changeset filtering
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withExecutionContexts(String... executionContexts) {
@@ -120,7 +133,7 @@ public final class ConfigurationBuilder {
 
     /**
      * Specifies one or more execution contexts.
-     * 
+     *
      * @param executionContexts non-nullable execution contexts
      * @return itself for chaining purposes
      */
@@ -132,7 +145,8 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Sets Liquigraph to execute changesets against the configured graph database.
+     * Sets Liquigraph to execute changesets against the configured graph
+     * database.
      *
      * @return itself for chaining purposes
      */
@@ -142,9 +156,9 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Sets Liquigraph to write changesets in a <code>output.cypher</code>
-     * in the specified outputDirectory.
-     * Note that it won't write to the graph database.
+     * Sets Liquigraph to write changesets in a <code>output.cypher</code> in
+     * the specified outputDirectory. Note that it won't write to the graph
+     * database.
      *
      * @param outputDirectory writable directory where the file is written
      * @return itself for chaining purposes
@@ -155,9 +169,9 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Sets ClassLoader to use when reading Liquigraph changelogs.
-     * Default is <code>Thread.currentThread().getContextClassLoader()</code>.
-     * Don't call this unless you REALLY know what you're doing.
+     * Sets ClassLoader to use when reading Liquigraph changelogs. Default is
+     * <code>Thread.currentThread().getContextClassLoader()</code>. Don't call
+     * this unless you REALLY know what you're doing.
      *
      * @param classLoader class loader
      * @return itself for chaining purposes
@@ -187,11 +201,11 @@ public final class ConfigurationBuilder {
 
         muteRestletLogs();
         return new Configuration(
-            classLoader,
-            masterChangelog,
-            dataSourceConfiguration(),
-            executionContexts,
-            executionMode
+                classLoader,
+                masterChangelog,
+                dataSourceConfiguration(),
+                executionContexts,
+                executionMode
         );
     }
 
