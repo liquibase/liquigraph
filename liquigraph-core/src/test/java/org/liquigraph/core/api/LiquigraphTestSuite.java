@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.liquigraph.core.io.FixedConnectionConnector;
+import org.liquigraph.core.io.GraphJdbcConnector;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -160,4 +161,34 @@ public abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Changeset with ID <second-changelog> and author <team> has conflicted checksums");
     }
+
+    @Test
+    public void does_not_leave_lock_when_invalid_statement_is_executed() throws Exception {
+        assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                new Liquigraph().runMigrations(
+                        new ConfigurationBuilder()
+                                .withRunMode()
+                                .withMasterChangelogLocation("changelog/changelog-invalid-statement.xml")
+                                .withDataSource(new CustomDataSource(graphDatabase().connection()))
+                                .build()
+                );
+            }
+        })
+                .isInstanceOf(RuntimeException.class)
+                .hasCauseInstanceOf(SQLException.class);
+
+
+
+        try (Connection connection = graphDatabase().connection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (n:__LiquigraphLock) RETURN n")) {
+
+            assertThat(resultSet.next())
+                    .withFailMessage("Should not leave lock node after failure")
+                    .isFalse();
+        }
+    }
+
 }

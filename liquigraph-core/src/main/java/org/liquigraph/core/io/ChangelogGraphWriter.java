@@ -57,14 +57,14 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     private static final boolean NO_POSTCONDITION = false;
 
     private final Connection writeConnection;
-    private final Supplier<Connection> connectionSupplier;
+    private final Supplier<Connection> readConnectionSupplier;
     private final ConditionExecutor conditionExecutor;
 
     public ChangelogGraphWriter(Connection writeConnection,
                                 Supplier<Connection> connectionSupplier,
                                 ConditionExecutor conditionExecutor) {
         this.writeConnection = writeConnection;
-        this.connectionSupplier = connectionSupplier;
+        this.readConnectionSupplier = connectionSupplier;
         this.conditionExecutor = conditionExecutor;
     }
 
@@ -95,22 +95,29 @@ public class ChangelogGraphWriter implements ChangelogWriter {
             if (!preconditionResult) {
                 return handleFailedPrecondition(precondition, changeset);
             }
-
             boolean postcondition;
             do {
-                try (Statement statement = writeConnection.createStatement()) {
-                    for (String query : changeset.getQueries()) {
-                        statement.execute(query);
-                    }
-                    writeConnection.commit();
-                }
-
+                executeChangesetQueries(changeset);
                 postcondition = executePostcondition(changeset.getPostcondition());
             } while (postcondition);
         } catch (SQLException e) {
+            try {
+                writeConnection.rollback();
+            } catch (SQLException closeException) {
+                e.addSuppressed(closeException);
+            }
             throw propagate(e);
         }
         return StatementExecution.SUCCESS;
+    }
+
+    private void executeChangesetQueries(Changeset changeset) throws SQLException {
+        try (Statement statement = writeConnection.createStatement()) {
+            for (String query : changeset.getQueries()) {
+                statement.execute(query);
+            }
+            writeConnection.commit();
+        }
     }
 
     private boolean executePrecondition(Precondition precondition) {
@@ -161,7 +168,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     }
 
     private boolean executeCondition(Condition condition) {
-        try (Connection readConnection = connectionSupplier.get()) {
+        try (Connection readConnection = readConnectionSupplier.get()) {
             boolean conditionResult = conditionExecutor.executeCondition(readConnection, condition);
             // Make sure the condition does not actually modify the data
             readConnection.rollback();
