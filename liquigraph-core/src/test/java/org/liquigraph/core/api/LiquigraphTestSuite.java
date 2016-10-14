@@ -166,11 +166,61 @@ public abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
         assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
             @Override
             public void call() throws Throwable {
-                liquigraph.runMigrations(
+                Liquigraph liquigraph1 = new Liquigraph(
+                		new GraphJdbcConnector() // for reproducing problem needed LocableConnection
+                );
+                
+                liquigraph1.runMigrations(
                         new ConfigurationBuilder()
                                 .withRunMode()
                                 .withMasterChangelogLocation("changelog/changelog-invalid-statement.xml")
-                                .withUri(graphDatabase().uri())
+                                .withDataSource(new DataSource(){
+									@Override
+									public PrintWriter getLogWriter() throws SQLException {
+										return null;
+									}
+
+									@Override
+									public void setLogWriter(PrintWriter out) throws SQLException {
+									}
+
+									@Override
+									public void setLoginTimeout(int seconds) throws SQLException {
+									}
+
+									@Override
+									public int getLoginTimeout() throws SQLException {
+										return 0;
+									}
+
+									@Override
+									public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+										return null;
+									}
+
+									@Override
+									public <T> T unwrap(Class<T> iface) throws SQLException {
+										return null;
+									}
+
+									@Override
+									public boolean isWrapperFor(Class<?> iface) throws SQLException {
+										return false;
+									}
+
+									@Override
+									public Connection getConnection() throws SQLException {
+										return graphDatabase().connection();
+									}
+
+									@Override
+									public Connection getConnection(String username, String password)
+											throws SQLException {
+										return graphDatabase().connection();
+									}
+                                	
+                                })
+                                //.withUri(graphDatabase().uri())
                                 .build()
                 );
             }
