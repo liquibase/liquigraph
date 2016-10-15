@@ -120,4 +120,58 @@ public class ConfigurationBuilderTest {
                     .withDryRunMode(path)
                     .build();
     }
+
+    @Test
+    public void fails_on_password_but_no_username_provided() {
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("Please provide a username corresponding to the password <password>.");
+
+        new ConfigurationBuilder()
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("jdbc:neo4j:http://localhost:7474")
+                .withPassword("password")
+                .withRunMode()
+                .build();
+    }
+    
+    @Test
+    public void fails_on_username_but_no_password_provided() {
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("Please provide a password for username <steve>.");
+
+        new ConfigurationBuilder()
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("jdbc:neo4j:http://localhost:7474")
+                .withUsername("steve")
+                .withRunMode()
+                .build();
+    }
+    
+    @Test
+    public void fails_on_default_username_but_no_password_provided() {
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage(format("Please provide a password for username <%s>.", ConfigurationBuilder.DEFAULT_USERNAME));
+
+        new ConfigurationBuilder()
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("jdbc:neo4j:http://localhost:7474")
+                .withDefaultUsername()
+                .withRunMode()
+                .build();
+    }
+    
+    /*
+     * As the name suggests, we expect that providing neither username nor 
+     * password is okay, because authentification can be disabled in Neo4j.
+     * In this case neither is needed. See discussion on 
+     * https://github.com/fbiville/liquigraph/pull/131
+     */
+    @Test
+    public void should_not_fail_on_neither_username_nor_password_provided() {
+        new ConfigurationBuilder()
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("jdbc:neo4j:http://localhost:7474")
+                .withRunMode()
+                .build();
+    }
 }

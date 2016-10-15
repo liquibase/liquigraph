@@ -20,6 +20,7 @@ import com.google.common.base.Optional;
 import org.liquigraph.core.configuration.validators.DatasourceConfigurationValidator;
 import org.liquigraph.core.configuration.validators.ExecutionModeValidator;
 import org.liquigraph.core.configuration.validators.MandatoryOptionValidator;
+import org.liquigraph.core.configuration.validators.UserCredentialsOptionValidator;
 import org.restlet.engine.Engine;
 
 import javax.sql.DataSource;
@@ -39,6 +40,8 @@ import static java.lang.String.format;
  */
 public final class ConfigurationBuilder {
 
+    static final String DEFAULT_USERNAME="neo4j";
+
     private String masterChangelog;
     private Optional<DataSource> dataSource = absent();
     private Optional<String> uri = absent();
@@ -50,6 +53,7 @@ public final class ConfigurationBuilder {
     private MandatoryOptionValidator mandatoryOptionValidator = new MandatoryOptionValidator();
     private DatasourceConfigurationValidator datasourceConnectionValidator = new DatasourceConfigurationValidator();
     private ExecutionModeValidator executionModeValidator = new ExecutionModeValidator();
+    private UserCredentialsOptionValidator userCredentialsOptionValidator = new UserCredentialsOptionValidator();
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     /**
@@ -95,6 +99,15 @@ public final class ConfigurationBuilder {
     public ConfigurationBuilder withUsername(String username) {
         this.username = fromNullable(username);
         return this;
+    }
+
+    /**
+     * Specifies the default username as the username allowed to connect to the remote
+     * graph database instance.
+     * @return itself for chaining purposes
+     */
+    public ConfigurationBuilder withDefaultUsername() {
+        return withUsername(DEFAULT_USERNAME);
     }
 
     /**
@@ -180,6 +193,7 @@ public final class ConfigurationBuilder {
         errors.addAll(mandatoryOptionValidator.validate(classLoader, masterChangelog));
         errors.addAll(datasourceConnectionValidator.validate(uri, dataSource));
         errors.addAll(executionModeValidator.validate(executionMode));
+        errors.addAll(userCredentialsOptionValidator.validate(username.orNull(), password.orNull()));
 
         if (!errors.isEmpty()) {
             throw new RuntimeException(formatErrors(errors));
