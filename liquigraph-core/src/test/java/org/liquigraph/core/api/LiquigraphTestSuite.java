@@ -56,18 +56,19 @@ public abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
     public void runs_migrations_against_embedded_graph_with_failed_precondition_whose_changeset_is_marked_as_executed() throws SQLException {
         liquigraph.runMigrations(
                 new ConfigurationBuilder()
-                .withRunMode()
-                .withMasterChangelogLocation("changelog/changelog-with-1-node.xml")
-                .withUri(graphDatabase().uri())
-                .withPassword(graphDatabase().password().orNull())
-                .build()
+                        .withRunMode()
+                        .withMasterChangelogLocation("changelog/changelog-with-1-node.xml")
+                        .withUri(graphDatabase().uri())
+                        .withUsername(graphDatabase().username().orNull())
+                        .withPassword(graphDatabase().password().orNull())
+                        .build()
         );
 
         try (Connection connection = graphDatabase().connection()) {
             try (Statement statement = connection.createStatement();
-                    ResultSet resultSet = statement.executeQuery(
-                            "MATCH (human:Human {name: 'fbiville'}) RETURN human"
-                    )) {
+                 ResultSet resultSet = statement.executeQuery(
+                         "MATCH (human:Human {name: 'fbiville'}) RETURN human"
+                 )) {
 
                 assertThat(resultSet.next()).isTrue();
                 assertThat(resultSet.next()).isFalse();
@@ -96,16 +97,17 @@ public abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
     public void runs_migrations_with_schema_changes() throws SQLException {
         liquigraph.runMigrations(
                 new ConfigurationBuilder()
-                .withRunMode()
-                .withMasterChangelogLocation("schema/schema-changelog.xml")
-                .withUri(graphDatabase().uri())
-                .withPassword(graphDatabase().password().orNull())
-                .build()
+                        .withRunMode()
+                        .withMasterChangelogLocation("schema/schema-changelog.xml")
+                        .withUri(graphDatabase().uri())
+                        .withUsername(graphDatabase().username().orNull())
+                        .withPassword(graphDatabase().password().orNull())
+                        .build()
         );
 
         try (Connection connection = graphDatabase().connection();
-                Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
 
             assertThat(resultSet.next()).isTrue();
             assertThat(resultSet.next()).isFalse();
@@ -117,15 +119,15 @@ public abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
     public void runs_migrations_with_schema_changes_and_preconditions() throws SQLException {
         liquigraph.runMigrations(
                 new ConfigurationBuilder()
-                .withRunMode()
-                .withMasterChangelogLocation("schema/schema-preconditions-changelog.xml")
-                .withUri(graphDatabase().uri())
-                .build()
+                        .withRunMode()
+                        .withMasterChangelogLocation("schema/schema-preconditions-changelog.xml")
+                        .withUri(graphDatabase().uri())
+                        .build()
         );
 
         try (Connection connection = graphDatabase().connection();
-                Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (foo:Foo {bar: 123}) RETURN foo")) {
 
             assertThat(resultSet.next()).isTrue();
             assertThat(resultSet.next()).isFalse();
@@ -137,10 +139,10 @@ public abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
     public void fails_migrations_with_edited_migration() throws SQLException {
         liquigraph.runMigrations(
                 new ConfigurationBuilder()
-                .withRunMode()
-                .withMasterChangelogLocation("changelog/changelog.xml")
-                .withUri(graphDatabase().uri())
-                .build()
+                        .withRunMode()
+                        .withMasterChangelogLocation("changelog/changelog.xml")
+                        .withUri(graphDatabase().uri())
+                        .build()
         );
 
         assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
@@ -148,10 +150,10 @@ public abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
             public void call() throws Throwable {
                 liquigraph.runMigrations(
                         new ConfigurationBuilder()
-                        .withRunMode()
-                        .withMasterChangelogLocation("changelog/changelog-edited.xml")
-                        .withUri(graphDatabase().uri())
-                        .build()
+                                .withRunMode()
+                                .withMasterChangelogLocation("changelog/changelog-edited.xml")
+                                .withUri(graphDatabase().uri())
+                                .build()
                 );
             }
         })
