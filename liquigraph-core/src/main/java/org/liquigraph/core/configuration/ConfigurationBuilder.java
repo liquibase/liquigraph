@@ -20,6 +20,7 @@ import com.google.common.base.Optional;
 import org.liquigraph.core.configuration.validators.DatasourceConfigurationValidator;
 import org.liquigraph.core.configuration.validators.ExecutionModeValidator;
 import org.liquigraph.core.configuration.validators.MandatoryOptionValidator;
+import org.liquigraph.core.configuration.validators.UserCredentialsOptionValidator;
 
 import javax.sql.DataSource;
 import java.nio.file.Path;
@@ -48,6 +49,7 @@ public final class ConfigurationBuilder {
     private MandatoryOptionValidator mandatoryOptionValidator = new MandatoryOptionValidator();
     private DatasourceConfigurationValidator datasourceConnectionValidator = new DatasourceConfigurationValidator();
     private ExecutionModeValidator executionModeValidator = new ExecutionModeValidator();
+    private UserCredentialsOptionValidator userCredentialsOptionValidator = new UserCredentialsOptionValidator();
     private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
     /**
@@ -87,6 +89,7 @@ public final class ConfigurationBuilder {
 
     /**
      * Specifies the username allowed to connect to the remote graph database instance.
+     * Please be sure to provide a password, if you provide a username, too.
      * @param username username
      * @return itself for chaining purposes
      */
@@ -97,6 +100,7 @@ public final class ConfigurationBuilder {
 
     /**
      * Specifies the password allowed to connect to the remote graph database instance.
+     * Please be sure to provide a username, if you provide a password, too.
      * @param password password
      * @return itself for chaining purposes
      */
@@ -178,6 +182,7 @@ public final class ConfigurationBuilder {
         errors.addAll(mandatoryOptionValidator.validate(classLoader, masterChangelog));
         errors.addAll(datasourceConnectionValidator.validate(uri, dataSource));
         errors.addAll(executionModeValidator.validate(executionMode));
+        errors.addAll(userCredentialsOptionValidator.validate(username.orNull(), password.orNull()));
 
         if (!errors.isEmpty()) {
             throw new RuntimeException(formatErrors(errors));
