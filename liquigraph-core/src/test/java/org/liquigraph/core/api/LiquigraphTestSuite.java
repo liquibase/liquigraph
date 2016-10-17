@@ -22,12 +22,18 @@ import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.liquigraph.core.io.FixedConnectionConnector;
+import org.liquigraph.core.io.GraphJdbcConnector;
 
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
+import java.util.logging.Logger;
+
+import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -220,7 +226,6 @@ public abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 									}
                                 	
                                 })
-                                //.withUri(graphDatabase().uri())
                                 .build()
                 );
             }
