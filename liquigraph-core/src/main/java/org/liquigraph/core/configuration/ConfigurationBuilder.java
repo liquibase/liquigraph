@@ -40,8 +40,6 @@ import static java.lang.String.format;
  */
 public final class ConfigurationBuilder {
 
-    static final String DEFAULT_USERNAME="neo4j";
-
     private String masterChangelog;
     private Optional<DataSource> dataSource = absent();
     private Optional<String> uri = absent();
@@ -93,6 +91,7 @@ public final class ConfigurationBuilder {
 
     /**
      * Specifies the username allowed to connect to the remote graph database instance.
+     * Please be sure to provide a password, if you provide a username, too.
      * @param username username
      * @return itself for chaining purposes
      */
@@ -102,16 +101,8 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Specifies the default username as the username allowed to connect to the remote
-     * graph database instance.
-     * @return itself for chaining purposes
-     */
-    public ConfigurationBuilder withDefaultUsername() {
-        return withUsername(DEFAULT_USERNAME);
-    }
-
-    /**
      * Specifies the password allowed to connect to the remote graph database instance.
+     * Please be sure to provide a username, if you provide a password, too.
      * @param password password
      * @return itself for chaining purposes
      */
@@ -133,7 +124,7 @@ public final class ConfigurationBuilder {
 
     /**
      * Specifies one or more execution contexts.
-     * 
+     *
      * @param executionContexts non-nullable execution contexts
      * @return itself for chaining purposes
      */

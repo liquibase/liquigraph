@@ -17,27 +17,26 @@ package org.liquigraph.core.configuration.validators;
 
 import com.google.common.collect.Lists;
 import java.util.Collection;
-import java.util.LinkedList;
 
 public class UserCredentialsOptionValidator {
 
+    /**
+     * Validates the given user credentials in the sense of checking if they are
+     * reasonable, i.e. providing both username and password or neither..
+     *
+     * @param username the username to use to connect
+     * @param password the password corresponding to {@code username}
+     * @return a collection of Strings describing possible errors, an empty
+     * collection if no errors
+     */
     public Collection<String> validate(String username, String password) {
-        Collection<String> errors = new LinkedList<>();
-        errors.addAll(validateUserCredentials(username, password));
-        return errors;
-    }
-
-    private static Collection<String> validateUserCredentials(String username, String password) {
         boolean passwordButNoUsername = password != null && username == null;
         boolean usernameButNoPassword = password == null && username != null;
-        
-        if(passwordButNoUsername) {
-            return Lists.newArrayList(String.format("Please provide a username corresponding to the password <%s>.", password));
-        } else if (usernameButNoPassword) {
-            return Lists.newArrayList(String.format("Please provide a password for username <%s>.", username));
+
+        if(passwordButNoUsername || usernameButNoPassword) {
+            return Lists.newArrayList("Please provide both username and password, or none.");
         } else {
             return Lists.newArrayList();
         }
     }
-
 }
