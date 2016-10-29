@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <properties>
-        <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
-    </properties>
 
     <parent>
         <groupId>org.liquigraph</groupId>
@@ -15,6 +12,11 @@
     <packaging>maven-plugin</packaging>
 
     <name>liquigraph-maven-plugin</name>
+
+    <properties>
+        <maven-plugin.version>3.4</maven-plugin.version>
+        <rootDirectory>${basedir}/..</rootDirectory>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -50,7 +52,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>${maven-plugin-plugin.version}</version>
+                <version>${maven-plugin.version}</version>
                 <configuration>
                     <goalPrefix>liquigraph</goalPrefix>
                     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
@@ -90,7 +92,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>${maven-plugin-plugin.version}</version>
+                <version>${maven-plugin.version}</version>
             </plugin>
         </plugins>
     </reporting>

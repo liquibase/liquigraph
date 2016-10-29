@@ -14,6 +14,7 @@
 
     <properties>
         <guava.version>19.0</guava.version>
+        <rootDirectory>${basedir}/..</rootDirectory>
     </properties>
 
     <dependencies>

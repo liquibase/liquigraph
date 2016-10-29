@@ -29,6 +29,7 @@
         <!-- JaCoCo needs this as a property -->
         <argLine>-Duser.language=en -Xmx1024m</argLine>
         <generateBackupPoms>false</generateBackupPoms>
+        <rootDirectory>${basedir}</rootDirectory>
     </properties>
 
     <modules>
@@ -44,7 +45,7 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <version>3.0</version>
                 <configuration>
-                    <header>LICENSE_HEADER</header>
+                    <header>${rootDirectory}/LICENSE_HEADER</header>
                     <includes>
                         <include>**/src/main/java/**</include>
                         <include>**/src/main/resources/**</include>
