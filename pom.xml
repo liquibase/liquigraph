@@ -36,6 +36,8 @@
         <module>liquigraph-maven-plugin</module>
         <module>liquigraph-cli</module>
         <module>liquigraph-spring-boot-starter</module>
+        <!-- Liquigraph integration examples -->
+        <module>liquigraph-examples/dagger2</module>
     </modules>
 
     <build>
