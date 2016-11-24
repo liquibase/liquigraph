@@ -21,6 +21,7 @@ import org.liquigraph.core.configuration.validators.DatasourceConfigurationValid
 import org.liquigraph.core.configuration.validators.ExecutionModeValidator;
 import org.liquigraph.core.configuration.validators.MandatoryOptionValidator;
 import org.liquigraph.core.configuration.validators.UserCredentialsOptionValidator;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.restlet.engine.Engine;
 
 import javax.sql.DataSource;
@@ -43,6 +44,7 @@ public final class ConfigurationBuilder {
     private String masterChangelog;
     private Optional<DataSource> dataSource = absent();
     private Optional<String> uri = absent();
+    private Optional<GraphDatabaseService> database = absent();
     private Optional<String> username = absent();
     private Optional<String> password = absent();
     private ExecutionContexts executionContexts = ExecutionContexts.DEFAULT_CONTEXT;
@@ -67,7 +69,8 @@ public final class ConfigurationBuilder {
 
     /**
      * Specifies the JDBC connection URI of the graph database instance.
-     * Alternatively, you can set a {@code DataSource} directly
+     * Alternatively, you can directly set a {@code DataSource} or a
+     * {@code GraphDataseService}.
      *
      * @param uri connection URI
      * @return itself for chaining purposes
@@ -78,14 +81,27 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Specifies the data source of the graph database instance.
-     * Alternatively, you can set the URI
+     * Specifies the {@code GraphDataseService} instance.
+     * Alternatively, you can set the URI or a
+     * {@code GraphDataseService}.
      *
      * @param dataSource data source
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withDataSource(DataSource dataSource) {
         this.dataSource = fromNullable(dataSource);
+        return this;
+    }
+
+    /**
+     * Specifies the data source of the graph database instance.
+     * Alternatively, you can set the URI or a {@code DataSource}.
+     *
+     * @param database GraphDatabaseService instance
+     * @return itself for chaining purposes
+     */
+    public ConfigurationBuilder withGraphDatabaseService(GraphDatabaseService database) {
+        this.database = fromNullable(database);
         return this;
     }
 
@@ -182,7 +198,7 @@ public final class ConfigurationBuilder {
     public Configuration build() {
         Collection<String> errors = newLinkedList();
         errors.addAll(mandatoryOptionValidator.validate(classLoader, masterChangelog));
-        errors.addAll(datasourceConnectionValidator.validate(uri, dataSource));
+        errors.addAll(datasourceConnectionValidator.validate(uri, dataSource, database));
         errors.addAll(executionModeValidator.validate(executionMode));
         errors.addAll(userCredentialsOptionValidator.validate(username.orNull(), password.orNull()));
 
@@ -204,6 +220,11 @@ public final class ConfigurationBuilder {
         if (uri.isPresent()) {
             return new ConnectionConfigurationByUri(uri.get(), username, password);
         }
+
+        if (database.isPresent()) {
+            return new ConnectionConfigurationByGraphDatabaseservice(database.get());
+        }
+
         return new ConnectionConfigurationByDataSource(dataSource.get(), username, password);
     }
 

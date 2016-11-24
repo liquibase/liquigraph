@@ -17,11 +17,13 @@ package org.liquigraph.core.configuration.validators;
 
 import com.google.common.base.Optional;
 import org.junit.Test;
+import org.neo4j.graphdb.GraphDatabaseService;
 
 import javax.sql.DataSource;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.liquigraph.core.configuration.validators.DatasourceConfigurationValidator.INCORRECT_CONFIGURATION_OPTION_ERROR_MESSAGE;
 import static org.mockito.Mockito.mock;
 
 public class DatasourceConfigurationValidatorTest {
@@ -32,47 +34,58 @@ public class DatasourceConfigurationValidatorTest {
     public void validates_proper_configuration_by_uri() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
             Optional.of("jdbc:neo4j:mem:db"),
-            Optional.<DataSource>absent()
-        );
+            Optional.<DataSource>absent(),
+            Optional.<GraphDatabaseService>absent());
 
         assertThat(errors).isEmpty();
     }
+
     @Test
     public void validates_proper_configuration_by_datasource() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
             Optional.<String>absent(),
-            Optional.of(mock(DataSource.class))
-        );
+            Optional.of(mock(DataSource.class)),
+            Optional.<GraphDatabaseService>absent());
 
         assertThat(errors).isEmpty();
     }
 
     @Test
-    public void returns_error_if_both_uri_and_datasource_are_provided() {
+    public void validates_proper_configuration_by_database() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
-                Optional.of("jdbc:neo4j:mem:db"),
-                Optional.of(mock(DataSource.class))
-        );
+                Optional.<String>absent(),
+                Optional.<DataSource>absent(),
+                Optional.of(mock(GraphDatabaseService.class)));
 
-        assertThat(errors).containsExactly("Exactly one of JDBC URI or DataSource need to be configured");
+        assertThat(errors).isEmpty();
     }
 
     @Test
-    public void returns_error_if_both_uri_and_datasource_are_not_provided() {
+    public void returns_error_when_two_or_more_configurations_are_provided() {
+        Collection<String> errors = datasourceConfigurationValidator.validate(
+                Optional.of("jdbc:neo4j:mem:db"),
+                Optional.of(mock(DataSource.class)),
+                Optional.of(mock(GraphDatabaseService.class)));
+
+        assertThat(errors).containsExactly(INCORRECT_CONFIGURATION_OPTION_ERROR_MESSAGE);
+    }
+
+    @Test
+    public void returns_error_if_no_configuration_options_provided() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
                 Optional.<String>absent(),
-                Optional.<DataSource>absent()
-        );
+                Optional.<DataSource>absent(),
+                Optional.<GraphDatabaseService>absent());
 
-        assertThat(errors).containsExactly("Exactly one of JDBC URI or DataSource need to be configured");
+        assertThat(errors).containsExactly(INCORRECT_CONFIGURATION_OPTION_ERROR_MESSAGE);
     }
 
     @Test
     public void returns_error_if_uri_is_invalid() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
                 Optional.of("not:a:valid:jdbc:uri"),
-                Optional.<DataSource>absent()
-        );
+                Optional.<DataSource>absent(),
+                Optional.<GraphDatabaseService>absent());
 
         assertThat(errors).containsExactly(
             "Invalid JDBC URI. Supported configurations:\n" +
