@@ -20,6 +20,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.liquigraph.core.io.lock.LockableConnection;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -61,6 +63,22 @@ public class GraphJdbcConnectorTest {
         )) {
             assertThat(connection).isInstanceOf(LockableConnection.class);
         }
+    }
+
+    @Test
+    public void connects_to_an_existing_database_instance() throws SQLException {
+
+        GraphDatabaseService existingDatabase = new TestGraphDatabaseFactory().newImpermanentDatabase();
+
+        try (Connection connection = connector.connect(new ConfigurationBuilder()
+                .withRunMode()
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withGraphDatabaseService(existingDatabase)
+                .build()
+        )) {
+            assertThat(connection).isInstanceOf(LockableConnection.class);
+        }
+
     }
 
 }
