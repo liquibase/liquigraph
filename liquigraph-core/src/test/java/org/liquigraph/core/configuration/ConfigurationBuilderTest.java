@@ -57,7 +57,7 @@ public class ConfigurationBuilderTest {
     @Test
     public void fails_on_null_uri() {
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage("- Exactly one of JDBC URI or DataSource need to be configured");
+        thrown.expectMessage("- Exactly one of JDBC URI, JDBC DataSource or GraphDatabaseService needs to be configured");
 
         new ConfigurationBuilder()
             .withMasterChangelogLocation("changelog/changelog.xml")
@@ -85,7 +85,7 @@ public class ConfigurationBuilderTest {
     public void add_ups_all_misconfiguration_errors() {
         thrown.expect(RuntimeException.class);
         thrown.expectMessage(" - 'masterChangelog' should not be null");
-        thrown.expectMessage(" - Exactly one of JDBC URI or DataSource need to be configured");
+        thrown.expectMessage(" - Exactly one of JDBC URI, JDBC DataSource or GraphDatabaseService needs to be configured");
 
         new ConfigurationBuilder().build();
     }

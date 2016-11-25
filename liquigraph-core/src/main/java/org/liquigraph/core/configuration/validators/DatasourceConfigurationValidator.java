@@ -17,26 +17,38 @@ package org.liquigraph.core.configuration.validators;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.jdbc.Driver;
 
 import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
 import static java.lang.String.format;
 
 public class DatasourceConfigurationValidator {
 
-    public Collection<String> validate(Optional<String> uri, Optional<DataSource> dataSource) {
-        if (uri.isPresent() == dataSource.isPresent()) {
-            return ImmutableList.of("Exactly one of JDBC URI or DataSource need to be configured");
+    public Collection<String> validate(Optional<String> uri, Optional<DataSource> dataSource, Optional<GraphDatabaseService> database) {
+
+        int presentInstanceCount = getPresentInstanceCount(ImmutableList.of(uri, dataSource, database));
+
+        if (presentInstanceCount != 1) {
+            return ImmutableList.of("Exactly one of JDBC URI, JDBC DataSource or GraphDatabaseService needs to be configured");
         }
 
         if (uri.isPresent()) {
             return validateConnectionString(uri.get());
         }
         return Collections.emptyList();
+    }
+
+    private int getPresentInstanceCount(List<Optional<?>> optionals) {
+
+        Iterable<?> presentInstances = Optional.presentInstances(optionals);
+
+        return ImmutableList.copyOf(presentInstances).size();
     }
 
     private static Collection<String> validateConnectionString(String uri) {
