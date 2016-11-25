@@ -25,32 +25,42 @@ import java.util.UUID;
 
 import static com.google.common.base.Throwables.propagate;
 
-class ConnectionConfigurationByGraphDatabaseservice implements ConnectionConfiguration {
+class ConnectionConfigurationByGraphDatabaseService implements ConnectionConfiguration {
 
-    private final String uri;
+    private final String connectionUri;
     private final Properties driverProperties;
 
-    public ConnectionConfigurationByGraphDatabaseservice(GraphDatabaseService graphDatabaseService) {
+    public ConnectionConfigurationByGraphDatabaseService(GraphDatabaseService graphDatabaseService) {
 
-        // databaseName is what the driver uses to link the URI to the
-        // GraphDatabaseService instance.
         String databaseName = generateUniqueDatabaseName();
 
-        uri = String.format("jdbc:neo4j:instance:%s", databaseName);
+        connectionUri = createConnectionUri(databaseName);
 
         driverProperties = new Properties();
         driverProperties.put(databaseName, graphDatabaseService);
     }
 
+    /**
+     * Generates a random database name that should be used to construct
+     * the connection URI as "jdbc:neo4j:instance:databaseName" and to
+     * create a driver property whose name is the database name and key
+     * the {@code GraphDataseService} instance.
+     * @return a unique database name.
+     */
     private String generateUniqueDatabaseName() {
 
         return UUID.randomUUID().toString();
     }
 
+    private String createConnectionUri(String databaseName) {
+
+        return String.format("jdbc:neo4j:instance:%s", databaseName);
+    }
+
     @Override
     public Connection get() {
 
-        return getConnection(uri, driverProperties);
+        return getConnection(connectionUri, driverProperties);
     }
 
     protected Connection getConnection(String uri, Properties driverProperties) {

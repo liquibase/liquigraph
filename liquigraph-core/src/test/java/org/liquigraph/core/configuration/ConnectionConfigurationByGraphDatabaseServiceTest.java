@@ -24,7 +24,7 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class ConnectionConfigurationByGraphDatabaseserviceTest {
+public class ConnectionConfigurationByGraphDatabaseServiceTest {
 
     @Test
     public void connects_via_the_provided_database() {
@@ -37,26 +37,33 @@ public class ConnectionConfigurationByGraphDatabaseserviceTest {
                 expectedConnection);
 
         Connection connection = configuration.get();
-
         assertThat(connection).isSameAs(expectedConnection);
 
-        // Extract database name from URI, expected format is
-        // "jdbc:neo4j:instance:databaseName"
-        String uri = configuration.getUri();
+        String databaseName = extractDatabaseNameFromConnectionUri(configuration.getUri());
+
+        Properties driverProperties = configuration.getDriverProperties();
+        Object propertyValue = driverProperties.get(databaseName);
+        assertThat(propertyValue).isSameAs(expectedDatabase);
+    }
+
+    /**
+     * Extracts database name from the provided connection URI.
+     * @param uri Expected format is "jdbc:neo4j:instance:databaseName".
+     * @return the database name.
+     */
+    private String extractDatabaseNameFromConnectionUri(String uri) {
+
         assertThat(uri)
                 .isNotNull()
                 .isNotEmpty()
                 .contains(":");
-        String[] splittedUri = uri.split(":");
-        String databaseName = splittedUri[splittedUri.length - 1];
 
-        // Expect GraphDatabaseService instance in the driver properties
-        Properties properties = configuration.getDriverProperties();
-        Object propertyValue = properties.get(databaseName);
-        assertThat(propertyValue).isSameAs(expectedDatabase);
+        String[] splittedUri = uri.split(":");
+
+        return splittedUri[splittedUri.length - 1];
     }
 
-    private static class TestConfiguration extends ConnectionConfigurationByGraphDatabaseservice {
+    private static class TestConfiguration extends ConnectionConfigurationByGraphDatabaseService {
 
         private final Connection connection;
         private String uri;

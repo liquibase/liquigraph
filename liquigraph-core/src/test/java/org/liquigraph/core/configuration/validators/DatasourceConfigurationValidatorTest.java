@@ -23,7 +23,6 @@ import javax.sql.DataSource;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.liquigraph.core.configuration.validators.DatasourceConfigurationValidator.INCORRECT_CONFIGURATION_OPTION_ERROR_MESSAGE;
 import static org.mockito.Mockito.mock;
 
 public class DatasourceConfigurationValidatorTest {
@@ -67,7 +66,7 @@ public class DatasourceConfigurationValidatorTest {
                 Optional.of(mock(DataSource.class)),
                 Optional.of(mock(GraphDatabaseService.class)));
 
-        assertThat(errors).containsExactly(INCORRECT_CONFIGURATION_OPTION_ERROR_MESSAGE);
+        assertThat(errors).containsExactly("Exactly one of JDBC URI, JDBC DataSource or GraphDatabaseService needs to be configured");
     }
 
     @Test
@@ -77,7 +76,7 @@ public class DatasourceConfigurationValidatorTest {
                 Optional.<DataSource>absent(),
                 Optional.<GraphDatabaseService>absent());
 
-        assertThat(errors).containsExactly(INCORRECT_CONFIGURATION_OPTION_ERROR_MESSAGE);
+        assertThat(errors).containsExactly("Exactly one of JDBC URI, JDBC DataSource or GraphDatabaseService needs to be configured");
     }
 
     @Test

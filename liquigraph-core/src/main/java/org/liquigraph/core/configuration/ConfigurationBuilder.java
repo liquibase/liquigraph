@@ -81,9 +81,9 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Specifies the {@code GraphDataseService} instance.
-     * Alternatively, you can set the URI or a
-     * {@code GraphDataseService}.
+     * Specifies the {@code DataSource} instance.
+     * Alternatively, you can set the JDBC connection
+     * URI or a {@code GraphDataseService}.
      *
      * @param dataSource data source
      * @return itself for chaining purposes
@@ -94,8 +94,9 @@ public final class ConfigurationBuilder {
     }
 
     /**
-     * Specifies the data source of the graph database instance.
-     * Alternatively, you can set the URI or a {@code DataSource}.
+     * Specifies the {@code GraphDataseService} instance.
+     * Alternatively, you can set the JDBC connection URI
+     * or a {@code DataSource}.
      *
      * @param database GraphDatabaseService instance
      * @return itself for chaining purposes
@@ -222,7 +223,7 @@ public final class ConfigurationBuilder {
         }
 
         if (database.isPresent()) {
-            return new ConnectionConfigurationByGraphDatabaseservice(database.get());
+            return new ConnectionConfigurationByGraphDatabaseService(database.get());
         }
 
         return new ConnectionConfigurationByDataSource(dataSource.get(), username, password);

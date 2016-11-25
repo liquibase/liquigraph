@@ -24,7 +24,6 @@ import java.nio.file.Path;
 
 import static java.lang.String.format;
 import static org.junit.Assume.assumeTrue;
-import static org.liquigraph.core.configuration.validators.DatasourceConfigurationValidator.INCORRECT_CONFIGURATION_OPTION_ERROR_MESSAGE;
 
 public class ConfigurationBuilderTest {
 
@@ -58,7 +57,7 @@ public class ConfigurationBuilderTest {
     @Test
     public void fails_on_null_uri() {
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage("- " + INCORRECT_CONFIGURATION_OPTION_ERROR_MESSAGE);
+        thrown.expectMessage("- Exactly one of JDBC URI, JDBC DataSource or GraphDatabaseService needs to be configured");
 
         new ConfigurationBuilder()
             .withMasterChangelogLocation("changelog/changelog.xml")
@@ -86,7 +85,7 @@ public class ConfigurationBuilderTest {
     public void add_ups_all_misconfiguration_errors() {
         thrown.expect(RuntimeException.class);
         thrown.expectMessage(" - 'masterChangelog' should not be null");
-        thrown.expectMessage(" - " + INCORRECT_CONFIGURATION_OPTION_ERROR_MESSAGE);
+        thrown.expectMessage(" - Exactly one of JDBC URI, JDBC DataSource or GraphDatabaseService needs to be configured");
 
         new ConfigurationBuilder().build();
     }

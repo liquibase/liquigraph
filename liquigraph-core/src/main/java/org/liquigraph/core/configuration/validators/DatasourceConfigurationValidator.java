@@ -24,31 +24,31 @@ import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
 import static java.lang.String.format;
 
 public class DatasourceConfigurationValidator {
 
-    public static final String INCORRECT_CONFIGURATION_OPTION_ERROR_MESSAGE = "Exactly one of JDBC URI, JDBC DataSource or GraphDatabaseService needs to be configured";
-
     public Collection<String> validate(Optional<String> uri, Optional<DataSource> dataSource, Optional<GraphDatabaseService> database) {
 
-        int presentInstanceCount = 0;
-
-        for (Optional<?> optional : ImmutableList.of(uri, dataSource, database)) {
-            if (optional.isPresent()) {
-                presentInstanceCount++;
-            }
-        }
+        int presentInstanceCount = getPresentInstanceCount(ImmutableList.of(uri, dataSource, database));
 
         if (presentInstanceCount != 1) {
-            return ImmutableList.of(INCORRECT_CONFIGURATION_OPTION_ERROR_MESSAGE);
+            return ImmutableList.of("Exactly one of JDBC URI, JDBC DataSource or GraphDatabaseService needs to be configured");
         }
 
         if (uri.isPresent()) {
             return validateConnectionString(uri.get());
         }
         return Collections.emptyList();
+    }
+
+    private int getPresentInstanceCount(List<Optional<?>> optionals) {
+
+        Iterable<?> presentInstances = Optional.presentInstances(optionals);
+
+        return ImmutableList.copyOf(presentInstances).size();
     }
 
     private static Collection<String> validateConnectionString(String uri) {
