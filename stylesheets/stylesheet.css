@@ -180,14 +180,14 @@ code {
 
 pre {
   border: 1px solid #e1e1e1;
-  background: #303030;
+  background: transparent;
   color: #f2f2f2;
   text-shadow: none;
   overflow: auto;
 }
 pre code {
   color: #f2f2f2;
-  background-color: #303030;
+  background-color: transparent;
   border: none;
   padding: 0;
 }
