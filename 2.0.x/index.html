@@ -11,7 +11,7 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Liquigraph by fbiville</title>
+    <title>Liquigraph: Graph Database Refactoring</title>
   </head>
 
   <body>
@@ -37,12 +37,13 @@
 
 
 		<hr/>
-	
-	<section id="five_minute_guide">
+
+		<section id="five_minute_guide">
 		<h1>5-minute guide</h1>
 		<div>
+      <h2>The Migration File</h2>
 			<p>Open your favourite editor and define two migrations (a.k.a. changesets) as follows:</p>
-<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+			<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 &lt;changelog xmlns="https://fbiville.github.io/liquigraph/schema/1.0/liquigraph.xsd"&gt;
     &lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
         &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
@@ -60,13 +61,13 @@
 			<h2>Java API</h2>
 			<p>Save the migration file at <span class='path'>${your_project}/${root_classpath_folder}/changelog.xml</span>.</p>
 			<p>Then, include Liquigraph in your <span class="path">pom.xml</span>:
-<pre><code class="xml">&lt;dependency&gt;
+			<pre><code class="xml">&lt;dependency&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
     &lt;artifactId&gt;liquigraph-core&lt;/artifactId&gt;
-    &lt;version&gt;3.0.0&lt;/version&gt;
+    &lt;version&gt;2.0.1&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
 			<p>Finally, running the migrations can be done as follows:</p>
-<pre><code class="java">import org.liquigraph.core.api.Liquigraph;
+			<pre><code class="java">import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 
@@ -81,16 +82,16 @@ Configuration configuration = new ConfigurationBuilder()
 Liquigraph liquigraph = new Liquigraph();
 liquigraph.runMigrations(configuration);
 </code></pre>
-			<p>If want to dry-run your migrations, replace <code>withRunMode()</code> by <code>withDryRunMode(Paths.get(outputDirectory))</code>, where <code>outputDirectory</code> specifies the path of the directory where <code>output.cypher</code> will be written in.</p>
+			<p>If you want to simulate (also known as "dry-run") your migrations without actually running them, replace <code>withRunMode()</code> by <code>withDryRunMode(Paths.get(outputDirectory))</code>, where <code>outputDirectory</code> specifies the path of the directory where <code>output.cypher</code> will be written in.</p>
 		</div>
 		<div id="maven">
 			<h2>The Maven way</h2>
 			<p>Save the migration file at <span class='path'>${your_project}/src/main/resources/changelog.xml</span>.</p>
 			<p>Then, include Liquigraph plugin in your <span class="path">pom.xml</span>:
-<pre><code class="xml">&lt;plugin&gt;
+			<pre><code class="xml">&lt;plugin&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
     &lt;artifactId&gt;liquigraph-maven-plugin&lt;/artifactId&gt;
-    &lt;version&gt;3.0.0&lt;/version&gt;
+    &lt;version&gt;2.0.1&lt;/version&gt;
     &lt;configuration&gt;
         &lt;changelog&gt;changelog.xml&lt;/changelog&gt;&lt;!-- classpath location --&gt;
         &lt;jdbcUri&gt;jdbc:neo4j:http://localhost:7474&lt;/jdbcUri&gt;
@@ -116,17 +117,17 @@ liquigraph.runMigrations(configuration);
 			<h3>Prerequisites</h3>
 			<ol>
 				<li>make sure at least JDK7 is set up and Java is included in your path</li>
-				<li>decompress Liquigraph <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/3.0.0/liquigraph-cli-3.0.0-bin.zip">zip</a>, <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/3.0.0/liquigraph-cli-3.0.0-bin.tar.gz">tar.gz</a> or <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/3.0.0/liquigraph-cli-3.0.0-bin.tar.bz2">tar.bz2</a> in <code>LIQUIGRAPH_DIR</code></li>
+				<li>decompress Liquigraph <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/2.0.1/liquigraph-cli-2.0.1-bin.zip">zip</a>, <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/2.0.1/liquigraph-cli-2.0.1-bin.tar.gz">tar.gz</a> or <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/2.0.1/liquigraph-cli-2.0.1-bin.tar.bz2">tar.bz2</a> in <code>LIQUIGRAPH_DIR</code></li>
 				<li>include <code>LIQUIGRAPH_DIR/liquigraph-cli/</code> to your <code>PATH</code></li>
 				<li>Unix users: make sure <code>LIQUIGRAPH_DIR/liquigraph-cli/liquigraph.sh</code> is executable</li>
 			</ol>
 			<p>You can now check your installation by executing the following command (reminder to non-Unix users: replace <code>.sh</code> with <code>.bat</code>):</p>
 			<h3>Running Liquigraph</h3>
 			<h4>Interactive mode</h4>
-<pre><code class="bash">$&gt; cd LIQUIGRAPH_DIR/liquigraph-cli
+			<pre><code class="bash">$&gt; cd LIQUIGRAPH_DIR/liquigraph-cli
 $&gt; ./liquigraph.sh --help</code></pre>
 			<p>A description should be displayed. Then, simulate the changes (replace <code>/tmp</code> with whatever floats your boat):</p>
-<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
+			<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
 		   --username neo4j \
 		   --password \ # leave empty (password prompt will appear)
 		   --graph-db-uri jdbc:neo4j:http://localhost:7474/ \
@@ -134,13 +135,13 @@ $&gt; ./liquigraph.sh --help</code></pre>
 # check contents
 $&gt; less /tmp/output.cypher</code></pre>
 			<p>And finally, run:</p>
-<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
+			<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
 		   --username neo4j \
 		   --password \ # leave empty (password prompt will appear)
 		   --graph-db-uri jdbc:neo4j:http://localhost:7474/</code></pre>
 			<h4>Non-interactive mode</h4>
 			<p>The above methods will prompt for your Neo4j password. If you wish to run liquigraph without password prompt (i.e. non interactively):</p>
-<pre><code class="bash">$&gt; touch my_password.txt
+			<pre><code class="bash">$&gt; touch my_password.txt
 # update mypassword.txt to contain your password and chmod appropriately
 $&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
  		   --username neo4j \
@@ -165,7 +166,7 @@ $&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
     &lt;changeset [...] /&gt; 
     &lt;!-- [...] --&gt;
 &lt;/changelog&gt;</code></pre>
-			<p>Both <code>sub_changelog.xml</code> files could import changelogs and/or define <code>changeset</code> elements. Their root element is also <code>changelog</code>.</p></dd>
+                        <p>Both <code>sub_changelog.xml</code> files could import changelogs and/or define <code>changeset</code> elements. Their root element is also <code>changelog</code>.</p></dd>
 
 			<dt>Changeset</dt>
 			<dd><p>A Liquigraph changeset describes one or more create or update statement. These statements must be written in <a href="http://neo4j.com/developer/cypher-query-language/">Cypher Query Language</a> and are wrapped <strong>in a single transaction</strong> (1 transaction per changeset). A changeset can be run only once (incremental) and cannot be altered (immutable) against the same graph database instance, by default. Finally, a changeset is uniquely identified within the changelog by its mandatory ID and author attributes.</p>
@@ -192,30 +193,27 @@ $&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
 That said, there may be situations where changesets should be run whenever their contents have changed. To achieve this, you just need to define one extra attribute:</p>
 <pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-on-change=&quot;true&quot;&gt;
    &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
-&lt;/changeset&gt;</code></pre>
-			</dd>
+&lt;/changeset&gt;</code></pre></dd>
 
 			<dt>Changeset incrementality</dt>
 			<dd><p>As previously mentioned, Liquigraph changesets are incremental by default (they will be executed only once). 
 That said, there may be situations where changesets should be run at every execution. To achieve this, you just need to define one extra attribute:</p>
 <pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-always=&quot;true&quot;&gt;
    &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
-&lt;/changeset&gt;</code></pre>
-			</dd>
+&lt;/changeset&gt;</code></pre></dd>
 
 			<dt>Changeset precondition</dt>
-			<dd>
-				<p>Changeset preconditions act like guards. They make sure that the changeset query will be executed if and only if the precondition is met.</p>
-				<p>A precondition can be simple (1 <a href="http://neo4j.com/developer/cypher-query-language/">Cypher</a> query) or compound (with boolean AND/OR operators).</p>
-				<p>In any case, each of the subqueries/the simple query has to return <strong>exactly one column named <em>result</em></strong> of type boolean (true|false).</p>
-				<p>Note that a precondition cannot modify the database itself: all changes will be rolled back.</p>
-				<p>If the precondition fails, an error policy has to be selected amongst the following choices:</p>
-				<ul>
-					<li>CONTINUE: ignores the precondition error and skips the associated changeset execution</li>
-					<li>MARK_AS_EXECUTED: ignores the precondition error and marks the changeset as executed (without actually executing it)</li>
-					<li>FAIL: halts the whole execution, reporting the precondition error</li>
-				</ul>
-				<p>Here is a basic precondition example (you are right: this is the dumbest precondition ever):</p>
+			<dd><p>Changeset preconditions act like guards. They make sure that the changeset query will be executed if and only if the precondition is met.</p>
+<p>A precondition can be simple (1 <a href="http://neo4j.com/developer/cypher-query-language/">Cypher</a> query) or compound (with boolean AND/OR operators).</p>
+<p>In any case, each of the subqueries/the simple query has to return <strong>exactly one column named <em>result</em></strong> of type boolean (true|false).</p>
+<p>Note that a precondition cannot modify the database itself: all changes will be rolled back.</p>
+<p>If the precondition fails, an error policy has to be selected amongst the following choices:</p>
+<ul>
+	<li>CONTINUE: ignores the precondition error and skips the associated changeset execution</li>
+	<li>MARK_AS_EXECUTED: ignores the precondition error and marks the changeset as executed (without actually executing it)</li>
+	<li>FAIL: halts the whole execution, reporting the precondition error</li>
+</ul>
+<p>Here is a basic precondition example (you are right: this is the dumbest precondition ever):</p>
 <pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
    &lt;precondition if-not-met=&quot;MARK_AS_EXECUTED&quot;&gt;
       &lt;query&gt;RETURN true AS result&lt;/query&gt;
