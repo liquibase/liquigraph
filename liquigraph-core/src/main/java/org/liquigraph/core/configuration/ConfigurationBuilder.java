@@ -17,14 +17,18 @@ package org.liquigraph.core.configuration;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+
 import org.liquigraph.core.configuration.validators.DatasourceConfigurationValidator;
 import org.liquigraph.core.configuration.validators.ExecutionModeValidator;
 import org.liquigraph.core.configuration.validators.MandatoryOptionValidator;
 import org.liquigraph.core.configuration.validators.UserCredentialsOptionValidator;
+import org.liquigraph.core.io.xml.ChangelogLoader;
+import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
 
-import javax.sql.DataSource;
 import java.nio.file.Path;
 import java.util.Collection;
+
+import javax.sql.DataSource;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Optional.fromNullable;
@@ -50,7 +54,7 @@ public final class ConfigurationBuilder {
     private DatasourceConfigurationValidator datasourceConnectionValidator = new DatasourceConfigurationValidator();
     private ExecutionModeValidator executionModeValidator = new ExecutionModeValidator();
     private UserCredentialsOptionValidator userCredentialsOptionValidator = new UserCredentialsOptionValidator();
-    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    private ChangelogLoader changelogLoader = ClassLoaderChangelogLoader.currentThreadContextClassLoader();
 
     /**
      * Specifies the location of the master changelog file.
@@ -157,6 +161,8 @@ public final class ConfigurationBuilder {
     }
 
     /**
+     * @deprecated Please use {@link #withChangelogLoader(ChangelogLoader)} with a {@link ClassLoaderChangelogLoader}.
+     *
      * Sets ClassLoader to use when reading Liquigraph changelogs.
      * Default is <code>Thread.currentThread().getContextClassLoader()</code>.
      * Don't call this unless you REALLY know what you're doing.
@@ -164,9 +170,25 @@ public final class ConfigurationBuilder {
      * @param classLoader class loader
      * @return itself for chaining purposes
      */
+    @Deprecated
     public ConfigurationBuilder withClassLoader(ClassLoader classLoader) {
         if (classLoader != null) {
-            this.classLoader = classLoader;
+            this.changelogLoader = new ClassLoaderChangelogLoader(classLoader);
+        }
+        return this;
+    }
+
+    /**
+     * Sets {@link ChangelogLoader} to use when reading Liquigraph changelogs.
+     * Default is {@link ClassLoaderChangelogLoader#currentThreadContextClassLoader()}.
+     * Don't call this unless you REALLY know what you're doing.
+     *
+     * @param changelogLoader the changelog loader to use
+     * @return itself for chaining purposes
+     */
+    public ConfigurationBuilder withChangelogLoader(ChangelogLoader changelogLoader) {
+        if (changelogLoader != null) {
+            this.changelogLoader = changelogLoader;
         }
         return this;
     }
@@ -179,7 +201,7 @@ public final class ConfigurationBuilder {
      */
     public Configuration build() {
         Collection<String> errors = newLinkedList();
-        errors.addAll(mandatoryOptionValidator.validate(classLoader, masterChangelog));
+        errors.addAll(mandatoryOptionValidator.validate(changelogLoader, masterChangelog));
         errors.addAll(datasourceConnectionValidator.validate(uri, dataSource));
         errors.addAll(executionModeValidator.validate(executionMode));
         errors.addAll(userCredentialsOptionValidator.validate(username.orNull(), password.orNull()));
@@ -189,7 +211,7 @@ public final class ConfigurationBuilder {
         }
 
         return new Configuration(
-            classLoader,
+            changelogLoader,
             masterChangelog,
             dataSourceConfiguration(),
             executionContexts,

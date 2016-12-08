@@ -23,6 +23,7 @@ import org.liquigraph.core.io.ChangelogWriter;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
 import org.liquigraph.core.io.LiquigraphJdbcConnector;
+import org.liquigraph.core.io.xml.ChangelogLoader;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
@@ -64,7 +65,7 @@ class MigrationRunner {
 
 
     public void runMigrations(Configuration configuration) {
-        Collection<Changeset> declaredChangesets = parseChangesets(configuration.classLoader(), configuration.masterChangelog());
+        Collection<Changeset> declaredChangesets = parseChangesets(configuration.changelogLoader(), configuration.masterChangelog());
 
         Supplier<Connection> connectionSupplier = new ConnectionSupplier(configuration);
         try (Connection writeConnection = connectionSupplier.get()) {
@@ -82,8 +83,8 @@ class MigrationRunner {
         }
     }
 
-    private Collection<Changeset> parseChangesets(ClassLoader classLoader, String masterChangelog) {
-        return changelogParser.parse(classLoader, masterChangelog);
+    private Collection<Changeset> parseChangesets(ChangelogLoader changelogLoader, String masterChangelog) {
+        return changelogParser.parse(changelogLoader, masterChangelog);
     }
 
     private Collection<Changeset> readPersistedChangesets(Collection<Changeset> declaredChangesets, Connection writeConnection) {
