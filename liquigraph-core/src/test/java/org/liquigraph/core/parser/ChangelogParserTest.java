@@ -20,8 +20,10 @@ import org.assertj.core.api.iterable.Extractor;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.liquigraph.core.io.xml.ChangelogLoader;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.io.xml.ChangelogPreprocessor;
+import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
 import org.liquigraph.core.io.xml.ImportResolver;
 import org.liquigraph.core.io.xml.XmlSchemaValidator;
 import org.liquigraph.core.model.AndQuery;
@@ -53,13 +55,13 @@ public class ChangelogParserTest {
     @Rule public ExpectedException thrown = ExpectedException.none();
     private final XmlSchemaValidator validator = new XmlSchemaValidator();
     private final ChangelogPreprocessor preprocessor = new ChangelogPreprocessor(new ImportResolver());
-    private final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    private final ChangelogLoader changelogLoader = ClassLoaderChangelogLoader.currentThreadContextClassLoader();
 
     private final ChangelogParser parser = new ChangelogParser(validator, preprocessor);
 
     @Test
     public void parses_single_changelog() {
-        Collection<Changeset> changesets = parser.parse(classLoader, "changelog/changelog.xml");
+        Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/changelog.xml");
 
         assertThat(changesets)
             .extracting("author", "id", "queries")
@@ -71,7 +73,7 @@ public class ChangelogParserTest {
 
     @Test
     public void parses_changelog_of_changelogs() {
-        Collection<Changeset> changesets = parser.parse(classLoader, "changelog/changelog-of-changelogs.xml");
+        Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/changelog-of-changelogs.xml");
 
         assertThat(changesets)
             .extracting("author", "id", "queries")
@@ -85,7 +87,7 @@ public class ChangelogParserTest {
     @Test
     @SuppressWarnings("unchecked")
     public void parses_changelog_with_execution_contexts() {
-        Collection<Changeset> changesets = parser.parse(classLoader, "changelog/changelog-with-execution-contexts.xml");
+        Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/changelog-with-execution-contexts.xml");
 
         assertThat(changesets)
             .extracting(new Extractor<Changeset, Collection<String>>() {
@@ -103,7 +105,7 @@ public class ChangelogParserTest {
 
     @Test
     public void parses_changelog_with_run_always_and_run_on_change_attributes() {
-        Collection<Changeset> changesets = parser.parse(classLoader, "changelog/changelog-with-run-modes.xml");
+        Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/changelog-with-run-modes.xml");
 
         assertThat(changesets)
             .extracting("id", "runAlways", "runOnChange")
@@ -117,7 +119,7 @@ public class ChangelogParserTest {
 
     @Test
     public void parses_changelog_with_preconditions() {
-        Collection<Changeset> changesets = parser.parse(classLoader, "changelog/changelog-with-preconditions.xml");
+        Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/changelog-with-preconditions.xml");
 
         assertThat(changesets)
             .extracting("id", "precondition")
@@ -130,7 +132,7 @@ public class ChangelogParserTest {
 
     @Test
     public void parses_changelog_with_nested_preconditions() {
-        Collection<Changeset> changesets = parser.parse(classLoader, "changelog/changelog-with-nested-preconditions.xml");
+        Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/changelog-with-nested-preconditions.xml");
 
         assertThat(changesets).extracting("precondition.query.class")
             .containsExactly(
@@ -148,12 +150,12 @@ public class ChangelogParserTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(String.format("%n\terror1%n\terror2"));
 
-        parser.parse(classLoader, "changelog/changelog.xml");
+        parser.parse(changelogLoader, "changelog/changelog.xml");
     }
 
     @Test
     public void populates_checksum() {
-        Collection<Changeset> changesets = parser.parse(classLoader, "changelog/changelog.xml");
+        Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/changelog.xml");
 
         assertThat(changesets)
             .extracting("queries", "checksum")
@@ -165,7 +167,7 @@ public class ChangelogParserTest {
 
     @Test
     public void parses_changesets_with_several_queries() {
-        Collection<Changeset> changesets = parser.parse(classLoader, "changelog/multiple_queries/changelog.xml");
+        Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/multiple_queries/changelog.xml");
 
         assertThat(changesets)
             .hasSize(1)

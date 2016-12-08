@@ -15,6 +15,8 @@
  */
 package org.liquigraph.core.configuration.validators;
 
+import org.liquigraph.core.io.xml.ChangelogLoader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -24,19 +26,19 @@ import static java.lang.String.format;
 
 public class MandatoryOptionValidator {
 
-    public Collection<String> validate(ClassLoader classLoader, String masterChangelog) {
+    public Collection<String> validate(ChangelogLoader loader, String masterChangelog) {
         Collection<String> errors = new LinkedList<>();
-        errors.addAll(validateMasterChangelog(masterChangelog, classLoader));
+        errors.addAll(validateMasterChangelog(masterChangelog, loader));
         return errors;
     }
 
-    private static Collection<String> validateMasterChangelog(String masterChangelog, ClassLoader classLoader) {
+    private static Collection<String> validateMasterChangelog(String masterChangelog, ChangelogLoader loader) {
         Collection<String> errors = new LinkedList<>();
         if (masterChangelog == null) {
             errors.add("'masterChangelog' should not be null");
         }
         else {
-            try (InputStream stream = classLoader.getResourceAsStream(masterChangelog)) {
+            try (InputStream stream = loader.load(masterChangelog)) {
                 if (stream == null) {
                     errors.add(format("'masterChangelog' points to a non-existing location: %s", masterChangelog));
                 }
