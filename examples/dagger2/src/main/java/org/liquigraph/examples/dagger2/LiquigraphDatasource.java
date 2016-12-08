@@ -15,22 +15,16 @@
  */
 package org.liquigraph.examples.dagger2;
 
-import dagger.Component;
-import dagger.Provides;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
 
+import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Qualifier;
-import javax.sql.DataSource;
 
-@Component(modules = {DatasourceModule.class,LiquigraphModule.class})
-public interface MigrationComponent {
+public class LiquigraphDatasource {
+    @Inject
+    public LiquigraphDatasource(@Named("datasource")Configuration configuration) {
+        new Liquigraph().runMigrations(configuration);
 
-    LiquigraphEmbedded liquigraphEmbedded();
-
-    LiquigraphDatasource liquigraphDatasource();
-
-    DataSource dataSource();
-
+    }
 }
