@@ -28,25 +28,17 @@
 
 		<hr/>
 
-		<section id="tagline">
-			<h1>Liquigraph is a database refactoring tool</h1>
-			<p>It helps you maintaining your <a href="https://neo4j.com/">Neo4j</a> database state by defining and executing migrations in a variety of ways. 
-			This project is heavily inspired from <a href="http://www.liquibase.org/">Liquibase</a>.</p>
-		</section>
+		<nav id="main_summary">
+			<ul>
+				<li><a href="#five_minute_guide">5-minute guide</a></li>
+				<li><a href="#detailed_section">Detailed section</a></li>
+			</ul>
+		</nav>
+
 
 		<hr/>
 
-        <nav id="main_summary">
-        	<ul>
-            	<li><a href="#five_minute_guide">5-minute guide</a></li>
-              	<li><a href="#detailed_section">Detailed section</a></li>
-          	</ul>
-      	</nav>
-
-
-        <hr/>
-	
-	<section id="five_minute_guide">
+		<section id="five_minute_guide">
 		<h1>5-minute guide</h1>
 		<div>
       <h2>The Migration File</h2>
@@ -251,14 +243,12 @@ That said, there may be situations where changesets should be run at every execu
 				<p>Once the postcondition returns false, the changeset is considered complete.</p>
 				<p>A repeatable changeset can be used to perform a migration on a large database without risking an OutOfMemoryError because of the large number of nodes or relationships impacted, by splitting the migration into smaller batches.</p>
 				<p>Here is a postcondition example, deleting all relationships in the database by batches of 10:</p>
-				<pre>
-<code class="xml">&lt;changeset id=&quot;delete-relationships&quot; author=&quot;you&quot;&gt;
+<pre><code class="xml">&lt;changeset id=&quot;delete-relationships&quot; author=&quot;you&quot;&gt;
    &lt;query&gt;&lt;![CDATA[MATCH ()-[r]-&gt;() WITH r LIMIT 10 DELETE r]]&gt;&lt;/query&gt;
    &lt;postcondition&gt;
       &lt;query&gt;&lt;![CDATA[OPTIONAL MATCH ()-[r]-&gt;() WITH r LIMIT 1 RETURN (r IS NOT NULL) AS result]]&gt;&lt;/query&gt;
    &lt;/postcondition&gt;
-&lt;/changeset&gt;</code>
-				</pre>
+&lt;/changeset&gt;</code></pre>
 			</dd>
 		</dl>
 	</section>
