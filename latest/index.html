@@ -55,9 +55,9 @@
 &lt;/changelog&gt;</code></pre>
 		</div>
     <div>
-      <p>These migrations can be run using the <a href="#core">Java API</a>,
-      via your <a href="#maven">Maven project</a>
-      or simply using <a href="#shell">the command line</a>. Choose the way that fits your project</p>
+        <p>These migrations can be run using the <a href="#core">Java API</a>, via your <a href="#maven">Maven project</a>
+        or simply using <a href="#shell">the command line</a>. Choose the way that fits your project.</p>
+		<p>Whichever way you use, make sure that the Neo4j instance is up when running the migrations.</p>
 		<div id="core">
 			<h2>Java API</h2>
 			<p>Save the migration file at <span class='path'>${your_project}/${root_classpath_folder}/changelog.xml</span>.</p>
@@ -88,7 +88,7 @@ liquigraph.runMigrations(configuration);
 		<div id="maven">
 			<h2>The Maven way</h2>
 			<p>Save the migration file at <span class='path'>${your_project}/src/main/resources/changelog.xml</span>.</p>
-			<p>Then, include Liquigraph plugin in your <span class="path">pom.xml</span>:
+			<p>Then, include Liquigraph plugin in your <span class="path">pom.xml</span> to do both a dry-run and a regular run:
 			<pre><code class="xml">&lt;plugin&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
     &lt;artifactId&gt;liquigraph-maven-plugin&lt;/artifactId&gt;
