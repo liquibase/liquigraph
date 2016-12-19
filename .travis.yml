@@ -11,7 +11,13 @@ os:
   - linux
 env:
   matrix:
-    - NEO_VERSION=3.0.6
+    - NEO_VERSION=3.0.7
+      WITH_DOCKER=true
+      EXTRA_PROFILES=-Pwith-neo4j-io
+    - NEO_VERSION=3.0.8
+      WITH_DOCKER=false
+      EXTRA_PROFILES=-Pwith-neo4j-io
+    - NEO_VERSION=3.1.0
       WITH_DOCKER=true
       EXTRA_PROFILES=-Pwith-neo4j-io
 before_script:
