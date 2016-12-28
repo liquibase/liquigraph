@@ -16,6 +16,8 @@
 package org.liquigraph.core.configuration.validators;
 
 import org.junit.Test;
+import org.liquigraph.core.io.xml.ChangelogLoader;
+import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
 
 import java.util.Collection;
 
@@ -25,12 +27,12 @@ public class MandatoryOptionValidatorTest {
 
     private MandatoryOptionValidator validator = new MandatoryOptionValidator();
 
-    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    private ChangelogLoader changelogLoader = ClassLoaderChangelogLoader.currentThreadContextClassLoader();
 
     @Test
     public void fails_on_invalid_changelog_location() {
         Collection<String> errors = validator.validate(
-            classLoader,
+            changelogLoader,
             "unlikelytobefoundchangelog.xml"
         );
 

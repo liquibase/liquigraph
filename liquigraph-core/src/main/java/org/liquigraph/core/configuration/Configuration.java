@@ -21,6 +21,8 @@ import org.liquigraph.core.io.ChangelogGraphWriter;
 import org.liquigraph.core.io.ChangelogWriter;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
+import org.liquigraph.core.io.xml.ChangelogLoader;
+import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
 
 import java.sql.Connection;
 
@@ -34,27 +36,39 @@ import java.sql.Connection;
  */
 public final class Configuration {
 
-    private final ClassLoader classLoader;
+    private final ChangelogLoader changelogLoader;
     private final String masterChangelog;
     private final ConnectionConfiguration connectionConfiguration;
     private final ExecutionContexts executionContexts;
     private final ExecutionMode executionMode;
 
-    Configuration(ClassLoader classLoader,
+    Configuration(ChangelogLoader changelogLoader,
                   String masterChangelog,
                   ConnectionConfiguration connectionConfiguration,
                   ExecutionContexts executionContexts,
                   ExecutionMode executionMode) {
 
-        this.classLoader = classLoader;
+        this.changelogLoader = changelogLoader;
         this.masterChangelog = masterChangelog;
         this.connectionConfiguration = connectionConfiguration;
         this.executionContexts = executionContexts;
         this.executionMode = executionMode;
     }
 
+    /**
+     * @deprecated Use {@link #changelogLoader()} for loading any kind of changelog.
+     */
+    @Deprecated
     public ClassLoader classLoader() {
-        return classLoader;
+        if (changelogLoader instanceof ClassLoaderChangelogLoader) {
+            return ((ClassLoaderChangelogLoader) changelogLoader).getClassLoader();
+        } else {
+            return null;
+        }
+    }
+
+    public ChangelogLoader changelogLoader() {
+        return changelogLoader;
     }
 
     public String masterChangelog() {
