@@ -34,8 +34,47 @@
         </section>
         
         <hr/>
+
+        <section>
+          <h2>What version should I use? <a class="tldr" href="#versioning">tl;dr</a></h2>
+          <p>Liquigraph started when the first versions of Neo4j 2.0 were released. The project was still going towards 1.0 and release candidates were pushed.
+
+          Time has passed, several major versions have been released and a new JDBC driver, for Neo4j 3.x, has been designed. This new JDBC driver is not feature-complete yet and cannot replace entirely the legacy JDBC driver (see <a href="https://github.com/fbiville/neo4j-jdbc-2x#legacy-vs-current-neo4j-jdbc-driver-matrix">this usecase matrix</a> for more details).
+          </p>
+
+          <p>As you can see in the <a href="#versioning">table below</a>, some usecases are not supported yet by the new JDBC driver (legacy HTTP API, legacy and embedded API), which has led to two main development branches. We sincerely hope to get back to a single main development and version branch at some point.</p>
+
+          <hr />
+
+          <table id="versioning">
+            <caption>Version matrix</caption>
+            <thead>
+              <th>Liquigraph version</th>
+              <th>Neo4j version range</th>
+              <th>Underlying JDBC driver</th>
+              <th>Supported connection modes</th>
+            </thead>
+            <tr>
+              <td>1.x</td>
+              <td colspan="3"><em>discontinued</em></td>
+            </tr>
+            <tr>
+              <td>2.x</td>
+              <td>2.0 to 2.3.x</td>
+              <td><a href="https://github.com/fbiville/neo4j-jdbc-2x">Legacy JDBC Driver</a></td>
+              <td>Embedded (2.x), HTTP (2.x)</td>
+            </tr>
+            <tr>
+              <td>3.x</td>
+              <td>3.0 to 3.1.x</td>
+              <td><a href="https://github.com/neo4j-contrib/neo4j-jdbc">Official JDBC Driver</a></td>
+              <td>HTTP (3.x), Bolt (3.x)</td>
+            </tr>
+          </table>
+        </section>
         
-        <section id="versions">
+        <div id="versions">
+          <hr />
           <h2>Documentation versions</h2>
           <ul>
             <li><a href="./1.0-RC1/index.html">1.0-RC1</a></li>
@@ -45,9 +84,9 @@
             <li><a href="./3.0.x/index.html">3.0.x</a></li>
             <li><a href="./latest/index.html">latest</a></li>
           </ul>
-        </section>
+          <footer><p>Liquigraph is maintained by <a href="https://github.com/fbiville">Florent Biville</a> and several <a href="https://github.com/fbiville/liquigraph/graphs/contributors">others</a> &middot; Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p></footer>
+        </div>
 
-        <footer><p>Liquigraph is maintained by <a href="https://github.com/fbiville">Florent Biville</a> &middot; Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p></footer>
       </div>
     </div>
   </body>

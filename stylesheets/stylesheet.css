@@ -372,6 +372,9 @@ footer a:hover {
 
 
 /* custom */
+
+.tldr { font-variant:small-caps; }
+
 .inner { width:60%;}
 pre {font-family: Consolas,monospace};
 header { text-align:center !important;}
@@ -397,9 +400,34 @@ nav li { display:inline-block; padding:5px; font-size:14pt; list-style-type:none
 
 #back_top { position:fixed; bottom:0; right:0; padding:20px; background-color:white;}
 
-#versions { text-align: center;}
+#versioning {
+  margin-bottom:150px;
+  border-collapse:collapse;
+  background-color:white;
+  border:2px solid black;
+}
+
+#versioning td, #versioning th {
+  border-left:none;
+  border-right:none;
+  border-bottom:2px solid black;
+  border-top:2px solid black;
+  padding:10px;
+}
+caption {text-align:left; color:black; font-weight:bold; font-size:22px;}
+
+#versions {
+  margin:1% auto 0;
+  width:60%;
+  position:fixed;
+  bottom:0;
+  background:#e7e7e7;
+  text-align: center;
+}
+#versions hr { margin:0; padding:0; }
+#versions h2, #versions ul { display:inline-block; }
 #versions ul { margin-top: 3%;}
 #versions li { font-weight: bold; display: inline-block;}
 
 code { margin-bottom:0}
-footer {text-align:center;}
+footer {margin:0; padding:0; text-align:center; background: none}
