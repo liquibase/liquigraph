@@ -55,13 +55,13 @@
 &lt;/changelog&gt;</code></pre>
 		</div>
     <div>
-      <p>These migrations can be run using the <a href="#core">Java API</a>,
-      via your <a href="#maven">Maven project</a>
-      or simply using <a href="#shell">the command line</a>. Choose the way that fits your project</p>
+      <p>These migrations can be run using the <a href="#core">Java API</a> directly, <a href="#spring-boot">Spring Boot</a>,
+      the <a href="#maven">Maven plugin</a>
+      or simply using <a href="#shell">the command line</a>. Choose the way that fits your project.</p>
 		<div id="core">
 			<h2>Java API</h2>
 			<p>Save the migration file at <span class='path'>${your_project}/${root_classpath_folder}/changelog.xml</span>.</p>
-			<p>Then, include Liquigraph in your <span class="path">pom.xml</span>:
+			<p>Then, include Liquigraph in your <span class="path">pom.xml</span>:</p>
 			<pre><code class="xml">&lt;dependency&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
     &lt;artifactId&gt;liquigraph-core&lt;/artifactId&gt;
@@ -84,6 +84,19 @@ Liquigraph liquigraph = new Liquigraph();
 liquigraph.runMigrations(configuration);
 </code></pre>
 			<p>If want to dry-run your migrations, replace <code>withRunMode()</code> by <code>withDryRunMode(Paths.get(outputDirectory))</code>, where <code>outputDirectory</code> specifies the path of the directory where <code>output.cypher</code> will be written in.</p>
+		</div>
+		<div id="spring-boot">
+			<h2>Spring Boot</h2>
+			<p>Save the migration file at <span class='path'>${your_project}/src/main/resources/db/migrations/changelog.xml</span>.</p>
+			<p>Then, include Liquigraph Spring Boot starter in your <span class="path">pom.xml</span>:</p>
+			<pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
+    &lt;artifactId&gt;liquigraph-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;3.0.2-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+			<p>Annotate your main class with <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html"><code>@org.springframework.boot.autoconfigure.EnableAutoConfiguration</code></a>.</p>
+			<p>Finally, configure <code>liquigraph.url</code>, <code>liquigraph.user</code> and <code>liquigraph.password</code> properties to your <span class="path">application.properties</span> (or another relevant <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">configuration source</a>) file and you are good to go!</p>
+			<p>You are now automatically running Liquigraph migrations at startup!</p>
 		</div>
 		<div id="maven">
 			<h2>The Maven way</h2>
