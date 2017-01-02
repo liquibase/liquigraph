@@ -12,6 +12,8 @@ env:
   matrix:
     - NEO_VERSION=2.0.5
       WITH_DOCKER=false
+    - NEO_VERSION=2.1.7
+      WITH_DOCKER=false
     - NEO_VERSION=2.1.8
       WITH_DOCKER=false
     - NEO_VERSION=2.2.10

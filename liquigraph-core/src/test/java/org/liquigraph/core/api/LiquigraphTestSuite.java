@@ -160,4 +160,29 @@ public abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Changeset with ID <second-changelog> and author <team> has conflicted checksums");
     }
+
+    @Test
+    public void does_not_leave_lock_when_invalid_statement_is_executed() throws Exception {
+        assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
+            @Override
+            public void call() throws Throwable {
+                liquigraph.runMigrations(
+                        new ConfigurationBuilder()
+                                .withRunMode()
+                                .withMasterChangelogLocation("changelog/changelog-invalid-statement.xml")
+                                .withUri(graphDatabase().uri())
+                                .build()
+                );
+            }
+        })
+                .isInstanceOf(RuntimeException.class)
+                .hasCauseInstanceOf(SQLException.class);
+
+        try (Connection connection = graphDatabase().connection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (n:__LiquigraphLock) RETURN n")) {
+
+            assertThat(resultSet.next()).isFalse();
+        }
+    }
 }
