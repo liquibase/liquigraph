@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.examples.dagger2;
+package org.liquigraph.examples.dagger2.di.component;
 
-import org.liquigraph.core.api.Liquigraph;
-import org.liquigraph.core.configuration.Configuration;
+import dagger.Component;
+import org.liquigraph.examples.dagger2.dao.DAO;
+import org.liquigraph.examples.dagger2.di.module.DataSourceDAOModule;
+import org.liquigraph.examples.dagger2.di.module.DataSourceLiquigraphModule;
+import org.liquigraph.examples.dagger2.liquigraph.Liquigraph;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import javax.inject.Singleton;
 
-public class LiquigraphDatasource {
-    @Inject
-    public LiquigraphDatasource(@Named("datasource")Configuration configuration) {
-        new Liquigraph().runMigrations(configuration);
+/**
+ * Liquigraph and DAO using a real neo4j database
+ */
+@Singleton
+@Component(modules = {DataSourceDAOModule.class, DataSourceLiquigraphModule.class})
+public interface MigrationComponent {
+    DAO dao();
 
-    }
+    Liquigraph liquigraph();
+
 }

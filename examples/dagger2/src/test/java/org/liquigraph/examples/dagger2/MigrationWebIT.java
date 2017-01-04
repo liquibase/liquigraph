@@ -15,33 +15,24 @@
  */
 package org.liquigraph.examples.dagger2;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.liquigraph.examples.dagger2.Application;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.io.fs.FileUtils;
+import org.liquigraph.examples.dagger2.di.component.DaggerMigrationTestComponent;
 
-import java.io.File;
-
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.get;
 import static org.hamcrest.Matchers.containsString;
 
 public class MigrationWebIT {
-
-    private static final File DB_PATH = new File( "target/neo4j-hello-db" );
-    private GraphDatabaseService embeddedDatabase;
-
     @Test
     public void testMigration() throws Exception {
 
-        Application.main();
+        Application application = new Application();
+
+        application.executeSimpleMigration(DaggerMigrationTestComponent.create());
 
         get("/")
-        .then()
-        .assertThat()
-        .body(containsString("Hello World!"));
+                .then()
+                .assertThat()
+                .body(containsString("Hello world!"));
 
     }
 

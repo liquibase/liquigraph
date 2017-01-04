@@ -15,40 +15,32 @@
  */
 package org.liquigraph.examples.dagger2;
 
-import org.liquigraph.core.api.Liquigraph;
+import org.liquigraph.examples.dagger2.dao.DAO;
+import org.liquigraph.examples.dagger2.di.component.DaggerMigrationComponent;
+import org.liquigraph.examples.dagger2.di.component.MigrationComponent;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import static spark.Spark.*;
+import static spark.Spark.get;
+import static spark.Spark.port;
 
 public class Application {
 
-    public static void main(String ... args) throws Exception{
-        MigrationComponent migrationComponent = org.liquigraph.examples.dagger2.DaggerMigrationComponent.create();
+    public static void main(String... args) throws Exception {
+        MigrationComponent migrationComponent = DaggerMigrationComponent.create();
+        Application application = new Application();
+        application.executeSimpleMigration(migrationComponent);
+    }
+
+    public void executeSimpleMigration(MigrationComponent migrationComponent) {
         // Running the migration
-        migrationComponent.liquigraphEmbedded();
+        migrationComponent.liquigraph();
 
         // Starting the web server
         port(8080);
         get("/", (request, response) -> {
-            //TOOD : ajouter un DAO
-            try (Connection connection = migrationComponent.dataSource().getConnection();
-                 Statement statement = connection.createStatement()) {
-                if (!statement.execute("MATCH (n:Sentence) RETURN n.text AS result")) {
-                    throw new RuntimeException("Could not execute query");
-                }
-                return Application.extract("result", statement.getResultSet());
-            }
+            DAO dao = migrationComponent.dao();
+            return dao.executeQuery("MATCH (n:Sentence) RETURN n.text AS result");
         });
-    }
 
-    public static String extract(String columnLabel, ResultSet results) throws SQLException {
-        try (ResultSet resultSet = results) {
-            resultSet.next();
-            return resultSet.getString(columnLabel);
-        }
     }
 
 
