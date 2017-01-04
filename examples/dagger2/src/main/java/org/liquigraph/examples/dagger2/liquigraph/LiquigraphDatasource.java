@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.examples.dagger2;
+package org.liquigraph.examples.dagger2.liquigraph;
 
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
@@ -21,9 +21,9 @@ import org.liquigraph.core.configuration.Configuration;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-public class LiquigraphEmbedded {
+public class LiquigraphDatasource implements org.liquigraph.examples.dagger2.liquigraph.Liquigraph {
     @Inject
-    public LiquigraphEmbedded(@Named("embedded") Configuration configuration) {
+    public LiquigraphDatasource(@Named("datasource")Configuration configuration) {
         new Liquigraph().runMigrations(configuration);
 
     }

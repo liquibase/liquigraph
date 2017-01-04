@@ -13,31 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.examples.dagger2;
+package org.liquigraph.examples.dagger2.di.module;
 
 import dagger.Module;
 import dagger.Provides;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.io.fs.FileUtils;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.IOException;
 
 
-@Module
-public class LiquigraphModule {
-
-
-    private static final File DB_PATH = new File( "target/neo4j-hello-db" );
+@Module(includes = {DatasourceModule.class})
+public class LiquigraphConfigurationModule {
 
     @Provides
     @Named("datasource")
-    static Configuration liquigraph(DataSource dataSource){
+    public Configuration liquigraph(DataSource dataSource) {
         return new ConfigurationBuilder()
                 .withDataSource(dataSource)
                 .withMasterChangelogLocation("changelog.xml")
@@ -47,19 +41,14 @@ public class LiquigraphModule {
 
     @Provides
     @Named("embedded")
-    static Configuration liquigraphWithService() throws RuntimeException {
-        try {
-            FileUtils.deleteRecursively( DB_PATH);
-            GraphDatabaseService embeddedDatabase = new GraphDatabaseFactory().newEmbeddedDatabase(DB_PATH);
+    @Inject
+    public Configuration liquigraphWithService(GraphDatabaseService embeddedDatabase) throws RuntimeException {
 
-            return new ConfigurationBuilder().withGraphDatabaseService(embeddedDatabase)
-                    .withMasterChangelogLocation("changelog.xml")
-                    .withRunMode()
-                    .build();
+        return new ConfigurationBuilder().withGraphDatabaseService(embeddedDatabase)
+                .withMasterChangelogLocation("changelog.xml")
+                .withRunMode()
+                .build();
 
-        } catch (IOException e) {
-            throw new RuntimeException();
-        }
     }
 
 }

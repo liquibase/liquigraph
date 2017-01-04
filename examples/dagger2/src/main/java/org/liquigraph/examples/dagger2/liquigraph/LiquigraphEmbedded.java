@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.examples.dagger2;
+package org.liquigraph.examples.dagger2.liquigraph;
 
-import dagger.Component;
-import dagger.Provides;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
 
+import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Qualifier;
-import javax.sql.DataSource;
 
-@Component(modules = {DatasourceModule.class,LiquigraphModule.class})
-public interface MigrationComponent {
+public class LiquigraphEmbedded implements org.liquigraph.examples.dagger2.liquigraph.Liquigraph {
+    @Inject
+    public LiquigraphEmbedded(@Named("embedded") Configuration configuration) {
+        new Liquigraph().runMigrations(configuration);
 
-    LiquigraphEmbedded liquigraphEmbedded();
-
-    LiquigraphDatasource liquigraphDatasource();
-
-    DataSource dataSource();
-
+    }
 }
