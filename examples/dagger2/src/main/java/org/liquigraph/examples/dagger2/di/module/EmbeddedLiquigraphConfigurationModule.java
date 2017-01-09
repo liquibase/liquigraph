@@ -18,17 +18,21 @@ package org.liquigraph.examples.dagger2.di.module;
 import dagger.Module;
 import dagger.Provides;
 import org.liquigraph.core.configuration.Configuration;
-import org.liquigraph.examples.dagger2.liquigraph.Liquigraph;
-import org.liquigraph.examples.dagger2.liquigraph.LiquigraphEmbedded;
+import org.liquigraph.core.configuration.ConfigurationBuilder;
+import org.neo4j.graphdb.GraphDatabaseService;
 
 import javax.inject.Inject;
 
-@Module(includes = {EmbeddedLiquigraphConfigurationModule.class})
-public class EmbeddedLiquigraphModule {
-
-    @Inject
+@Module(includes = EmbeddedDatabaseModule.class)
+public class EmbeddedLiquigraphConfigurationModule {
     @Provides
-    public Liquigraph liquigraphEmbedded(Configuration configuration) {
-        return new LiquigraphEmbedded(configuration);
+    @Inject
+    public Configuration embeddedLiquigraphConfiguration(GraphDatabaseService embeddedDatabase) throws RuntimeException {
+        return new ConfigurationBuilder().withGraphDatabaseService(embeddedDatabase)
+                .withMasterChangelogLocation("changelog.xml")
+                .withRunMode()
+                .build();
+
     }
+
 }

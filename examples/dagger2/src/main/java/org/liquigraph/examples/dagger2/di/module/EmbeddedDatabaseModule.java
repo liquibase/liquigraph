@@ -17,18 +17,27 @@ package org.liquigraph.examples.dagger2.di.module;
 
 import dagger.Module;
 import dagger.Provides;
-import org.liquigraph.core.configuration.Configuration;
-import org.liquigraph.examples.dagger2.liquigraph.Liquigraph;
-import org.liquigraph.examples.dagger2.liquigraph.LiquigraphEmbedded;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.io.fs.FileUtils;
 
-import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.io.File;
+import java.io.IOException;
 
-@Module(includes = {EmbeddedLiquigraphConfigurationModule.class})
-public class EmbeddedLiquigraphModule {
+@Module
+public class EmbeddedDatabaseModule {
+    private static final File DB_PATH = new File("target/neo4j-hello-db");
 
-    @Inject
     @Provides
-    public Liquigraph liquigraphEmbedded(Configuration configuration) {
-        return new LiquigraphEmbedded(configuration);
+    @Singleton
+    static GraphDatabaseService embeddedDatabase() {
+        try {
+            FileUtils.deleteRecursively(DB_PATH);
+            return new GraphDatabaseFactory().newEmbeddedDatabase(DB_PATH);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 }

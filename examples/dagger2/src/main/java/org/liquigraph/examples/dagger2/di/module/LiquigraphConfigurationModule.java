@@ -19,10 +19,7 @@ import dagger.Module;
 import dagger.Provides;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
-import org.neo4j.graphdb.GraphDatabaseService;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.sql.DataSource;
 
 
@@ -30,25 +27,12 @@ import javax.sql.DataSource;
 public class LiquigraphConfigurationModule {
 
     @Provides
-    @Named("datasource")
-    public Configuration liquigraph(DataSource dataSource) {
+    public Configuration liquigraphConfiguration(DataSource dataSource) {
         return new ConfigurationBuilder()
                 .withDataSource(dataSource)
                 .withMasterChangelogLocation("changelog.xml")
                 .withRunMode()
                 .build();
-    }
-
-    @Provides
-    @Named("embedded")
-    @Inject
-    public Configuration liquigraphWithService(GraphDatabaseService embeddedDatabase) throws RuntimeException {
-
-        return new ConfigurationBuilder().withGraphDatabaseService(embeddedDatabase)
-                .withMasterChangelogLocation("changelog.xml")
-                .withRunMode()
-                .build();
-
     }
 
 }
