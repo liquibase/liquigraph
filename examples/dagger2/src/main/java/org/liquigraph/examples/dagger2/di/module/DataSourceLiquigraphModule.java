@@ -22,13 +22,12 @@ import org.liquigraph.examples.dagger2.liquigraph.Liquigraph;
 import org.liquigraph.examples.dagger2.liquigraph.LiquigraphDatasource;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 @Module(includes = {LiquigraphConfigurationModule.class})
 public class DataSourceLiquigraphModule {
     @Provides
     @Inject
-    public Liquigraph dataSourceLiquigraph(@Named("datasource") Configuration configuration) {
+    public Liquigraph dataSourceLiquigraph(Configuration configuration) {
         return new LiquigraphDatasource(configuration);
     }
 }

@@ -19,20 +19,12 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dagger.Module;
 import dagger.Provides;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.io.fs.FileUtils;
 
 import javax.inject.Singleton;
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.IOException;
 
 @Module
 public class DatasourceModule {
-
-    private static final File DB_PATH = new File("target/neo4j-hello-db");
-
 
     @Provides
     @Singleton
@@ -41,14 +33,4 @@ public class DatasourceModule {
         return new HikariDataSource(configuration);
     }
 
-    @Provides
-    @Singleton
-    static GraphDatabaseService embeddedDatabase() {
-        try {
-            FileUtils.deleteRecursively(DB_PATH);
-            return new GraphDatabaseFactory().newEmbeddedDatabase(DB_PATH);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
