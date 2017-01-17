@@ -103,31 +103,50 @@ liquigraph.runMigrations(configuration);</code></pre>
 
             <div id="spring-boot">
               <h2>Spring Boot</h2>
-              <p>
-                Save the migration file at
-                <span class='path'>${your_project}/src/main/resources/db/migrations/changelog.xml</span>.
-              </p>
-              <p>
-                Then, include Liquigraph Spring Boot starter in your
-                <span class="path">pom.xml</span>:
-              </p>
-              <pre><code class="xml">&lt;dependency&gt;
+              <ol>
+                <li>
+                  <p>
+                    Include Liquigraph Spring Boot starter in your
+                    <span class="path">pom.xml</span>:
+                  </p>
+                  <pre><code class="xml">&lt;dependency&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
     &lt;artifactId&gt;liquigraph-spring-boot-starter&lt;/artifactId&gt;
     &lt;version&gt;3.0.2-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
+                </li>
+                <li>
+                  <p>Include a Neo4j JDBC driver in your <span class="path">pom.xml</span>:</p>
+                  <pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.neo4j&lt;/groupId&gt;
+    &lt;artifactId&gt;neo4j-jdbc-bolt&lt;/artifactId&gt;
+    &lt;!--&lt;artifactId&gt;neo4j-jdbc-http&lt;/artifactId&gt;--&gt;
+    &lt;version&gt;3.0.1&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+                </li>
+                <li>
+                  <p>Expose a <code>DataSource</code> bean, which is used by Liquigraph.<p>
+                </li>
+                <li>
+                  <p>You are now automatically running Liquigraph migrations at startup!</p>
+                </li>
+              </ol>
+
               <p>
-                Annotate your main class with
-                <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html"><code>@org.springframework.boot.autoconfigure.EnableAutoConfiguration</code></a>.
+                By default the migration file is read from
+                <span class="path">${your_project}/src/main/resources/db/liquigraph/changelog.xml</span>.
+                This can be changed using the <code>liquigraph.change-log</code> property in any
+                supported
+                <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">configuration source</a>.<br/>
+                Other settings can be found in
+                <a href="https://github.com/fbiville/liquigraph/blob/master_3.x/liquigraph-spring-boot-starter/src/main/java/org/liquigraph/spring/starter/LiquigraphProperties.java"><code>LiquibaseProperties</code></a>.
               </p>
+
               <p>
-                Finally, configure <code>liquigraph.url</code>, <code>liquigraph.user</code> and
-                <code>liquigraph.password</code> properties to your
-                <span class="path">application.properties</span> (or another relevant
-                <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">configuration source</a>)
-                file and you are good to go!
+                For more details there is a
+                <a href="https://github.com/fbiville/liquigraph-spring-boot-example">Liquigraph Spring Boot sample</a>
+                so you can see how to set things up.
               </p>
-              <p>You are now automatically running Liquigraph migrations at startup!</p>
             </div>
 
             <div id="maven">
