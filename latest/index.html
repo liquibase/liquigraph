@@ -125,7 +125,50 @@ liquigraph.runMigrations(configuration);</code></pre>
 &lt;/dependency&gt;</code></pre>
                 </li>
                 <li>
-                  <p>Expose a <code>DataSource</code> bean, which is used by Liquigraph.<p>
+                  <p>
+                    Expose a <code>DataSource</code> Spring bean, which can be used by Liquigraph.
+                    This can be done in a few ways. The most idiomatic Spring Boot way is:<br/>
+                    <br/>
+                    Include <code>spring-boot-starter-jdbc</code> in your
+                    <span class="path">pom.xml</span>:
+                  <p>
+                  <pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-jdbc&lt;artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+                  <p>
+                    and provide values for <code>spring.datasource.url</code>,
+                    <code>spring.datasource.driver-class-name</code>,
+                    <code>spring.datasource.username</code> and
+                    <code>spring.datasource.password</code> using any
+                    <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">configuration source</a>.
+                  </p>
+                  <p>
+                    Another solution is to provide an own <code>@Configuration</code> class which
+                    exposes a <code>DataSource</code> like:
+                  </p>
+                  <pre><code class="java">import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+@Configuration
+public class DataSourceConfiguration {
+    @Bean
+    public DataSource dataSource() throws SQLException {
+        final HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:neo4j:http://localhost:7474");
+        config.setUsername("neo4j");
+        config.setPassword("neo4j");
+        return new HikariDataSource(config);
+    }
+}</code></pre>
+
                 </li>
                 <li>
                   <p>You are now automatically running Liquigraph migrations at startup!</p>
