@@ -3,7 +3,7 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'/>
+    <link href="https://fonts.googleapis.com/css?family=Chivo:900" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" type="text/css" href="../stylesheets/pygment_trac.css" media="screen"/>
     <link rel="stylesheet" type="text/css" href="../stylesheets/print.css" media="print"/>
     <link rel="stylesheet" type="text/css" href="../stylesheets/highlight.css" media="screen"/>
@@ -17,34 +17,37 @@
   <body>
     <div id="container">
       <div class="inner">
-
         <header>
-        	<h1 id="headline"><a href=""><img src="../images/liquigraph-logo.png" alt="Liquigraph" id="logo" title="Liquigraph: graph migrations made easy" /></a></h1>
+          <h1 id="headline">
+            <a href="">
+              <img src="../images/liquigraph-logo.png" id="logo"
+                   alt="Liquigraph" title="Liquigraph: graph migrations made easy" />
+            </a>
+          </h1>
         </header>
-
         <section id="downloads" class="clearfix">
-          <a href="https://github.com/fbiville/liquigraph" id="view-on-github" class="button"><span>View on GitHub</span></a>
+          <a href="https://github.com/fbiville/liquigraph" id="view-on-github" class="button">
+            <span>View on GitHub</span>
+          </a>
         </section>
+        <hr/>
+        <nav id="main_summary">
+          <ul>
+            <li><a href="#five_minute_guide">5-minute guide</a></li>
+            <li><a href="#detailed_section">Detailed section</a></li>
+          </ul>
+        </nav>
+        <hr/>
 
-		<hr/>
+        <section id="five_minute_guide">
+          <h1>5-minute guide</h1>
 
-
-		<nav id="main_summary">
-			<ul>
-				<li><a href="#five_minute_guide">5-minute guide</a></li>
-				<li><a href="#detailed_section">Detailed section</a></li>
-			</ul>
-		</nav>
-
-
-		<hr/>
-
-	<section id="five_minute_guide">
-		<h1>5-minute guide</h1>
-		<div>
-      <h2>The Migration File</h2>
-			<p>Open your favourite editor and define two migrations (a.k.a. changesets) as follows:</p>
-			<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+          <div>
+            <h2>The Migration File</h2>
+            <p>
+              Open your favourite editor and define two migrations (a.k.a. changesets) as follows:
+            </p>
+            <pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 &lt;changelog xmlns="https://fbiville.github.io/liquigraph/schema/1.0/liquigraph.xsd"&gt;
     &lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
         &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
@@ -53,56 +56,150 @@
         &lt;query&gt;MATCH (n:Sentence {text:&#39;Hello monde!&#39;}) SET n.text=&#39;Hello world!&#39; RETURN n&lt;/query&gt;
     &lt;/changeset&gt;
 &lt;/changelog&gt;</code></pre>
-		</div>
-    <div>
-      <p>These migrations can be run using the <a href="#core">Java API</a> directly, <a href="#spring-boot">Spring Boot</a>,
-      the <a href="#maven">Maven plugin</a>
-      or simply using <a href="#shell">the command line</a>. Choose the way that fits your project.</p>
-		<div id="core">
-			<h2>Java API</h2>
-			<p>Save the migration file at <span class='path'>${your_project}/${root_classpath_folder}/changelog.xml</span>.</p>
-			<p>Then, include Liquigraph in your <span class="path">pom.xml</span>:</p>
-			<pre><code class="xml">&lt;dependency&gt;
+          </div>
+
+          <div>
+            <p>
+              These migrations can be run using the <a href="#core">Java API</a> directly,
+              <a href="#spring-boot">Spring Boot</a>, the <a href="#maven">Maven plugin</a> or
+              simply using <a href="#shell">the command line</a>. Choose the way that fits your
+              project.
+            </p>
+
+            <div id="core">
+              <h2>Java API</h2>
+              <p>
+                Save the migration file at
+                <span class='path'>${your_project}/${root_classpath_folder}/changelog.xml</span>.
+              </p>
+              <p>Then, include Liquigraph in your <span class="path">pom.xml</span>:</p>
+              <pre><code class="xml">&lt;dependency&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
     &lt;artifactId&gt;liquigraph-core&lt;/artifactId&gt;
     &lt;version&gt;3.0.2-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
-			<p>Finally, running the migrations can be done as follows:</p>
-			<pre><code class="java">import org.liquigraph.core.api.Liquigraph;
+              <p>Finally, running the migrations can be done as follows:</p>
+              <pre><code class="java">import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 
 // [...]
 
 Configuration configuration = new ConfigurationBuilder()
-				.withMasterChangelogLocation("changelog.xml")
-				.withUri("jdbc:neo4j:http://localhost:7474")
-				.withRunMode()
-				.build();
+        .withMasterChangelogLocation("changelog.xml")
+        .withUri("jdbc:neo4j:http://localhost:7474")
+        .withRunMode()
+        .build();
 
 Liquigraph liquigraph = new Liquigraph();
-liquigraph.runMigrations(configuration);
-</code></pre>
-			<p>If want to dry-run your migrations, replace <code>withRunMode()</code> by <code>withDryRunMode(Paths.get(outputDirectory))</code>, where <code>outputDirectory</code> specifies the path of the directory where <code>output.cypher</code> will be written in.</p>
-		</div>
-		<div id="spring-boot">
-			<h2>Spring Boot</h2>
-			<p>Save the migration file at <span class='path'>${your_project}/src/main/resources/db/migrations/changelog.xml</span>.</p>
-			<p>Then, include Liquigraph Spring Boot starter in your <span class="path">pom.xml</span>:</p>
-			<pre><code class="xml">&lt;dependency&gt;
+liquigraph.runMigrations(configuration);</code></pre>
+              <p>
+                If want to dry-run your migrations, replace <code>withRunMode()</code> by
+                <code>withDryRunMode(Paths.get(outputDirectory))</code>, where
+                <code>outputDirectory</code> specifies the path of the directory where
+                <code>output.cypher</code> will be written in.
+              </p>
+            </div>
+
+            <div id="spring-boot">
+              <h2>Spring Boot</h2>
+              <ol>
+                <li>
+                  <p>
+                    Include Liquigraph Spring Boot starter in your
+                    <span class="path">pom.xml</span>:
+                  </p>
+                  <pre><code class="xml">&lt;dependency&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
     &lt;artifactId&gt;liquigraph-spring-boot-starter&lt;/artifactId&gt;
     &lt;version&gt;3.0.2-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
-			<p>Annotate your main class with <a href="http://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html"><code>@org.springframework.boot.autoconfigure.EnableAutoConfiguration</code></a>.</p>
-			<p>Finally, configure <code>liquigraph.url</code>, <code>liquigraph.user</code> and <code>liquigraph.password</code> properties to your <span class="path">application.properties</span> (or another relevant <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">configuration source</a>) file and you are good to go!</p>
-			<p>You are now automatically running Liquigraph migrations at startup!</p>
-		</div>
-		<div id="maven">
-			<h2>The Maven way</h2>
-			<p>Save the migration file at <span class='path'>${your_project}/src/main/resources/changelog.xml</span>.</p>
-			<p>Then, include Liquigraph plugin in your <span class="path">pom.xml</span>:
-			<pre><code class="xml">&lt;plugin&gt;
+                </li>
+                <li>
+                  <p>Include a Neo4j JDBC driver in your <span class="path">pom.xml</span>:</p>
+                  <pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.neo4j&lt;/groupId&gt;
+    &lt;artifactId&gt;neo4j-jdbc-bolt&lt;/artifactId&gt;
+    &lt;!--&lt;artifactId&gt;neo4j-jdbc-http&lt;/artifactId&gt;--&gt;
+    &lt;version&gt;3.0.1&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+                </li>
+                <li>
+                  <p>
+                    Expose a <code>DataSource</code> Spring bean, which can be used by Liquigraph.
+                    This can be done in a few ways. The most idiomatic Spring Boot way is:<br/>
+                    <br/>
+                    Include <code>spring-boot-starter-jdbc</code> in your
+                    <span class="path">pom.xml</span>:
+                  <p>
+                  <pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-jdbc&lt;artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+                  <p>
+                    and provide values for <code>spring.datasource.url</code>,
+                    <code>spring.datasource.driver-class-name</code>,
+                    <code>spring.datasource.username</code> and
+                    <code>spring.datasource.password</code> using any
+                    <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">configuration source</a>.
+                  </p>
+                  <p>
+                    Another solution is to provide an own <code>@Configuration</code> class which
+                    exposes a <code>DataSource</code> like:
+                  </p>
+                  <pre><code class="java">import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+@Configuration
+public class DataSourceConfiguration {
+    @Bean
+    public DataSource dataSource() throws SQLException {
+        final HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:neo4j:http://localhost:7474");
+        config.setUsername("neo4j");
+        config.setPassword("neo4j");
+        return new HikariDataSource(config);
+    }
+}</code></pre>
+
+                </li>
+                <li>
+                  <p>You are now automatically running Liquigraph migrations at startup!</p>
+                </li>
+              </ol>
+
+              <p>
+                By default the migration file is read from
+                <span class="path">${your_project}/src/main/resources/db/liquigraph/changelog.xml</span>.
+                This can be changed using the <code>liquigraph.change-log</code> property in any
+                supported
+                <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html">configuration source</a>.<br/>
+                Other settings can be found in
+                <a href="https://github.com/fbiville/liquigraph/blob/master_3.x/liquigraph-spring-boot-starter/src/main/java/org/liquigraph/spring/starter/LiquigraphProperties.java"><code>LiquibaseProperties</code></a>.
+              </p>
+
+              <p>
+                For more details there is a
+                <a href="https://github.com/fbiville/liquigraph-spring-boot-example">Liquigraph Spring Boot sample</a>
+                so you can see how to set things up.
+              </p>
+            </div>
+
+            <div id="maven">
+              <h2>The Maven way</h2>
+              <p>
+                Save the migration file at
+                <span class='path'>${your_project}/src/main/resources/changelog.xml</span>.
+              </p>
+              <p>Then, include Liquigraph plugin in your <span class="path">pom.xml</span>:
+              <pre><code class="xml">&lt;plugin&gt;
     &lt;groupId&gt;org.liquigraph&lt;/groupId&gt;
     &lt;artifactId&gt;liquigraph-maven-plugin&lt;/artifactId&gt;
     &lt;version&gt;3.0.2-SNAPSHOT&lt;/version&gt;
@@ -120,58 +217,71 @@ liquigraph.runMigrations(configuration);
         &lt;/execution&gt;
     &lt;/executions&gt;
 &lt;/plugin&gt;</code></pre>
-			<p>And finally, run:</p>
-			<pre><code class="bash">$&gt; mvn clean package</code></pre>
-			<p>Full documentation is <a href="maven-plugin/plugin-info.html">here</a>.
-		</div>
-		<div id="shell">
-			<h2>Highway to shell</h2>
-			<p>Save the migration file at <span class='path'>${your_project}/migrations/changelog.xml</span>.</p>
-			<p><strong>Homebrew</strong> users, skip the following installation steps altogether. Specific instructions are <a href="https://github.com/fbiville/homebrew-liquigraph">here</a>.</p>
-			<h3>Prerequisites</h3>
-			<ol>
-				<li>make sure at least JRE 8 is set up and <code>java</code> is included in your path</li>
-				<li>decompress Liquigraph <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/3.0.2-SNAPSHOT/liquigraph-cli-3.0.2-SNAPSHOT-bin.zip">zip</a>, <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/3.0.2-SNAPSHOT/liquigraph-cli-3.0.2-SNAPSHOT-bin.tar.gz">tar.gz</a> or <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/3.0.2-SNAPSHOT/liquigraph-cli-3.0.2-SNAPSHOT-bin.tar.bz2">tar.bz2</a> in <code>LIQUIGRAPH_DIR</code></li>
-				<li>include <code>LIQUIGRAPH_DIR/liquigraph-cli/</code> to your <code>PATH</code></li>
-				<li>Unix users: make sure <code>LIQUIGRAPH_DIR/liquigraph-cli/liquigraph.sh</code> is executable</li>
-			</ol>
-			<p>You can now check your installation by executing the following command (reminder to non-Unix users: replace <code>.sh</code> with <code>.bat</code>):</p>
-			<h3>Running Liquigraph</h3>
-			<h4>Interactive mode</h4>
-			<pre><code class="bash">$&gt; cd LIQUIGRAPH_DIR/liquigraph-cli
+              <p>And finally, run:</p>
+              <pre><code class="bash">$&gt; mvn clean package</code></pre>
+              <p>Full documentation is <a href="maven-plugin/plugin-info.html">here</a>.
+            </div>
+
+            <div id="shell">
+              <h2>Highway to shell</h2>
+              <p>
+                Save the migration file at
+                <span class='path'>${your_project}/migrations/changelog.xml</span>.
+              </p>
+              <p>
+                <strong>Homebrew</strong> users, skip the following installation steps altogether.
+                Specific instructions are
+                <a href="https://github.com/fbiville/homebrew-liquigraph">here</a>.
+              </p>
+              <h3>Prerequisites</h3>
+              <ol>
+                <li>make sure at least JRE 8 is set up and <code>java</code> is included in your path</li>
+                <li>decompress Liquigraph <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/3.0.2-SNAPSHOT/liquigraph-cli-3.0.2-SNAPSHOT-bin.zip">zip</a>, <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/3.0.2-SNAPSHOT/liquigraph-cli-3.0.2-SNAPSHOT-bin.tar.gz">tar.gz</a> or <a href="http://search.maven.org/remotecontent?filepath=org/liquigraph/liquigraph-cli/3.0.2-SNAPSHOT/liquigraph-cli-3.0.2-SNAPSHOT-bin.tar.bz2">tar.bz2</a> in <code>LIQUIGRAPH_DIR</code></li>
+                <li>include <code>LIQUIGRAPH_DIR/liquigraph-cli/</code> to your <code>PATH</code></li>
+                <li>Unix users: make sure <code>LIQUIGRAPH_DIR/liquigraph-cli/liquigraph.sh</code> is executable</li>
+              </ol>
+              <p>You can now check your installation by executing the following command (reminder to non-Unix users: replace <code>.sh</code> with <code>.bat</code>):</p>
+              <h3>Running Liquigraph</h3>
+              <h4>Interactive mode</h4>
+              <pre><code class="bash">$&gt; cd LIQUIGRAPH_DIR/liquigraph-cli
 $&gt; ./liquigraph.sh --help</code></pre>
-			<p>A description should be displayed. Then, simulate the changes (replace <code>/tmp</code> with whatever floats your boat):</p>
-			<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
-		   --username neo4j \
-		   --password \ # leave empty (password prompt will appear)
-		   --graph-db-uri jdbc:neo4j:http://localhost:7474/ \
-		   --dry-run-output-directory /tmp
+              <p>A description should be displayed. Then, simulate the changes (replace <code>/tmp</code> with whatever floats your boat):</p>
+              <pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
+    --username neo4j \
+    --password \ # leave empty (password prompt will appear)
+    --graph-db-uri jdbc:neo4j:http://localhost:7474/ \
+    --dry-run-output-directory /tmp
 # check contents
 $&gt; less /tmp/output.cypher</code></pre>
-			<p>And finally, run:</p>
-			<pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
-		   --username neo4j \
-		   --password \ # leave empty (password prompt will appear)
-		   --graph-db-uri jdbc:neo4j:http://localhost:7474/</code></pre>
-			<h4>Non-interactive mode</h4>
-			<p>The above methods will prompt for your Neo4j password. If you wish to run liquigraph without password prompt (i.e. non interactively):</p>
-			<pre><code class="bash">$&gt; touch my_password.txt
+              <p>And finally, run:</p>
+              <pre><code class="bash">$&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
+    --username neo4j \
+    --password \ # leave empty (password prompt will appear)
+    --graph-db-uri jdbc:neo4j:http://localhost:7474/</code></pre>
+              <h4>Non-interactive mode</h4>
+              <p>The above methods will prompt for your Neo4j password. If you wish to run liquigraph without password prompt (i.e. non interactively):</p>
+              <pre><code class="bash">$&gt; touch my_password.txt
 # update mypassword.txt to contain your password and chmod appropriately
 $&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
- 		   --username neo4j \
- 		   --graph-db-uri jdbc:neo4j:http://localhost:7474/ \
-		   --password &lt; my_password.txt
-			</code></pre>
-		</div>
-	</section>
+    --username neo4j \
+    --graph-db-uri jdbc:neo4j:http://localhost:7474/ \
+    --password &lt; my_password.txt</code></pre>
+            </div>
+          </div>
+        </section>
 
-	<section id="detailed_section">
-		<h1>Detailed section</h1>
-		<h2>Definitions</h2>
-		<dl>
-			<dt>Changelog</dt>
-			<dd><p>A Liquigraph changelog defines a set of migrations to be performed. There can be only one changelog as entry point per project.</p>
-<pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+        <section id="detailed_section">
+          <h1>Detailed section</h1>
+          <h2>Definitions</h2>
+          <dl>
+
+            <dt>Changelog</dt>
+            <dd>
+              <p>
+                A Liquigraph changelog defines a set of migrations to be performed. There can be
+                only one changelog as entry point per project.
+              </p>
+              <pre><code class="xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 &lt;changelog xmlns="https://fbiville.github.io/liquigraph/schema/1.0/liquigraph.xsd"&gt;
     &lt;!-- import &quot;sub-changelogs&quot;--&gt;
     &lt;import resource=&quot;version_1/sub_changelog.xml&quot; /&gt;
@@ -180,62 +290,122 @@ $&gt; ./liquigraph.sh --changelog "${your_project}/migrations/changelog.xml" \
     &lt;changeset [...] /&gt;
     &lt;!-- [...] --&gt;
 &lt;/changelog&gt;</code></pre>
-                        <p>Both <code>sub_changelog.xml</code> files could import changelogs and/or define <code>changeset</code> elements. Their root element is also <code>changelog</code>.</p></dd>
+              <p>
+                Both <code>sub_changelog.xml</code> files could import changelogs and/or define
+                <code>changeset</code> elements. Their root element is also <code>changelog</code>.
+              </p>
+            </dd>
 
-			<dt>Changeset</dt>
-			<dd><p>A Liquigraph changeset describes one or more create or update statement. These statements must be written in <a href="http://neo4j.com/developer/cypher-query-language/">Cypher Query Language</a> and are wrapped <strong>in a single transaction</strong> (1 transaction per changeset). A changeset can be run only once (incremental) and cannot be altered (immutable) against the same graph database instance, by default. Finally, a changeset is uniquely identified within the changelog by its mandatory ID and author attributes.</p>
-<pre><code class="xml">&lt;changeset id=&quot;unique_identifier&quot; author=&quot;team_or_individual_name&quot;&gt;
+            <dt>Changeset</dt>
+            <dd>
+              <p>
+                A Liquigraph changeset describes one or more create or update statement. These
+                statements must be written in
+                <a href="http://neo4j.com/developer/cypher-query-language/">Cypher Query Language</a>
+                and are wrapped <strong>in a single transaction</strong> (1 transaction per
+                changeset). A changeset can be run only once (incremental) and cannot be altered
+                (immutable) against the same graph database instance, by default. Finally, a
+                changeset is uniquely identified within the changelog by its mandatory ID and author
+                attributes.
+              </p>
+              <pre><code class="xml">&lt;changeset id=&quot;unique_identifier&quot; author=&quot;team_or_individual_name&quot;&gt;
     &lt;!-- 1 to n queries: all executed in 1 transaction --&gt;
     &lt;query&gt;CREATE (m:MyAwesomeNode) RETURN m&lt;/query&gt;
     &lt;query&gt;CREATE (m:MyOtherAwesomeNode) RETURN m&lt;/query&gt;
 &lt;/changeset&gt;</code></pre>
-                        <p>Both <code>sub_changelog.xml</code> files could import changelogs and/or define <code>changeset</code> elements.</p></dd>
+              <p>
+                Both <code>sub_changelog.xml</code> files could import changelogs and/or define
+                <code>changeset</code> elements.
+              </p>
+            </dd>
 
-			<dt>Execution context</dt>
-			<dd><p>An execution context is a simple string, defined at changeset level. A changeset can have 0, 1 or more execution contexts (in the latter case, they're comma-separated). For instance:</p>
-<pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; contexts=&quot;foo,bar&quot;&gt;
+            <dt>Execution context</dt>
+            <dd>
+              <p>
+                An execution context is a simple string, defined at changeset level. A changeset can
+                have 0, 1 or more execution contexts (in the latter case, they're comma-separated).
+                For instance:
+              </p>
+              <pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; contexts=&quot;foo,bar&quot;&gt;
    &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
 &lt;/changeset&gt;</code></pre>
-<p>If no execution contexts are specified at runtime, all changesets will match.<br/>If one or more execution contexts are specified at runtime, changesets will be selected:</p>
-<ul>
-	<li>if they do not declare any execution contexts</li>
-	<li>or one of their declared contexts match one of the runtime contexts</li>
-</ul></dd>
+              <p>
+                If no execution contexts are specified at runtime, all changesets will match.<br/>
+                If one or more execution contexts are specified at runtime, changesets will be
+                selected:
+              </p>
+              <ul>
+                <li>if they do not declare any execution contexts</li>
+                <li>or one of their declared contexts match one of the runtime contexts</li>
+              </ul>
+            </dd>
 
-			<dt>Changeset immutability</dt>
-			<dd><p>As previously mentioned, Liquigraph changesets are immutable by default (an error will be thrown if they have been altered).
-That said, there may be situations where changesets should be run whenever their contents have changed. To achieve this, you just need to define one extra attribute:</p>
-<pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-on-change=&quot;true&quot;&gt;
+            <dt>Changeset immutability</dt>
+            <dd>
+              <p>
+                As previously mentioned, Liquigraph changesets are immutable by default (an error
+                will be thrown if they have been altered). That said, there may be situations where
+                changesets should be run whenever their contents have changed. To achieve this, you
+                just need to define one extra attribute:
+              </p>
+              <pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-on-change=&quot;true&quot;&gt;
    &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
-&lt;/changeset&gt;</code></pre></dd>
+&lt;/changeset&gt;</code></pre>
+            </dd>
 
-			<dt>Changeset incrementality</dt>
-			<dd><p>As previously mentioned, Liquigraph changesets are incremental by default (they will be executed only once).
-That said, there may be situations where changesets should be run at every execution. To achieve this, you just need to define one extra attribute:</p>
-<pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-always=&quot;true&quot;&gt;
+            <dt>Changeset incrementality</dt>
+            <dd>
+              <p>
+                As previously mentioned, Liquigraph changesets are incremental by default (they will
+                be executed only once). That said, there may be situations where changesets should
+                be run at every execution. To achieve this, you just need to define one extra
+                attribute:
+              </p>
+              <pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot; run-always=&quot;true&quot;&gt;
    &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
-&lt;/changeset&gt;</code></pre></dd>
+&lt;/changeset&gt;</code></pre>
+            </dd>
 
-			<dt>Changeset precondition</dt>
-			<dd><p>Changeset preconditions act like guards. They make sure that the changeset query will be executed if and only if the precondition is met.</p>
-<p>A precondition can be simple (1 <a href="http://neo4j.com/developer/cypher-query-language/">Cypher</a> query) or compound (with boolean AND/OR operators).</p>
-<p>In any case, each of the subqueries/the simple query has to return <strong>exactly one column named <em>result</em></strong> of type boolean (true|false).</p>
-<p>Note that a precondition cannot modify the database itself: all changes will be rolled back.</p>
-<p>If the precondition fails, an error policy has to be selected amongst the following choices:</p>
-<ul>
-	<li>CONTINUE: ignores the precondition error and skips the associated changeset execution</li>
-	<li>MARK_AS_EXECUTED: ignores the precondition error and marks the changeset as executed (without actually executing it)</li>
-	<li>FAIL: halts the whole execution, reporting the precondition error</li>
-</ul>
-<p>Here is a basic precondition example (you are right: this is the dumbest precondition ever):</p>
-<pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
+            <dt>Changeset precondition</dt>
+            <dd>
+              <p>
+                Changeset preconditions act like guards. They make sure that the changeset query
+                will be executed if and only if the precondition is met.
+              </p>
+              <p>
+                A precondition can be simple (1
+                <a href="http://neo4j.com/developer/cypher-query-language/">Cypher</a> query) or
+                compound (with boolean AND/OR operators).
+              </p>
+              <p>
+                In any case, each of the subqueries/the simple query has to return <strong>exactly
+                  one column named <em>result</em></strong> of type boolean (true|false).
+              </p>
+              <p>
+                Note that a precondition cannot modify the database itself: all changes will be
+                rolled back.
+              </p>
+              <p>
+                If the precondition fails, an error policy has to be selected amongst the following
+                choices:
+              </p>
+              <ul>
+                <li>CONTINUE: ignores the precondition error and skips the associated changeset execution</li>
+                <li>MARK_AS_EXECUTED: ignores the precondition error and marks the changeset as executed (without actually executing it)</li>
+                <li>FAIL: halts the whole execution, reporting the precondition error</li>
+              </ul>
+              <p>
+                Here is a basic precondition example (you are right: this is the dumbest
+                precondition ever):
+              </p>
+              <pre><code class="xml">&lt;changeset id=&quot;hello-world&quot; author=&quot;you&quot;&gt;
    &lt;precondition if-not-met=&quot;MARK_AS_EXECUTED&quot;&gt;
       &lt;query&gt;RETURN true AS result&lt;/query&gt;
    &lt;/precondition&gt;
    &lt;query&gt;CREATE (n:Sentence {text:&#39;Hello monde!&#39;}) RETURN n&lt;/query&gt;
 &lt;/changeset&gt;</code></pre>
-<p>Here comes a slightly more complicated example:</p>
-<pre><code class="xml">&lt;changeset id=&quot;contest-winner-selection&quot; author=&quot;futuroscope-engineering&quot;&gt;
+              <p>Here comes a slightly more complicated example:</p>
+              <pre><code class="xml">&lt;changeset id=&quot;contest-winner-selection&quot; author=&quot;futuroscope-engineering&quot;&gt;
    &lt;precondition if-not-met=&quot;FAIL&quot;&gt;
       &lt;or&gt;
          &lt;and&gt;
@@ -247,40 +417,71 @@ That said, there may be situations where changesets should be run at every execu
    &lt;/precondition&gt;
    &lt;query&gt;&lt;![CDATA[MATCH (p:User {twitter:'@fbiville'}) CREATE (p)-[:IS_OFFERED_FREE_PASS_TO]-&gt;(:Location {name:'Futuroscope'})]]&gt;&lt;/query&gt;
 &lt;/changeset&gt;</code></pre>
-</dd>
+            </dd>
 
-			<dt>Changeset postcondition</dt>
-			<dd><p>Changeset postconditions allow a single changeset to be applied as many times as necessary to complete the migration, by repeating the changeset as long as the postcondition is met.</p>
-				<p>A postcondition can be simple (1 <a href="http://neo4j.com/developer/cypher-query-language/">Cypher</a> query) or compound (with boolean AND/OR operators).</p>
-				<p>In any case, each of the subqueries/the simple query has to return <strong>exactly one column named <em>result</em></strong> of type boolean (true|false).</p>
-				<p>Note that a postcondition cannot modify the database itself: all changes will be rolled back.</p>
-				<p>Once the postcondition returns false, the changeset is considered complete.</p>
-				<p>A repeatable changeset can be used to perform a migration on a large database without risking an OutOfMemoryError because of the large number of nodes or relationships impacted, by splitting the migration into smaller batches.</p>
-				<p>Here is a postcondition example, deleting all relationships in the database by batches of 10:</p>
-<pre><code class="xml">&lt;changeset id=&quot;delete-relationships&quot; author=&quot;you&quot;&gt;
+            <dt>Changeset postcondition</dt>
+            <dd>
+              <p>
+                Changeset postconditions allow a single changeset to be applied as many times as
+                necessary to complete the migration, by repeating the changeset as long as the
+                postcondition is met.
+              </p>
+              <p>
+                A postcondition can be simple (1
+                <a href="http://neo4j.com/developer/cypher-query-language/">Cypher</a> query) or
+                compound (with boolean AND/OR operators).
+              </p>
+              <p>
+                In any case, each of the subqueries/the simple query has to return <strong>exactly
+                  one column named <em>result</em></strong> of type boolean (true|false).
+              </p>
+              <p>
+                Note that a postcondition cannot modify the database itself: all changes will be
+                rolled back.
+              </p>
+              <p>Once the postcondition returns false, the changeset is considered complete.</p>
+              <p>
+                A repeatable changeset can be used to perform a migration on a large database
+                without risking an OutOfMemoryError because of the large number of nodes or
+                relationships impacted, by splitting the migration into smaller batches.
+              </p>
+              <p>
+                Here is a postcondition example, deleting all relationships in the database by
+                batches of 10:
+              </p>
+              <pre><code class="xml">&lt;changeset id=&quot;delete-relationships&quot; author=&quot;you&quot;&gt;
    &lt;query&gt;&lt;![CDATA[MATCH ()-[r]-&gt;() WITH r LIMIT 10 DELETE r]]&gt;&lt;/query&gt;
    &lt;postcondition&gt;
       &lt;query&gt;&lt;![CDATA[OPTIONAL MATCH ()-[r]-&gt;() WITH r LIMIT 1 RETURN (r IS NOT NULL) AS result]]&gt;&lt;/query&gt;
    &lt;/postcondition&gt;
 &lt;/changeset&gt;</code></pre>
-			</dd>
-		</dl>
-	</section>
+            </dd>
+          </dl>
+        </section>
 
-	<section id="troubleshooting">
-		<h1>Troubleshooting</h1>
-		<p>Feel free to ping <a href="https://twitter.com/fbiville">@fbiville</a> if you have any questions.</p>
-		<p>Bug reporting, improvement suggestion... belong <a href="https://github.com/fbiville/liquigraph/issues">here</a>.</p>
-	</section>
+        <section id="troubleshooting">
+          <h1>Troubleshooting</h1>
+          <p>
+            Feel free to ping <a href="https://twitter.com/fbiville">@fbiville</a> if you have any
+            questions.
+          </p>
+          <p>
+            Bug reporting, improvement suggestion... belong
+            <a href="https://github.com/fbiville/liquigraph/issues">here</a>.
+          </p>
+        </section>
 
         <footer>
-		<div id="back_top"><a href="#container">Back to top</a></div>
-		<p>Liquigraph is maintained by <a href="https://github.com/fbiville">Florent Biville</a> &middot; Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p></footer>
+          <div id="back_top"><a href="#container">Back to top</a></div>
+          <p>
+            Liquigraph is maintained by <a href="https://github.com/fbiville">Florent Biville</a>
+            &middot; Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+          </p>
+        </footer>
       </div>
     </div>
+
     <script type="text/javascript" src="../scripts/highlight.min.js"></script>
-    <script type="text/javascript">
-	hljs.initHighlightingOnLoad();
-    </script>
+    <script type="text/javascript">hljs.initHighlightingOnLoad();</script>
   </body>
 </html>
