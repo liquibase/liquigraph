@@ -15,25 +15,28 @@
  */
 package org.liquigraph.examples.dagger2.dao;
 
+import org.liquigraph.examples.dagger2.entity.Sentence;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Optional;
 
-public class DataSourceDAO implements DAO {
+public class JdbcSentenceRepository implements SentenceRepository {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
-    public DataSourceDAO(DataSource dataSource) {
+    public JdbcSentenceRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     @Override
-    public String executeQuery(String query) {
+    public Optional<Sentence> findOne(String cypherQuery) {
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
-            if (!statement.execute(query)) {
+            if (!statement.execute(cypherQuery)) {
                 throw new RuntimeException("Could not execute query");
             }
             return this.extract("result", statement.getResultSet());
@@ -42,10 +45,10 @@ public class DataSourceDAO implements DAO {
         }
     }
 
-    private String extract(String columnLabel, ResultSet results) throws SQLException {
+    private Optional<Sentence> extract(String columnLabel, ResultSet results) throws SQLException {
         try (ResultSet resultSet = results) {
             resultSet.next();
-            return resultSet.getString(columnLabel);
+            return Optional.of(new Sentence(resultSet.getString(columnLabel)));
         }
     }
 

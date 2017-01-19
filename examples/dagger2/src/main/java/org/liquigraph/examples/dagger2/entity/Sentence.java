@@ -13,25 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.examples.dagger2.dao;
+package org.liquigraph.examples.dagger2.entity;
 
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Result;
 
-import java.util.Map;
+public class Sentence {
+    private final String content;
 
-public class EmbeddedDAO implements DAO {
+    public Sentence(String content) {
+        this.content = content;
+    }
 
-    private GraphDatabaseService embeddedDB;
-
-    public EmbeddedDAO(GraphDatabaseService embeddedDB) {
-        this.embeddedDB = embeddedDB;
+    public String getContent() {
+        return content;
     }
 
     @Override
-    public String executeQuery(String query) {
-        Result result = embeddedDB.execute(query);
-        Map<String, Object> resultRow = result.next();
-        return resultRow.get("result").toString();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Sentence sentence = (Sentence) o;
+
+        return content != null ? content.equals(sentence.content) : sentence.content == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return content != null ? content.hashCode() : 0;
     }
 }

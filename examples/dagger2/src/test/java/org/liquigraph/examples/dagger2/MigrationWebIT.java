@@ -16,23 +16,42 @@
 package org.liquigraph.examples.dagger2;
 
 import org.junit.Test;
-import org.liquigraph.examples.dagger2.di.component.DaggerMigrationTestComponent;
+import org.liquigraph.examples.dagger2.di.component.MigrationComponent;
+import org.neo4j.graphdb.config.Setting;
+import org.neo4j.harness.ServerControls;
+import org.neo4j.harness.TestServerBuilder;
+import org.neo4j.harness.TestServerBuilders;
+
+import java.io.File;
 
 import static io.restassured.RestAssured.get;
 import static org.hamcrest.Matchers.containsString;
 
+;
+
 public class MigrationWebIT {
     @Test
-    public void testMigration() throws Exception {
+    public void verifies_service_responds_after_migration() throws Exception {
+        ServerControls serverControls = null;
+        try {
+            TestServerBuilder testServerBuilder = TestServerBuilders.newInProcessBuilder();
+            System.setProperty("java.io.tmpdir", "target/neo4j-hello-db");
+            testServerBuilder.newServer();
+            Application application = new Application();
 
-        Application application = new Application();
+            MigrationComponent migrationComponent = org.liquigraph.examples.dagger2.di.component.DaggerMigrationComponent.create();
 
-        application.executeSimpleMigration(DaggerMigrationTestComponent.create());
+            application.executeSimpleMigration(migrationComponent);
 
-        get("/")
-                .then()
-                .assertThat()
-                .body(containsString("Hello world!"));
+            get("/")
+                    .then()
+                    .assertThat()
+                    .body(containsString("Hello world!"));
+        } finally {
+            if (serverControls != null)
+                serverControls.close();
+        }
+
 
     }
 

@@ -16,21 +16,23 @@
 package org.liquigraph.examples.dagger2.di.component;
 
 import dagger.Component;
-import org.liquigraph.examples.dagger2.dao.DAO;
-import org.liquigraph.examples.dagger2.di.module.DataSourceDAOModule;
-import org.liquigraph.examples.dagger2.di.module.DataSourceLiquigraphModule;
-import org.liquigraph.examples.dagger2.liquigraph.Liquigraph;
+import org.liquigraph.core.api.Liquigraph;
+import org.liquigraph.core.configuration.Configuration;
+import org.liquigraph.examples.dagger2.dao.SentenceRepository;
+import org.liquigraph.examples.dagger2.di.module.LiquigraphModule;
 
 import javax.inject.Singleton;
 
 /**
- * Liquigraph and DAO using a real neo4j database
+ * Liquigraph and SentenceRepository using a real neo4j database
  */
 @Singleton
-@Component(modules = {DataSourceDAOModule.class, DataSourceLiquigraphModule.class})
+@Component(modules = {LiquigraphModule.class})
 public interface MigrationComponent {
-    DAO dao();
+    SentenceRepository dao();
 
     Liquigraph liquigraph();
+
+    Configuration configuration();
 
 }
