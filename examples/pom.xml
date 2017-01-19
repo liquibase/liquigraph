@@ -5,8 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.liquigraph.examples</groupId>
     <artifactId>examples-parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>3.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <parent>
+        <groupId>org.liquigraph</groupId>
+        <artifactId>liquigraph-parent</artifactId>
+        <version>3.0.1-SNAPSHOT</version>
+    </parent>
 
     <modules>
         <module>dagger2</module>
