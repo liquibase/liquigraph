@@ -15,7 +15,9 @@
  */
 package org.liquigraph.examples.dagger2;
 
-import org.liquigraph.examples.dagger2.dao.DAO;
+import org.liquigraph.core.api.Liquigraph;
+import org.liquigraph.core.configuration.Configuration;
+import org.liquigraph.examples.dagger2.dao.SentenceRepository;
 import org.liquigraph.examples.dagger2.di.component.DaggerMigrationComponent;
 import org.liquigraph.examples.dagger2.di.component.MigrationComponent;
 
@@ -31,14 +33,17 @@ public class Application {
     }
 
     public void executeSimpleMigration(MigrationComponent migrationComponent) {
-        // Running the migration
-        migrationComponent.liquigraph();
+
+        Liquigraph liquigraph = migrationComponent.liquigraph();
+
+        // Running the migrations
+        liquigraph.runMigrations(migrationComponent.configuration());
 
         // Starting the web server
         port(8080);
         get("/", (request, response) -> {
-            DAO dao = migrationComponent.dao();
-            return dao.executeQuery("MATCH (n:Sentence) RETURN n.text AS result");
+            SentenceRepository sentenceDao = migrationComponent.dao();
+            return sentenceDao.findOne("MATCH (n:Sentence) RETURN n.text AS result").get().getContent();
         });
 
     }

@@ -13,23 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.examples.dagger2.di.module;
+package org.liquigraph.examples.dagger2.dao;
 
-import dagger.Module;
-import dagger.Provides;
-import org.liquigraph.examples.dagger2.dao.DAO;
-import org.liquigraph.examples.dagger2.dao.DataSourceDAO;
+import org.liquigraph.examples.dagger2.entity.Sentence;
 
-import javax.inject.Singleton;
-import javax.sql.DataSource;
+import java.util.Optional;
 
-@Module(includes = {DatasourceModule.class})
-public class DataSourceDAOModule {
+public interface SentenceRepository {
 
-    @Provides
-    @Singleton
-    public DAO datasourceDAO(DataSource dataSource) {
-        return new DataSourceDAO(dataSource);
-
-    }
+    Optional<Sentence> findOne(String cypherQuery);
 }

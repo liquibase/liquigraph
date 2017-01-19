@@ -15,16 +15,26 @@
  */
 package org.liquigraph.examples.dagger2.di.module;
 
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import dagger.Module;
 import dagger.Provides;
+import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
+import org.liquigraph.examples.dagger2.dao.JdbcSentenceRepository;
+import org.liquigraph.examples.dagger2.dao.SentenceRepository;
 
+import javax.inject.Singleton;
 import javax.sql.DataSource;
 
-
-@Module(includes = {DatasourceModule.class})
-public class LiquigraphConfigurationModule {
+@Module
+public class LiquigraphModule {
+    @Provides
+    public Liquigraph LiquigraphDatasource() {
+        return new Liquigraph();
+    }
 
     @Provides
     public Configuration liquigraphConfiguration(DataSource dataSource) {
@@ -35,4 +45,17 @@ public class LiquigraphConfigurationModule {
                 .build();
     }
 
+    @Provides
+    @Singleton
+    static DataSource dataSource() {
+        HikariConfig configuration = new HikariConfig("/datasource.properties");
+        return new HikariDataSource(configuration);
+    }
+
+    @Provides
+    @Singleton
+    public SentenceRepository datasourceDAO(DataSource dataSource) {
+        return new JdbcSentenceRepository(dataSource);
+
+    }
 }
