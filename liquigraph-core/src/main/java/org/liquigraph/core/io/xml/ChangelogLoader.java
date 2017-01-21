@@ -15,17 +15,20 @@
  */
 package org.liquigraph.core.io.xml;
 
-import org.w3c.dom.Node;
+import java.io.IOException;
+import java.io.InputStream;
 
-public class ChangelogPreprocessor {
+/**
+ * Loader for changelog files.
+ */
+public interface ChangelogLoader {
 
-    private final ImportResolver resolver;
-
-    public ChangelogPreprocessor(ImportResolver resolver) {
-        this.resolver = resolver;
-    }
-
-    public Node preProcess(String changelogPath, ChangelogLoader changelogLoader) {
-        return resolver.resolveImports(changelogPath, changelogLoader);
-    }
+  /**
+   * Loads the given changelog.
+   *
+   * @param changelog the changelog to load
+   * @return an input stream of the loaded changelog or <code>null</code> if it does not exists
+   * @throws IOException if anything bad happens
+   */
+  InputStream load(String changelog) throws IOException;
 }

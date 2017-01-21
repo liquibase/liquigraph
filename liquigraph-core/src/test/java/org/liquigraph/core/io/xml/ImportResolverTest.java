@@ -18,32 +18,31 @@ package org.liquigraph.core.io.xml;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.liquigraph.core.io.xml.ImportResolver;
 import org.w3c.dom.Node;
+
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
-import static java.lang.Thread.currentThread;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ImportResolverTest {
 
     @Rule public ExpectedException thrown = ExpectedException.none();
     private ImportResolver resolver = new ImportResolver();
-    private ClassLoader classLoader = currentThread().getContextClassLoader();
+    private ChangelogLoader changelogLoader = ClassLoaderChangelogLoader.currentThreadContextClassLoader();
 
     @Test
     public void yields_same_document_when_no_imports_are_defined() throws Exception {
         Node root = resolver.resolveImports(
             "changelog/changelog.xml",
-            classLoader
+            changelogLoader
         );
 
         assertThat(contents(root)).isXmlEqualTo(
@@ -62,7 +61,7 @@ public class ImportResolverTest {
     public void yields_document_when_import_in_same_directory() throws Exception {
         Node root = resolver.resolveImports(
             "changelog/changelog-same-level-import.xml",
-            classLoader
+            changelogLoader
         );
 
         assertThat(contents(root)).isXmlEqualTo(
@@ -81,7 +80,7 @@ public class ImportResolverTest {
     public void resolves_1_level_of_imports() throws Exception {
         Node root = resolver.resolveImports(
             "changelog/includes/included.xml",
-            classLoader
+            changelogLoader
         );
 
         assertThat(contents(root)).isXmlEqualTo(
@@ -103,7 +102,7 @@ public class ImportResolverTest {
     public void resolves_any_level_of_imports() throws Exception {
         Node root = resolver.resolveImports(
             "changelog/includes/deeply-nested-changelog.xml",
-            classLoader
+            changelogLoader
         );
 
         assertThat(contents(root)).isXmlEqualTo(
@@ -131,7 +130,7 @@ public class ImportResolverTest {
 
         resolver.resolveImports(
             "changelog/includes/invalid_include.xml",
-            classLoader
+            changelogLoader
         );
     }
 

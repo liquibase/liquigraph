@@ -5,8 +5,8 @@ Please proceed to [this page](https://github.com/fbiville/liquigraph/) for Neo4j
 
 ## Build status
 
-[![Build Status](https://travis-ci.org/fbiville/liquigraph.png?branch=master)](https://travis-ci.org/fbiville/liquigraph)
-[![Coverage Status](https://coveralls.io/repos/fbiville/liquigraph/badge.png)](https://coveralls.io/r/fbiville/liquigraph)
+[![Build Status](https://travis-ci.org/fbiville/liquigraph.png?branch=master_3.x)](https://travis-ci.org/fbiville/liquigraph)
+[![Coverage Status](https://coveralls.io/repos/github/fbiville/liquigraph/badge.svg?branch=master_3.x)](https://coveralls.io/github/fbiville/liquigraph?branch=master_3.x)
 
 ## Mailing list
 

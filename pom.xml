@@ -10,7 +10,7 @@
 
     <groupId>org.liquigraph</groupId>
     <artifactId>liquigraph-parent</artifactId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>liquigraph-parent</name>
@@ -36,6 +36,7 @@
         <module>liquigraph-maven-plugin</module>
         <module>liquigraph-cli</module>
         <module>examples</module>
+        <module>liquigraph-spring-boot-starter</module>
     </modules>
 
     <build>

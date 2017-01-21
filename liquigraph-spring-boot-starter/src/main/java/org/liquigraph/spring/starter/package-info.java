@@ -13,19 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.io.xml;
-
-import org.w3c.dom.Node;
-
-public class ChangelogPreprocessor {
-
-    private final ImportResolver resolver;
-
-    public ChangelogPreprocessor(ImportResolver resolver) {
-        this.resolver = resolver;
-    }
-
-    public Node preProcess(String changelogPath, ChangelogLoader changelogLoader) {
-        return resolver.resolveImports(changelogPath, changelogLoader);
-    }
-}
+/**
+ * Auto-configuration for Liquigraph.
+ */
+package org.liquigraph.spring.starter;

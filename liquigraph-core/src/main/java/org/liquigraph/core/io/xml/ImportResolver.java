@@ -21,14 +21,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
-import java.io.InputStream;
 
 import static com.google.common.base.Throwables.propagate;
 
@@ -40,24 +41,24 @@ public class ImportResolver {
         xpath = XPathFactory.newInstance().newXPath();
     }
 
-    public Node resolveImports(String changelog, ClassLoader classLoader) {
-        try (InputStream stream = classLoader.getResourceAsStream(changelog)) {
+    public Node resolveImports(String changelog, ChangelogLoader changelogLoader) {
+        try (InputStream stream = changelogLoader.load(changelog)) {
             if (stream == null) {
                 throw new RuntimeException("Import location cannot be resolved: " + changelog);
             }
-            return resolve(changelog, document(stream), classLoader);
+            return resolve(changelog, document(stream), changelogLoader);
         } catch (IOException e) {
             throw propagate(e);
         }
     }
 
-    private Node resolve(String changelog, Document document, ClassLoader classLoader) {
+    private Node resolve(String changelog, Document document, ChangelogLoader changelogLoader) {
         Element root = document.getDocumentElement();
 
         IterableNodeList imports = IterableNodeList.of(evaluateNodes("/changelog/import", root));
         for (Node toImport: imports) {
             String fullPath = parentFolder(changelog) + attributeTextContent(toImport, "resource");
-            Node resolvedRoot = resolveImports(fullPath, classLoader);
+            Node resolvedRoot = resolveImports(fullPath, changelogLoader);
             IterableNodeList changesets = IterableNodeList.of(evaluateNodes("/changelog/changeset", resolvedRoot));
             for (Node changeset : changesets) {
                 Node importedChangeset = document.importNode(changeset, true);

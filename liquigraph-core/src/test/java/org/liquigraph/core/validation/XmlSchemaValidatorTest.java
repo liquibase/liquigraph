@@ -15,6 +15,7 @@
  */
 package org.liquigraph.core.validation;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,6 +26,7 @@ import org.w3c.dom.Node;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,6 +34,12 @@ public class XmlSchemaValidatorTest {
 
     @Rule public ExpectedException thrown = ExpectedException.none();
     private final XmlSchemaValidator validator = new XmlSchemaValidator();
+
+    @Before
+    public void setUp(){
+        Locale.setDefault(Locale.ENGLISH);
+    }
+
 
     @Test
     public void parses_changelog_without_author() throws Exception {
