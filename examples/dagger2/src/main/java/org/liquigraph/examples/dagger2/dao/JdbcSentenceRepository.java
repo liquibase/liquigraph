@@ -33,9 +33,10 @@ public class JdbcSentenceRepository implements SentenceRepository {
     }
 
     @Override
-    public Optional<Sentence> findOne(String cypherQuery) {
+    public Optional<Sentence> findOne() {
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
+            String cypherQuery = "MATCH (n:Sentence) RETURN n.text AS result";
             if (!statement.execute(cypherQuery)) {
                 throw new RuntimeException("Could not execute query");
             }

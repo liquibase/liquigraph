@@ -21,5 +21,5 @@ import java.util.Optional;
 
 public interface SentenceRepository {
 
-    Optional<Sentence> findOne(String cypherQuery);
+    Optional<Sentence> findOne();
 }
