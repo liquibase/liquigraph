@@ -29,7 +29,7 @@ import javax.inject.Singleton;
 @Singleton
 @Component(modules = {LiquigraphModule.class})
 public interface MigrationComponent {
-    SentenceRepository dao();
+    SentenceRepository sentenceRepository();
 
     Liquigraph liquigraph();
 
