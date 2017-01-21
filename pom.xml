@@ -36,6 +36,7 @@
         <module>liquigraph-core</module>
         <module>liquigraph-maven-plugin</module>
         <module>liquigraph-cli</module>
+        <module>examples</module>
     </modules>
 
     <build>
