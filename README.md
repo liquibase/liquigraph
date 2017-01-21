@@ -1,12 +1,12 @@
 ![Liquigraph](http://fbiville.github.io/liquigraph/images/liquigraph-logo.png)
 
 This is Liquigraph for Neo4j 3.x.
-Please proceed to [this page](https://github.com/fbiville/liquigraph/) for Neo4j 2.x.
+Please proceed to [this page](https://github.com/fbiville/liquigraph/tree/2.x) for Neo4j 2.x.
 
 ## Build status
 
-[![Build Status](https://travis-ci.org/fbiville/liquigraph.png?branch=master_3.x)](https://travis-ci.org/fbiville/liquigraph)
-[![Coverage Status](https://coveralls.io/repos/github/fbiville/liquigraph/badge.svg?branch=master_3.x)](https://coveralls.io/github/fbiville/liquigraph?branch=master_3.x)
+[![Build Status](https://travis-ci.org/fbiville/liquigraph.png?branch=master)](https://travis-ci.org/fbiville/liquigraph)
+[![Coverage Status](https://coveralls.io/repos/github/fbiville/liquigraph/badge.svg?branch=master)](https://coveralls.io/github/fbiville/liquigraph?branch=master)
 
 ## Mailing list
 
