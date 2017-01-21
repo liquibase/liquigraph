@@ -20,6 +20,9 @@ env:
     - NEO_VERSION=3.1.0
       WITH_DOCKER=true
       EXTRA_PROFILES=-Pwith-neo4j-io
+    - NEO_VERSION=3.2.0-alpha02
+      WITH_DOCKER=false
+      EXTRA_PROFILES=-Pwith-neo4j-io
 before_script:
 script: build/run.sh
 install: true
