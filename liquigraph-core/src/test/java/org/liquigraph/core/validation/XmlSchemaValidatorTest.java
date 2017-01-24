@@ -98,11 +98,8 @@ public class XmlSchemaValidatorTest {
 
     @Test
     public void parses_changelog_with_explicit_schema() throws Exception {
-        Collection<String> errors = validator.validateSchema(
-            asNode("changelog/changelog-with-schema-location.xml")
-        );
-
-        assertThat(errors).isEmpty();
+        assertThat(validator.validateSchema(asNode("changelog/changelog-with-RC3-schema-location.xml"))).isEmpty();
+        assertThat(validator.validateSchema(asNode("changelog/changelog-with-schema-location.xml"))).isEmpty();
     }
 
     private Node asNode(String path) throws Exception {

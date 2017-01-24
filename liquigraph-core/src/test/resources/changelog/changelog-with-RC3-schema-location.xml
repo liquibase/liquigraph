@@ -17,7 +17,7 @@
 
 -->
 <changelog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:noNamespaceSchemaLocation="https://liquigraph.github.io/schema/1.0/liquigraph.xsd">
+           xsi:noNamespaceSchemaLocation="https://liquigraph.github.io/schema/1.0-RC3/liquigraph.xsd">
     <changeset id="test" author="me">
         <query>CREATE n RETURN n</query>
     </changeset>
