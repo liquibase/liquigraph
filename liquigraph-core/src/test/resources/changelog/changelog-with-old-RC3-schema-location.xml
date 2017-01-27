@@ -17,11 +17,8 @@
 
 -->
 <changelog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:noNamespaceSchemaLocation="http://www.liquigraph.org/schema/1.0/liquigraph.xsd">
-    <changeset id="hello-world" author="you">
-        <query>CREATE (n:Sentence {text:'Hello monde!'}) RETURN n</query>
-    </changeset>
-    <changeset id="hello-world-fixed" author="you">
-        <query>MATCH (n:Sentence {text:'Hello monde!'}) SET n.text='Hello world!' RETURN n</query>
+           xsi:noNamespaceSchemaLocation="https://fbiville.github.io/liquigraph/schema/1.0-RC3/liquigraph.xsd">
+    <changeset id="test" author="me">
+        <query>CREATE n RETURN n</query>
     </changeset>
 </changelog>
