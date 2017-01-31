@@ -6,6 +6,7 @@
         <groupId>org.liquigraph</groupId>
         <artifactId>liquigraph-parent</artifactId>
         <version>3.0.2-SNAPSHOT</version>
+	<relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>liquigraph-dagger2</artifactId>
