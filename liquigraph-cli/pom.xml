@@ -49,6 +49,21 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>com.googlecode.concurrentlinkedhashmap:*</exclude>
+                                    <exclude>net.sf.opencsv:*</exclude>
+                                    <exclude>org.apache.geronimo.specs:*</exclude>
+                                    <exclude>org.apache.lucene:lucene-core</exclude>
+                                    <exclude>org.neo4j:neo4j-cypher*</exclude>
+                                    <exclude>org.neo4j:neo4j-graph*</exclude>
+                                    <exclude>org.neo4j:neo4j-jmx</exclude>
+                                    <exclude>org.neo4j:neo4j-lucene*</exclude>
+                                    <exclude>org.neo4j:neo4j-udc*</exclude>
+                                    <exclude>org.parboiled:*</exclude>
+                                    <exclude>org.scala-lang:*</exclude>
+                                </excludes>
+                            </artifactSet>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>${main.class}</mainClass>
