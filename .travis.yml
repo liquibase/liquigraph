@@ -17,8 +17,17 @@ env:
     - NEO_VERSION=3.1.2
       WITH_DOCKER=true
       EXTRA_PROFILES=-Pwith-neo4j-io
+addons:
+  sonarqube:
+    organization: ${SONAR_ORGANIZATION}
+    token:
+      secure: ${SONAR_TOKEN}
+    github_token:
+      secure: ${GITHUB_TOKEN}
 before_script:
-script: build/run.sh
+script:
+  - build/run.sh
+  - sonar-scanner
 install: true
 after_success:
   - mvn clean test jacoco:report coveralls:report
