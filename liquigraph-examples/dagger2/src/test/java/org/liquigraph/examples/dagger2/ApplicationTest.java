@@ -30,8 +30,10 @@ public class ApplicationTest {
 
     @ClassRule
     public static Neo4jRule neo4j = new Neo4jRule()
-            .withConfig("dbms.connector.0.enabled", "false") /* BOLT */
-            .withConfig("dbms.connector.1.address", "localhost:" + availablePort()) /* HTTP */;
+                .withConfig("dbms.connector.0.type", "BOLT")
+                .withConfig("dbms.connector.0.enabled", "false")
+                .withConfig("dbms.connector.1.type", "HTTP")
+                .withConfig("dbms.connector.1.address", "localhost:" + availablePort());
 
     @Test
     public void service_responds_after_migration() throws Exception {
