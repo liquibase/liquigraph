@@ -14,7 +14,10 @@ env:
     - NEO_VERSION=3.0.9
       WITH_DOCKER=true
       EXTRA_PROFILES=-Pwith-neo4j-io
-    - NEO_VERSION=3.1.3
+    - NEO_VERSION=3.1.4
+      WITH_DOCKER=true
+      EXTRA_PROFILES=-Pwith-neo4j-io
+    - NEO_VERSION=3.2.0
       WITH_DOCKER=true
       EXTRA_PROFILES=-Pwith-neo4j-io
 before_script:
