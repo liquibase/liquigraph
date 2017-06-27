@@ -15,7 +15,7 @@
     <custom>
         <fluidoSkin>
             <gitHub>
-                <projectId>fbiville/liquigraph</projectId>
+                <projectId>liquigraph/liquigraph</projectId>
                 <ribbonOrientation>right</ribbonOrientation>
             </gitHub>
             <googlePlusOne />
