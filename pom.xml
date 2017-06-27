@@ -119,15 +119,15 @@
     <licenses>
         <license>
             <name>Apache License</name>
-            <url>https://github.com/fbiville/liquigraph/raw/master/LICENSE</url>
+            <url>https://github.com/liquigraph/liquigraph/raw/master/LICENSE</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
 
     <scm>
-        <url>https://github.com/fbiville/liquigraph</url>
-        <connection>scm:git:git@github.com:fbiville/liquigraph.git</connection>
-        <developerConnection>scm:git:git@github.com:fbiville/liquigraph.git</developerConnection>
+        <url>https://github.com/liquigraph/liquigraph</url>
+        <connection>scm:git:git@github.com:liquigraph/liquigraph.git</connection>
+        <developerConnection>scm:git:git@github.com:liquigraph/liquigraph.git</developerConnection>
     </scm>
 
     <developers>

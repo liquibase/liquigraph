@@ -174,7 +174,7 @@ public class ConfigurationBuilderTest {
      * As the name suggests, we expect that providing neither username nor
      * password is okay, because authentification can be disabled in Neo4j.
      * In this case neither is needed. See discussion on
-     * https://github.com/fbiville/liquigraph/pull/131
+     * https://github.com/liquigraph/liquigraph/pull/131
      */
     @Test
     public void should_not_fail_on_neither_username_nor_password_provided() {
