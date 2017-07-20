@@ -3,8 +3,7 @@ language: java
 services:
   - docker
 jdk:
-#  - openjdk7
-  - oraclejdk7
+  - openjdk7
   - oraclejdk8
 os:
   - linux
@@ -23,14 +22,12 @@ env:
     - NEO_VERSION=2.3.10
       WITH_DOCKER=false
       EXTRA_PROFILES=-Pwith-neo4j-io
-before_script:
 # Workaround for Travis CI buffer overflow with OpenJDK 7
 # Details: https://github.com/travis-ci/travis-ci/issues/5227#issuecomment-165131913
-  - cat /etc/hosts
-  - echo "$(hostname | cut -c1-63)"
-  - sudo hostname "$(hostname | cut -c1-63)"
-  - sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | sudo tee /etc/hosts
-  - cat /etc/hosts
+addons:
+  hosts:
+    - liquigraph
+  hostname: liquigraph
 # End of workaround
 script: build/run.sh
 install: true
