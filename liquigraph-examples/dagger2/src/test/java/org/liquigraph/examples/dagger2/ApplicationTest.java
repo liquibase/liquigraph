@@ -17,21 +17,19 @@ package org.liquigraph.examples.dagger2;
 
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.harness.junit.Neo4jRule;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 
 import static io.restassured.RestAssured.get;
+import static java.util.Arrays.stream;
 import static org.hamcrest.Matchers.containsString;
 
 public class ApplicationTest {
 
     @ClassRule
-    public static Neo4jRule neo4j = new Neo4jRule()
-            .withConfig("dbms.connector.0.enabled", "false") /* BOLT */
-            .withConfig("dbms.connector.1.address", "localhost:" + availablePort()) /* HTTP */;
+    public static Neo4jRule neo4j = withVersionAwareConfig(new Neo4jRule());
 
     @Test
     public void service_responds_after_migration() throws Exception {
@@ -53,5 +51,25 @@ public class ApplicationTest {
         }
     }
 
+    private static Neo4jRule withVersionAwareConfig(Neo4jRule neo4jRule) {
+        if (isVersionIn("3.0", "3.1")) {
+            return neo4jRule
+                .withConfig("dbms.connector.0.enabled", "false") /* BOLT */
+                .withConfig("dbms.connector.1.address", "localhost:" + availablePort()); /* HTTP */
+        }
+        return neo4jRule
+            .withConfig("dbms.connector.bolt.enabled", "false")
+            .withConfig("dbms.connector.http.enabled", "true")
+            .withConfig("dbms.connector.http.address", "localhost:" + availablePort());
+    }
 
+    private static boolean isVersionIn(String... versionPrefix) {
+        String neo4jVersion = System.getenv("NEO_VERSION");
+        return isLocalBuild(neo4jVersion) ||
+            stream(versionPrefix).anyMatch(neo4jVersion::startsWith);
+    }
+
+    private static boolean isLocalBuild(String neo4jVersion) {
+        return neo4jVersion == null;
+    }
 }
