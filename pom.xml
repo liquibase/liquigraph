@@ -38,6 +38,7 @@
         <module>liquigraph-spring-boot-starter</module>
         <!-- Liquigraph integration examples -->
         <module>liquigraph-examples/dagger2</module>
+        <module>liquigraph-examples/spring-boot</module>
     </modules>
 
     <build>

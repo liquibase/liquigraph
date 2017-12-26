@@ -11,6 +11,8 @@
 
     <artifactId>liquigraph-dagger2</artifactId>
 
+    <name>Dagger 2 - Integration Example</name>
+
     <properties>
         <dagger.version>2.7</dagger.version>
         <maven.javadoc.skip>true</maven.javadoc.skip>
