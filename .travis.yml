@@ -31,8 +31,9 @@ before_script:
 script:
   - build/run.sh
   - sonar-scanner
-install: true
+install:
+  - mvn -B -V install -DskipTests=true
 after_success:
-  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar coveralls:report
+  - mvn -B -V clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar coveralls:report
   - "[ ${TRAVIS_PULL_REQUEST} = 'false' ] && [[ ${TRAVIS_BRANCH} = 'master' ]] && mvn clean deploy -DskipTests --settings ./deploy-settings.xml"
 
