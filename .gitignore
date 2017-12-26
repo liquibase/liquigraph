@@ -5,3 +5,4 @@ dependency-reduced-pom.xml
 *.ipr
 *.iws
 .java-version
+.scannerwork
