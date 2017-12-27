@@ -7,6 +7,8 @@ Please proceed to [this page](https://github.com/liquigraph/liquigraph/tree/2.x)
 
 [![Build Status](https://travis-ci.org/liquigraph/liquigraph.png?branch=master)](https://travis-ci.org/liquigraph/liquigraph)
 [![Coverage Status](https://coveralls.io/repos/github/liquigraph/liquigraph/badge.svg?branch=master)](https://coveralls.io/github/liquigraph/liquigraph?branch=master)
+[![Sonar Quality Gate](https://sonarcloud.io/api/badges/gate?key=liquigraph)](https://sonarcloud.io/dashboard?id=liquigraph)
+
 
 ## Mailing list
 
