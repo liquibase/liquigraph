@@ -53,9 +53,6 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         "MATCH (changeset:__LiquigraphChangeset {id: {1}, author: {2}}) " +
         "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}})";
 
-    private static final boolean NO_PRECONDITION = true;
-    private static final boolean NO_POSTCONDITION = false;
-
     private final Connection writeConnection;
     private final Supplier<Connection> connectionSupplier;
     private final ConditionExecutor conditionExecutor;
@@ -90,34 +87,30 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     private StatementExecution executeStatement(Changeset changeset) {
         try {
             Precondition precondition = changeset.getPrecondition();
-            boolean preconditionResult = executePrecondition(precondition);
-
-            if (!preconditionResult) {
+            if (!(precondition == null || executeCondition(precondition))) {
                 return handleFailedPrecondition(precondition, changeset);
             }
 
-            boolean postcondition;
+            boolean postConditionApplies;
             do {
-                try (Statement statement = writeConnection.createStatement()) {
-                    for (String query : changeset.getQueries()) {
-                        statement.execute(query);
-                    }
-                    writeConnection.commit();
-                }
+                executeChangesetQueries(changeset.getQueries());
 
-                postcondition = executePostcondition(changeset.getPostcondition());
-            } while (postcondition);
+                Postcondition postcondition = changeset.getPostcondition();
+                postConditionApplies = postcondition != null && executeCondition(postcondition);
+            } while (postConditionApplies);
         } catch (SQLException e) {
             throw propagate(e);
         }
         return StatementExecution.SUCCESS;
     }
 
-    private boolean executePrecondition(Precondition precondition) {
-        if (precondition == null) {
-            return NO_PRECONDITION;
+    private void executeChangesetQueries(Collection<String> queries) throws SQLException {
+        try (Statement statement = writeConnection.createStatement()) {
+            for (String query : queries) {
+                statement.execute(query);
+            }
+            writeConnection.commit();
         }
-        return executeCondition(precondition);
     }
 
     private static StatementExecution handleFailedPrecondition(Precondition precondition,
@@ -153,18 +146,10 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         }
     }
 
-    private boolean executePostcondition(Postcondition postcondition) {
-        if (postcondition == null) {
-            return NO_POSTCONDITION;
-        }
-        return executeCondition(postcondition);
-    }
-
     private boolean executeCondition(Condition condition) {
         try (Connection readConnection = connectionSupplier.get()) {
             boolean conditionResult = conditionExecutor.executeCondition(readConnection, condition);
-            // Make sure the condition does not actually modify the data
-            readConnection.rollback();
+            readConnection.rollback(); // make sure the condition does not actually modify the data
             return conditionResult;
         } catch (SQLException e) {
             throw propagate(e);
