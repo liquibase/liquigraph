@@ -16,8 +16,6 @@
     <properties>
         <encoding>UTF-8</encoding>
         <java.version>1.8</java.version>
-        <spring-boot.version>1.5.9.RELEASE</spring-boot.version>
-        <jetty.version>9.2.9.v20150224</jetty.version>
     </properties>
 
     <dependencyManagement>
@@ -28,8 +26,7 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <!-- https://github.com/neo4j/neo4j/issues/10238 -->
+            </dependency><!-- https://github.com/neo4j/neo4j/issues/10238 -->
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>

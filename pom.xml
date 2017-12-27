@@ -29,6 +29,8 @@
         <!-- JaCoCo needs this as a property -->
         <argLine>-Duser.language=en -Xmx1024m</argLine>
         <generateBackupPoms>false</generateBackupPoms>
+        <spring-boot.version>1.5.9.RELEASE</spring-boot.version>
+        <jetty.version>9.2.9.v20150224</jetty.version>
     </properties>
 
     <modules>
