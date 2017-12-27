@@ -16,6 +16,7 @@
 package org.liquigraph.core;
 
 import com.google.common.base.Optional;
+import java.sql.ResultSet;
 import org.junit.Assume;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
@@ -118,9 +119,10 @@ public class HttpGraphDatabaseRule extends ExternalResource
             connection.commit();
         }
         try (Connection connection = newConnection();
-             java.sql.Statement statement = connection.createStatement()) {
+             java.sql.Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (n) RETURN n")) {
 
-            assertThat(statement.executeQuery("MATCH (n) RETURN n").next()).isFalse();
+            assertThat(resultSet.next()).isFalse();
         }
     }
 

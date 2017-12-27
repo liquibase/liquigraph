@@ -15,6 +15,8 @@
  */
 package org.liquigraph.core.io;
 
+import java.sql.ResultSet;
+import java.sql.Statement;
 import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.model.Changeset;
@@ -140,6 +142,9 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
     }
 
     private void given_inserted_data(String query, Connection connection) throws SQLException {
-        connection.createStatement().executeQuery(query);
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+            return;
+        }
     }
 }

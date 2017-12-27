@@ -17,6 +17,8 @@ package org.liquigraph.core;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import org.junit.rules.ExternalResource;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilder;
@@ -93,15 +95,16 @@ public class BoltGraphDatabaseRule extends ExternalResource
 
     private void emptyDatabase() throws SQLException {
         try (Connection connection = newConnection()) {
-            try (java.sql.Statement statement = connection.createStatement()) {
+            try (Statement statement = connection.createStatement()) {
                 statement.execute("MATCH (n) DETACH DELETE n");
             }
             connection.commit();
         }
         try (Connection connection = newConnection();
-             java.sql.Statement statement = connection.createStatement()) {
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (n) RETURN n")) {
 
-            assertThat(statement.executeQuery("MATCH (n) RETURN n").next()).isFalse();
+            assertThat(resultSet.next()).isFalse();
         }
     }
 

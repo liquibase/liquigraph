@@ -352,7 +352,9 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
     }
 
     private void given_inserted_data(String query, Connection connection) throws SQLException {
-        connection.createStatement().executeQuery(query);
+        try (Statement statement = connection.createStatement()) {
+            statement.executeQuery(query);
+        }
         connection.commit();
     }
 

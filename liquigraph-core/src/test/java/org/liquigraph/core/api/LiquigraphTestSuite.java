@@ -63,14 +63,16 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
             )) {
 
                 statement.setObject(1, "insert-fbiville");
-                ResultSet resultSet = statement.executeQuery();
-                assertThat(resultSet.next()).isTrue();
-                assertThat(resultSet.next()).isFalse();
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    assertThat(resultSet.next()).isTrue();
+                    assertThat(resultSet.next()).isFalse();
+                }
 
                 statement.setObject(1, "insert-fbiville-again");
-                resultSet = statement.executeQuery();
-                assertThat(resultSet.next()).isTrue();
-                assertThat(resultSet.next()).isFalse();
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    assertThat(resultSet.next()).isTrue();
+                    assertThat(resultSet.next()).isFalse();
+                }
                 connection.commit();
             }
         }
