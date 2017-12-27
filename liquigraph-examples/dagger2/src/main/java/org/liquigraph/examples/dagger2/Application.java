@@ -15,7 +15,6 @@
  */
 package org.liquigraph.examples.dagger2;
 
-import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.examples.dagger2.configuration.DaggerDataComponent;
 import org.liquigraph.examples.dagger2.configuration.DataComponent;
 import org.liquigraph.examples.dagger2.configuration.DataModule;
@@ -28,7 +27,7 @@ import static spark.Spark.port;
 
 public class Application {
 
-    public static void main(String... args) throws Exception {
+    public static void main(String... args) {
         DataComponent dataComponent = DaggerDataComponent.builder()
                 .dataModule(dataModule(args))
                 .build();

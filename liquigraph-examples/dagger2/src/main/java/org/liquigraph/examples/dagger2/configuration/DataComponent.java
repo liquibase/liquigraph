@@ -16,10 +16,9 @@
 package org.liquigraph.examples.dagger2.configuration;
 
 import dagger.Component;
+import javax.inject.Singleton;
 import org.liquigraph.examples.dagger2.repository.LiquigraphClient;
 import org.liquigraph.examples.dagger2.repository.SentenceRepository;
-
-import javax.inject.Singleton;
 
 @Singleton
 @Component(modules = {DataModule.class})

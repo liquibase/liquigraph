@@ -15,12 +15,12 @@
  */
 package org.liquigraph.examples.dagger2;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.harness.junit.Neo4jRule;
-
-import java.io.IOException;
-import java.net.ServerSocket;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import static io.restassured.RestAssured.get;
 import static java.util.Arrays.stream;
@@ -28,11 +28,15 @@ import static org.hamcrest.Matchers.containsString;
 
 public class ApplicationTest {
 
+    static {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+    }
+
     @ClassRule
-    public static Neo4jRule neo4j = withVersionAwareConfig(new Neo4jRule());
+    public static final Neo4jRule neo4j = withVersionAwareConfig(new Neo4jRule());
 
     @Test
-    public void service_responds_after_migration() throws Exception {
+    public void service_responds_after_migration() {
         String jdbcUri = String.format("jdbc:neo4j:%s", neo4j.httpURI().toString());
 
         Application.main(jdbcUri);

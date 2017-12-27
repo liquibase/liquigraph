@@ -19,13 +19,12 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import dagger.Module;
 import dagger.Provides;
+import java.util.Optional;
+import javax.inject.Singleton;
+import javax.sql.DataSource;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
-
-import javax.inject.Singleton;
-import javax.sql.DataSource;
-import java.util.Optional;
 
 @Module
 public class DataModule {

@@ -15,15 +15,14 @@
  */
 package org.liquigraph.examples.dagger2.repository;
 
-import org.liquigraph.examples.dagger2.domain.Sentence;
-
-import javax.inject.Inject;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
+import javax.inject.Inject;
+import javax.sql.DataSource;
+import org.liquigraph.examples.dagger2.domain.Sentence;
 
 public class SentenceRepository {
 

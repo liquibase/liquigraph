@@ -15,10 +15,9 @@
  */
 package org.liquigraph.examples.dagger2.repository;
 
+import javax.inject.Inject;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
-
-import javax.inject.Inject;
 
 public class LiquigraphClient {
 
