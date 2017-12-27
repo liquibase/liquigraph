@@ -15,6 +15,7 @@
  */
 package org.liquigraph.spring.starter;
 
+import javax.sql.DataSource;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.spring.SpringChangelogLoader;
 import org.liquigraph.spring.SpringLiquigraph;
@@ -30,9 +31,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
-
-import javax.sql.DataSource;
-import java.io.IOException;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for Liquigraph.
@@ -64,8 +62,8 @@ public class LiquigraphAutoConfiguration {
         }
 
         @Bean
-        public SpringLiquigraph liquigraph(ResourceLoader loader) throws IOException {
-            final SpringChangelogLoader changelogLoader = new SpringChangelogLoader(loader);
+        public SpringLiquigraph liquigraph(ResourceLoader loader) {
+            SpringChangelogLoader changelogLoader = new SpringChangelogLoader(loader);
             return new SpringLiquigraph(getDataSource(), changelogLoader, properties.getChangeLog());
         }
 

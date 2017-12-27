@@ -17,13 +17,13 @@ package org.liquigraph.examples.dagger2;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.harness.junit.Neo4jRule;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import static io.restassured.RestAssured.get;
-import static java.util.Arrays.stream;
 import static org.hamcrest.Matchers.containsString;
 
 public class ApplicationTest {
@@ -56,7 +56,8 @@ public class ApplicationTest {
     }
 
     private static Neo4jRule withVersionAwareConfig(Neo4jRule neo4jRule) {
-        if (isVersionIn("3.0", "3.1")) {
+        Neo4jVersion currentNeo4jVersion = new Neo4jVersionReader().read("/neo4j.properties");
+        if (currentNeo4jVersion.compareTo(Neo4jVersion.parse("3.2")) < 0) {
             return neo4jRule
                 .withConfig("dbms.connector.0.enabled", "false") /* BOLT */
                 .withConfig("dbms.connector.1.address", "localhost:" + availablePort()); /* HTTP */
@@ -67,13 +68,4 @@ public class ApplicationTest {
             .withConfig("dbms.connector.http.address", "localhost:" + availablePort());
     }
 
-    private static boolean isVersionIn(String... versionPrefix) {
-        String neo4jVersion = System.getenv("NEO_VERSION");
-        return isLocalBuild(neo4jVersion) ||
-            stream(versionPrefix).anyMatch(neo4jVersion::startsWith);
-    }
-
-    private static boolean isLocalBuild(String neo4jVersion) {
-        return neo4jVersion == null;
-    }
 }

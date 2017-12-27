@@ -17,6 +17,7 @@ package org.liquigraph.core.io;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Iterator;
 import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.model.Changeset;
@@ -127,17 +128,24 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
                     connection
             );
 
-            Collection<Changeset> changesets = reader.read(connection);
+            Iterator<Changeset> changesets = reader.read(connection).iterator();
 
-            assertThat(changesets).hasSize(3);
-            for (Changeset changeset : changesets) {
-                assertThat(changeset.getId()).startsWith("test");
-                assertThat(changeset.getAuthor()).isEqualTo("fbiville");
-                int i = Integer.parseInt(changeset.getId().substring("test".length()));
-                assertThat(i).isBetween(0, 2);
-                assertThat(changeset.getChecksum()).isEqualTo(checksum(singletonList(queries[i])));
-                assertThat(changeset.getQueries()).containsExactly(queries[i]);
-            }
+            Changeset changeset = changesets.next();
+            assertThat(changeset.getId()).isEqualTo("test0");
+            assertThat(changeset.getAuthor()).isEqualTo("fbiville");
+            assertThat(changeset.getChecksum()).isEqualTo(checksum(singletonList(queries[0])));
+            assertThat(changeset.getQueries()).containsExactly(queries[0]);
+            changeset = changesets.next();
+            assertThat(changeset.getId()).isEqualTo("test1");
+            assertThat(changeset.getAuthor()).isEqualTo("fbiville");
+            assertThat(changeset.getChecksum()).isEqualTo(checksum(singletonList(queries[1])));
+            assertThat(changeset.getQueries()).containsExactly(queries[1]);
+            changeset = changesets.next();
+            assertThat(changeset.getId()).isEqualTo("test2");
+            assertThat(changeset.getAuthor()).isEqualTo("fbiville");
+            assertThat(changeset.getChecksum()).isEqualTo(checksum(singletonList(queries[2])));
+            assertThat(changeset.getQueries()).containsExactly(queries[2]);
+            assertThat(changesets.hasNext()).as("Result iterator is exhausted").isFalse();
         }
     }
 

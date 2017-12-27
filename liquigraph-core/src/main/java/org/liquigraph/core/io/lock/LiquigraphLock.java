@@ -15,10 +15,6 @@
  */
 package org.liquigraph.core.io.lock;
 
-import org.liquigraph.core.exception.LiquigraphLockException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -26,6 +22,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
+import org.liquigraph.core.exception.LiquigraphLockException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.google.common.collect.Sets.newIdentityHashSet;
 

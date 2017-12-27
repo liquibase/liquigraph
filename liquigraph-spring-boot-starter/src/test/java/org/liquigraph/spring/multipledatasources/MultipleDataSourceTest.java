@@ -13,24 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.spring;
+package org.liquigraph.spring.multipledatasources;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import javax.sql.DataSource;
+import org.h2.jdbcx.JdbcDataSource;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.liquigraph.spring.SpringLiquigraph;
+import org.liquigraph.spring.starter.LiquigraphDataSource;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.harness.junit.Neo4jRule;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public abstract class AutoConfiguredMigrationScenario {
+@EnableAutoConfiguration
+@DirtiesContext
+public class MultipleDataSourceTest {
 
     static {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -49,6 +62,24 @@ public abstract class AutoConfiguredMigrationScenario {
             assertThat(result.hasNext()).isTrue();
             assertThat(result.next().get("count")).isEqualTo(1L);
             assertThat(result.hasNext()).isFalse();
+        }
+    }
+
+    @SpringBootConfiguration
+    static class Config {
+
+        @Primary
+        @Bean
+        public DataSource dataSource() {
+            return new JdbcDataSource();
+        }
+
+        @LiquigraphDataSource
+        @Bean
+        public DataSource liquigraphDataSource() {
+            HikariConfig configuration = new HikariConfig();
+            configuration.setJdbcUrl("jdbc:neo4j:" + neo4j.httpURI());
+            return new HikariDataSource(configuration);
         }
     }
 }

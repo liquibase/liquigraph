@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import org.neo4j.driver.v1.exceptions.ClientException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -57,7 +58,7 @@ public class ConditionExecutor {
             resultSet.next();
             return resultSet.getBoolean("result");
         }
-        catch (SQLException e) {
+        catch (SQLException | ClientException e) {
             throw new ConditionExecutionException("%nError executing condition:%n" +
                "\tMake sure your query <%s> yields exactly one column named or aliased 'result'.%n" +
                "\tActual cause: %s", query, e.getMessage());

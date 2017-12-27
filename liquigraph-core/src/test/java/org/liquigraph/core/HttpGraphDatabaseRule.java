@@ -38,7 +38,7 @@ public class HttpGraphDatabaseRule extends ExternalResource
     private final String uri;
     private final String username;
     private final String password;
-    private Collection<Connection> connections = new ArrayList<>();
+    private final Collection<Connection> connections = new ArrayList<>();
 
     public HttpGraphDatabaseRule() {
         uri = "jdbc:neo4j:http://localhost:7474";
@@ -114,7 +114,7 @@ public class HttpGraphDatabaseRule extends ExternalResource
     private void emptyDatabase() throws SQLException {
         try (Connection connection = newConnection()) {
             try (java.sql.Statement statement = connection.createStatement()) {
-                assertThat(statement.execute("OPTIONAL MATCH (n) DETACH DELETE n")).isTrue();
+                statement.execute("MATCH (n) DETACH DELETE n");
             }
             connection.commit();
         }
@@ -122,7 +122,9 @@ public class HttpGraphDatabaseRule extends ExternalResource
              java.sql.Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery("MATCH (n) RETURN n")) {
 
-            assertThat(resultSet.next()).isFalse();
+            assertThat(resultSet.next())
+                .as("Database is empty")
+                .isFalse();
         }
     }
 

@@ -15,8 +15,6 @@
  */
 package org.liquigraph.core.io.lock;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;

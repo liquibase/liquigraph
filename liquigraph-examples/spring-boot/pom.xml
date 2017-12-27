@@ -82,7 +82,7 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-jdbc-http</artifactId>
-            <version>3.1.0</version>
+            <version>${neo4j-jdbc.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
