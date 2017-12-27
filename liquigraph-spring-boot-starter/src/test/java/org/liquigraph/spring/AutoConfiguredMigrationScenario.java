@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.harness.junit.Neo4jRule;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -30,6 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public abstract class AutoConfiguredMigrationScenario {
+
+    static {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+    }
 
     @ClassRule
     public static final Neo4jRule neo4j = new Neo4jRule();
