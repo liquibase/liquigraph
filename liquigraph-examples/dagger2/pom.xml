@@ -15,7 +15,6 @@
 
     <properties>
         <dagger.version>2.7</dagger.version>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
         <jacoco.skip>true</jacoco.skip>
         <coveralls.skip>true</coveralls.skip>
     </properties>
