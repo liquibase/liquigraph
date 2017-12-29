@@ -16,6 +16,8 @@
     <properties>
         <encoding>UTF-8</encoding>
         <java.version>1.8</java.version>
+        <jacoco.skip>true</jacoco.skip>
+        <coveralls.skip>true</coveralls.skip>
     </properties>
 
     <dependencyManagement>
