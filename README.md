@@ -16,10 +16,6 @@ Please subscribe [here](https://groups.google.com/forum/?hl=en-GB#!forum/liquigr
 
 Please read [the website](https://liquigraph.github.io/).
 
-## Homebrew
-
-Proceed to the recipe [repository](https://www.github.com/liquigraph/homebrew-liquigraph/).
-
 ## JDBC driver
 
 This branch uses a fork of the official JDBC driver, mainly for maintenance reasons.
