@@ -27,22 +27,34 @@ import javax.sql.DataSource;
  * A Spring-ified wrapper for {@link Liquigraph}.
  *
  * @author Michael Vitz
+ * @author Florent Biville
  */
 public final class SpringLiquigraph implements InitializingBean {
 
     private final DataSource dataSource;
     private final ChangelogLoader changelogLoader;
     private final String changeLog;
+    private final boolean enabled;
 
-    public SpringLiquigraph(DataSource dataSource, ChangelogLoader changelogLoader,
-                            String changeLog) {
+    public SpringLiquigraph(DataSource dataSource,
+                            ChangelogLoader changelogLoader,
+                            String changeLog,
+                            boolean enabled) {
+
         this.dataSource = dataSource;
         this.changelogLoader = changelogLoader;
         this.changeLog = changeLog;
+        this.enabled = enabled;
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
+        if (enabled) {
+            run();
+        }
+    }
+
+    public void run() {
         final Configuration configuration = new ConfigurationBuilder()
             .withDataSource(dataSource)
             .withChangelogLoader(changelogLoader)

@@ -30,13 +30,13 @@ import javax.validation.constraints.NotNull;
 public final class LiquigraphProperties {
 
     /**
-     * Change log configuration path.
+     * Changelog configuration path.
      */
     @NotNull
     private String changeLog = "classpath:/db/liquigraph/changelog.xml";
 
     /**
-     * Enable liquigraph.
+     * Enable liquigraph to run automatically at start, defaults to true.
      */
     private boolean enabled = true;
 
@@ -51,7 +51,8 @@ public final class LiquigraphProperties {
     private String password;
 
     /**
-     * JDBC url of the database to migrate. If not set, the primary configured data source is used.
+     * JDBC url of the database to migrate.
+     * If not set, the primary configured data source Spring bean is used.
      */
     private String url;
 
