@@ -20,6 +20,8 @@ env:
     - NEO_VERSION=3.2.8
       WITH_DOCKER=true
       EXTRA_PROFILES=-Pwith-neo4j-io
+    - NEO_VERSION=3.2.9
+      EXTRA_PROFILES=-Pwith-neo4j-io
     - NEO_VERSION=3.3.1
       WITH_DOCKER=true
       EXTRA_PROFILES=-Pwith-neo4j-io
