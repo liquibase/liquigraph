@@ -64,7 +64,12 @@ public class LiquigraphAutoConfiguration {
         @Bean
         public SpringLiquigraph liquigraph(ResourceLoader loader) {
             SpringChangelogLoader changelogLoader = new SpringChangelogLoader(loader);
-            return new SpringLiquigraph(getDataSource(), changelogLoader, properties.getChangeLog());
+            return new SpringLiquigraph(
+                getDataSource(),
+                changelogLoader,
+                properties.getChangeLog(),
+                properties.getExecutionContexts()
+            );
         }
 
         private DataSource getDataSource() {

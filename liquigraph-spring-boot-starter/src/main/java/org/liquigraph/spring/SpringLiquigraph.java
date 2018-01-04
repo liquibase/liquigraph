@@ -15,38 +15,46 @@
  */
 package org.liquigraph.spring;
 
+import javax.sql.DataSource;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.liquigraph.core.io.xml.ChangelogLoader;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.sql.DataSource;
+import static java.util.Arrays.asList;
 
 /**
  * A Spring-ified wrapper for {@link Liquigraph}.
  *
  * @author Michael Vitz
+ * @author Florent Biville
  */
 public final class SpringLiquigraph implements InitializingBean {
 
     private final DataSource dataSource;
     private final ChangelogLoader changelogLoader;
     private final String changeLog;
+    private String[] executionContexts;
 
-    public SpringLiquigraph(DataSource dataSource, ChangelogLoader changelogLoader,
-                            String changeLog) {
+    public SpringLiquigraph(DataSource dataSource,
+                            ChangelogLoader changelogLoader,
+                            String changelog,
+                            String[] executionContexts) {
+
         this.dataSource = dataSource;
         this.changelogLoader = changelogLoader;
-        this.changeLog = changeLog;
+        this.changeLog = changelog;
+        this.executionContexts = executionContexts;
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         final Configuration configuration = new ConfigurationBuilder()
             .withDataSource(dataSource)
             .withChangelogLoader(changelogLoader)
             .withMasterChangelogLocation(changeLog)
+            .withExecutionContexts(asList(executionContexts))
             .withRunMode()
             .build();
         new Liquigraph().runMigrations(configuration);

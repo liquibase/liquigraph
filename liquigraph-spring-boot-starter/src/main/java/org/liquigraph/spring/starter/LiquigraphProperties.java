@@ -54,9 +54,19 @@ public final class LiquigraphProperties {
     private String password;
 
     /**
-     * JDBC url of the database to migrate. If not set, the primary configured data source is used.
+     * JDBC URL of the database to migrate.
+     * If not set, the primary configured data source is used.
      */
     private String url;
+
+    /**
+     * Liquigraph runtime execution contexts.
+     *
+     * Changesets will match:
+     *  - if they define no execution context
+     *  - if one of their contexts matches one of the runtime contexts
+     */
+    private String[] executionContexts = new String[0];
 
     public void setChangelog(String changelog) {
         setChangeLog(changelog);
@@ -101,5 +111,13 @@ public final class LiquigraphProperties {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String[] getExecutionContexts() {
+        return executionContexts;
+    }
+
+    public void setExecutionContexts(String[] executionContexts) {
+        this.executionContexts = executionContexts;
     }
 }

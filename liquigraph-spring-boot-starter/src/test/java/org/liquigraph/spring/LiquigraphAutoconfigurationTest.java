@@ -114,6 +114,19 @@ public class LiquigraphAutoconfigurationTest {
         }
     }
 
+    @Test
+    public void executes_only_configured_execution_contexts() {
+        try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+            loadContext(
+                context,
+                "liquigraph.changelog=classpath:/db/liquigraph/changelog-with-contexts.xml",
+                "liquigraph.executionContexts=foo,bar",
+                "liquigraph.url=" + jdbcUrl());
+
+            assertThatMigrationsHaveRun();
+        }
+    }
+
     private static void loadContext(AnnotationConfigApplicationContext baseContext, Class<?> configuration, String... properties) {
         setUpEnvironment(baseContext, properties);
         baseContext.register(configuration);
