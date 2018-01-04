@@ -53,11 +53,27 @@ public class LiquigraphAutoconfigurationTest {
     @Test
     public void runs_migrations_with_bean_configured_by_properties() {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-            loadContext(context, "liquigraph.url=jdbc:neo4j:" + neo4j.httpURI().toString());
+            loadContext(context, "liquigraph.url=" + jdbcUrl());
 
             assertThat(context.getBeansOfType(SpringLiquigraph.class))
                 .as("SpringLiquigraph is configured through properties and default settings")
                 .isNotEmpty();
+            assertThatMigrationsHaveRun();
+        }
+    }
+
+    @Test
+    public void runs_migrations_with_changelog_property_alias() {
+        try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+            loadContext(
+                context,
+                "liquigraph.url=" + jdbcUrl(),
+                "liquigraph.changelog=classpath:/db/liquigraph/changelog.xml"
+            );
+
+            assertThat(context.getBeansOfType(SpringLiquigraph.class))
+            .as("SpringLiquigraph is configured through properties and default settings")
+            .isNotEmpty();
             assertThatMigrationsHaveRun();
         }
     }
@@ -136,8 +152,13 @@ public class LiquigraphAutoconfigurationTest {
         return neo4j.getGraphDatabaseService();
     }
 
+    private static String jdbcUrl() {
+        return "jdbc:neo4j:" + neo4j.httpURI().toString();
+    }
+
     @Configuration
     static class SingleDataSource {
+
 
         @Bean
         public DataSource dataSource() {

@@ -20,17 +20,20 @@ import org.liquigraph.spring.SpringLiquigraph;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.validation.constraints.NotNull;
+import org.springframework.boot.context.properties.DeprecatedConfigurationProperty;
 
 /**
  * Configuration properties to configure {@link SpringLiquigraph}.
  *
  * @author Michael Vitz
+ * @author Florent Biville
  */
 @ConfigurationProperties(prefix = "liquigraph", ignoreUnknownFields = false)
 public final class LiquigraphProperties {
 
     /**
      * Change log configuration path.
+     * Favor 'changelog' over 'changeLog' property name.
      */
     @NotNull
     private String changeLog = "classpath:/db/liquigraph/changelog.xml";
@@ -55,6 +58,11 @@ public final class LiquigraphProperties {
      */
     private String url;
 
+    public void setChangelog(String changelog) {
+        setChangeLog(changelog);
+    }
+
+    @DeprecatedConfigurationProperty(reason = "Typo", replacement = "changelog")
     public String getChangeLog() {
         return changeLog;
     }
