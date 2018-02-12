@@ -22,10 +22,14 @@ import org.liquigraph.examples.dagger2.domain.Sentence;
 import org.liquigraph.examples.dagger2.repository.LiquigraphClient;
 import org.liquigraph.examples.dagger2.repository.SentenceRepository;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static spark.Spark.get;
 import static spark.Spark.port;
 
 public class Application {
+
+    private static final AtomicInteger PORT = new AtomicInteger(Sockets.availablePort());
 
     public static void main(String... args) {
         DataComponent dataComponent = DaggerDataComponent.builder()
@@ -39,6 +43,10 @@ public class Application {
         application.serve(dataComponent.sentenceRepository());
     }
 
+    public static String rootUri() {
+        return String.format("http://localhost:%d", PORT.get());
+    }
+
     private static DataModule dataModule(String[] args) {
         if (args.length == 0) {
             return new DataModule();
@@ -48,7 +56,7 @@ public class Application {
     }
 
     private void serve(SentenceRepository sentenceRepository) {
-        port(8080);
+        port(PORT.get());
         get("/", (request, response) ->
                 sentenceRepository.findOne()
                         .map(Sentence::getContent)

@@ -15,16 +15,17 @@
  */
 package org.liquigraph.examples.dagger2;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import org.junit.BeforeClass;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.harness.junit.Neo4jRule;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import static io.restassured.RestAssured.get;
-import static org.hamcrest.Matchers.containsString;
+import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ApplicationTest {
 
@@ -35,24 +36,20 @@ public class ApplicationTest {
     @ClassRule
     public static final Neo4jRule neo4j = withVersionAwareConfig(new Neo4jRule());
 
+    OkHttpClient httpClient = new OkHttpClient();
+
     @Test
-    public void service_responds_after_migration() {
+    public void service_responds_after_migration() throws IOException {
         String jdbcUri = String.format("jdbc:neo4j:%s", neo4j.httpURI().toString());
 
         Application.main(jdbcUri);
 
-        get("/")
-                .then()
-                .assertThat()
-                .body(containsString("Hello world!"));
-    }
+        Response response = httpClient.newCall(new Request.Builder()
+        .url(Application.rootUri())
+        .build()).execute();
 
-    private static int availablePort() {
-        try (ServerSocket socket = new ServerSocket(0)) {
-            return socket.getLocalPort();
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        assertThat(response.isSuccessful()).as("Expected 2xx, got :" + response.code()).isTrue();
+        assertThat(response.body().string()).contains("Hello world!");
     }
 
     private static Neo4jRule withVersionAwareConfig(Neo4jRule neo4jRule) {
@@ -60,12 +57,12 @@ public class ApplicationTest {
         if (currentNeo4jVersion.compareTo(Neo4jVersion.parse("3.2")) < 0) {
             return neo4jRule
                 .withConfig("dbms.connector.0.enabled", "false") /* BOLT */
-                .withConfig("dbms.connector.1.address", "localhost:" + availablePort()); /* HTTP */
+                .withConfig("dbms.connector.1.address", "localhost:" + Sockets.availablePort()); /* HTTP */
         }
         return neo4jRule
             .withConfig("dbms.connector.bolt.enabled", "false")
             .withConfig("dbms.connector.http.enabled", "true")
-            .withConfig("dbms.connector.http.address", "localhost:" + availablePort());
+            .withConfig("dbms.connector.http.address", "localhost:" + Sockets.availablePort());
     }
 
 }
