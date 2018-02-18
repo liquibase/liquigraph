@@ -11,20 +11,16 @@ os:
   - linux
 env:
   matrix:
+    - NEO_VERSION=3.0.0
     - NEO_VERSION=3.0.11
       WITH_DOCKER=true
-      EXTRA_PROFILES=-Pwith-neo4j-io
     - NEO_VERSION=3.1.7
       WITH_DOCKER=true
-      EXTRA_PROFILES=-Pwith-neo4j-io
     - NEO_VERSION=3.2.8
       WITH_DOCKER=true
-      EXTRA_PROFILES=-Pwith-neo4j-io
     - NEO_VERSION=3.2.9
-      EXTRA_PROFILES=-Pwith-neo4j-io
     - NEO_VERSION=3.3.1
       WITH_DOCKER=true
-      EXTRA_PROFILES=-Pwith-neo4j-io
 addons:
   sonarqube:
     organization: ${SONAR_ORGANIZATION}

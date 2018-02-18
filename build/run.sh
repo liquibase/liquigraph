@@ -9,4 +9,4 @@ if [ "$WITH_DOCKER" = true ] ; then
         sleep 1
     done
 fi
-mvn -T4 -q -B -V clean verify -Dneo4j.version=${NEO_VERSION} ${EXTRA_PROFILES}
+mvn -T4 -q -B -V clean verify -Dneo4j.version=${NEO_VERSION}
