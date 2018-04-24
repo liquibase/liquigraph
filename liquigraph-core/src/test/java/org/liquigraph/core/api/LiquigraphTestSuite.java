@@ -22,6 +22,9 @@ import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 
 import java.sql.*;
+import java.util.Map;
+
+import org.neo4j.graphdb.Node;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -149,5 +152,46 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
         })
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Changeset with ID <second-changelog> and author <team> has conflicted checksums");
+    }
+
+    @Test
+    public void runs_migrations_with_parameters() throws SQLException {
+        liquigraph.runMigrations(
+            new ConfigurationBuilder()
+                .withRunMode()
+                .withMasterChangelogLocation("changelog/parameterized-changelog.xml")
+                .withUri(graphDatabase().uri())
+                .build()
+        );
+
+        try (Connection connection = graphDatabase().newConnection()) {
+            try (Statement statement = connection.createStatement();
+                 ResultSet resultSet = statement.executeQuery(
+                 "MATCH (person:Person) RETURN person ORDER BY person.name ASC")) {
+
+                assertThat(resultSet.next()).isTrue();
+                Object person = resultSet.getObject("person");
+                assertThat(property(person, "name")).isEqualTo("Edgar Poe");
+                assertThat(property(person, "age")).isEqualTo(20L);
+                assertThat(resultSet.next()).isTrue();
+                person = resultSet.getObject("person");
+                assertThat(property(person, "name")).isEqualTo("Lorie");
+                assertThat(property(person, "age")).isNull();
+                assertThat(resultSet.next()).isTrue();
+                person = resultSet.getObject("person");
+                assertThat(property(person, "name")).isEqualTo("Tommy");
+                assertThat(property(person, "age")).isEqualTo(20L);
+                assertThat(resultSet.next()).isFalse();
+                connection.commit();
+            }
+        }
+    }
+
+    private static Object property(Object changeset, String name) {
+        if (changeset instanceof Map) {
+            return ((Map<String,Object>) changeset).get(name);
+        }
+        assertThat(changeset).isInstanceOf(Node.class);
+        return ((Node)changeset).getProperty(name);
     }
 }

@@ -104,6 +104,11 @@ public class XmlSchemaValidatorTest {
         assertThat(validator.validateSchema(asNode("changelog/changelog-with-schema-location.xml"))).isEmpty();
     }
 
+    @Test
+    public void parses_changelog_with_parameters() throws Exception {
+        assertThat(validator.validateSchema(asNode("changelog/parameterized-changelog.xml"))).isEmpty();
+    }
+
     private Node asNode(String path) throws Exception {
         try (InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path)) {
             return DocumentBuilderFactory.newInstance()
@@ -111,4 +116,18 @@ public class XmlSchemaValidatorTest {
                 .parse(stream);
         }
     }
+
+    // TODO: write test with
+    /*
+    <query>
+            <template>MATCH (p:Person) WHERE p.name IN {names} SET p.age = 20</template>
+            MATCH ()
+            <parameters>
+                <parameter name="names">
+                    <value>Edgar Poe</value>
+                    <value>Tommy</value>
+                </parameter>
+            </parameters>
+        </query>
+     */
 }

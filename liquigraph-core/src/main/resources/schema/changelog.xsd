@@ -17,9 +17,30 @@
 
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:simpleType name="QueryType">
+    <xs:simpleType name="QueryParameterValue">
         <xs:restriction base="xs:string" />
     </xs:simpleType>
+
+    <xs:complexType name="QueryParameter">
+        <xs:sequence>
+            <xs:element name="value" type="QueryParameterValue" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" />
+    </xs:complexType>
+
+    <xs:complexType name="QueryParameters">
+        <xs:sequence>
+            <xs:element name="parameter" type="QueryParameter" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" />
+    </xs:complexType>
+
+    <xs:complexType name="QueryType" mixed="true">
+        <xs:sequence>
+            <xs:element name="template" type="xs:string" minOccurs="0" maxOccurs="1" />
+            <xs:element name="parameters" type="QueryParameters" minOccurs="0" maxOccurs="1" />
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="ConditionChildType">
         <xs:sequence>
