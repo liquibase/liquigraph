@@ -25,7 +25,7 @@ import java.io.InputStream;
 import static java.util.Objects.requireNonNull;
 
 /**
- * {@link ChangelogLoader} which uses Springs {@link ResourceLoader} for loading changelogs.
+ * {@link ChangelogLoader} which uses Spring's {@link ResourceLoader} for loading changelogs.
  */
 public final class SpringChangelogLoader implements ChangelogLoader {
 
@@ -38,9 +38,6 @@ public final class SpringChangelogLoader implements ChangelogLoader {
     @Override
     public InputStream load(String changelog) throws IOException {
         final Resource resource = resourceLoader.getResource(changelog);
-        if (resource == null) {
-            return null;
-        }
         return resource.getInputStream();
     }
 }
