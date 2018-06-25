@@ -35,7 +35,7 @@ public final class SpringLiquigraph implements InitializingBean {
     private final DataSource dataSource;
     private final ChangelogLoader changelogLoader;
     private final String changeLog;
-    private String[] executionContexts;
+    private final String[] executionContexts;
 
     public SpringLiquigraph(DataSource dataSource,
                             ChangelogLoader changelogLoader,
