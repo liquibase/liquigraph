@@ -18,6 +18,8 @@ package org.liquigraph.core.io;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import org.liquigraph.core.model.Changeset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +36,8 @@ import static java.nio.file.StandardOpenOption.APPEND;
 
 public class ChangelogFileWriter implements ChangelogWriter {
 
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogFileWriter.class);
     private final ConditionPrinter conditionPrinter;
     private final File outputFile;
 
@@ -45,6 +49,7 @@ public class ChangelogFileWriter implements ChangelogWriter {
     @Override
     public void write(Collection<Changeset> changelogsToInsert) {
         try {
+            LOGGER.info("About to dry-run Liquigraph. Results in file {}", outputFile.getAbsolutePath());
             Path path = outputFile.toPath();
             reinitializeFile(path);
             if (changelogsToInsert.isEmpty()) {

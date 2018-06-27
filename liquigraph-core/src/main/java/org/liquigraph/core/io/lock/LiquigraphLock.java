@@ -42,6 +42,7 @@ public class LiquigraphLock {
 
     void acquire(Connection connection) {
         if (addConnection(connection)) {
+            LOGGER.debug("Acquiring lock {} on database", uuid);
             addShutdownHook();
             ensureLockUnicity(connection);
             tryWriteLock(connection);
@@ -50,6 +51,7 @@ public class LiquigraphLock {
 
     void release(Connection connection) {
         if (removeConnection(connection)) {
+            LOGGER.debug("Releasing lock {} from database", uuid);
             removeShutdownHook();
             releaseLock(connection);
         }
@@ -123,10 +125,7 @@ public class LiquigraphLock {
             statement.execute();
             connection.commit();
         } catch (SQLException e) {
-            LOGGER.error(
-                    "Cannot remove __LiquigraphLock during cleanup.",
-                    e
-            );
+            LOGGER.error("Cannot remove __LiquigraphLock during cleanup.", e);
         }
     }
 }

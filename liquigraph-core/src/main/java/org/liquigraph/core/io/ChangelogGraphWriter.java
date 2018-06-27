@@ -21,6 +21,8 @@ import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.Condition;
 import org.liquigraph.core.model.Postcondition;
 import org.liquigraph.core.model.Precondition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,6 +54,8 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         // stores the possibly updated queries
         "MATCH (changeset:__LiquigraphChangeset {id: {1}, author: {2}}) " +
         "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}})";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogGraphWriter.class);
 
     private final Connection writeConnection;
     private final Supplier<Connection> connectionSupplier;
@@ -88,19 +92,23 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         try {
             Precondition precondition = changeset.getPrecondition();
             if (!(precondition == null || executeCondition(precondition))) {
+                LOGGER.warn("Precondition of changeset ID {} by {} failed", changeset.getId(), changeset.getAuthor());
                 return handleFailedPrecondition(precondition, changeset);
             }
 
             boolean postConditionApplies;
             do {
+                LOGGER.error("Executing postcondition of changeset ID {} by {}", changeset.getId(), changeset.getAuthor());
                 executeChangesetQueries(changeset.getQueries());
 
                 Postcondition postcondition = changeset.getPostcondition();
                 postConditionApplies = postcondition != null && executeCondition(postcondition);
             } while (postConditionApplies);
         } catch (SQLException e) {
+            LOGGER.error("Changeset ID {} by {} failed to execute", changeset.getId(), changeset.getAuthor(), e);
             throw propagate(e);
         }
+        LOGGER.info("Changeset ID {} by {} was just executed", changeset.getId(), changeset.getAuthor());
         return StatementExecution.SUCCESS;
     }
 
@@ -108,8 +116,10 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         try (Statement statement = writeConnection.createStatement()) {
             for (String query : queries) {
                 statement.execute(query);
+                LOGGER.debug("Executing query: {}", query);
             }
             writeConnection.commit();
+            LOGGER.debug("Committing transaction");
         }
     }
 
@@ -117,14 +127,13 @@ public class ChangelogGraphWriter implements ChangelogWriter {
                                                                Changeset changeset) {
         switch (precondition.getPolicy()) {
             case MARK_AS_EXECUTED:
-            /*
-             * the changeset should just be inserted in the history graph
-             * without actually being executed
-             */
+                LOGGER.info("Skipping execution of changeset {} by {} but marking as executed", changeset.getId(), changeset.getAuthor());
                 return StatementExecution.SUCCESS;
             case CONTINUE:
+                LOGGER.info("Ignoring precondition failure of changeset {} by {}", changeset.getId(), changeset.getAuthor());
                 return StatementExecution.IGNORE_FAILURE;
             case FAIL:
+                LOGGER.info("Failing precondition of changeset {} by {}. Aborting now.", changeset.getId(), changeset.getAuthor());
                 throw new PreconditionNotMetException(
                         format(
                                 "Changeset id=<%s>, author=<%s>: precondition query %s failed with policy <%s>. Aborting.",

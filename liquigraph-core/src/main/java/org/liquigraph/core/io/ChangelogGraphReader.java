@@ -16,6 +16,8 @@
 package org.liquigraph.core.io;
 
 import org.liquigraph.core.model.Changeset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -56,9 +58,12 @@ public class ChangelogGraphReader {
             "   query:queries" +
             "} AS changeset";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogFileWriter.class);
+
     public final Collection<Changeset> read(Connection connection) {
         Collection<Changeset> changesets = newArrayList();
         try (Statement statement = connection.createStatement()) {
+            LOGGER.debug("Migrating pre 1.0-RC3 history graph");
             statement.execute(MIGRATE_PRE_1_0_RC3_CHANGELOG);
             try (ResultSet result = statement.executeQuery(MATCH_CHANGESETS)) {
                 while (result.next()) {
@@ -66,6 +71,7 @@ public class ChangelogGraphReader {
                 }
             }
             connection.commit();
+            LOGGER.debug("Retrieved {} changesets", changesets.size());
             return changesets;
         }
         catch (SQLException e) {
