@@ -20,17 +20,21 @@ import org.liquigraph.core.model.CompoundQuery;
 import org.liquigraph.core.model.Condition;
 import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
+import org.neo4j.driver.v1.exceptions.ClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.neo4j.driver.v1.exceptions.ClientException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 
 public class ConditionExecutor {
+
+    private final Logger logger = LoggerFactory.getLogger(ConditionExecutor.class);
 
     public final boolean executeCondition(Connection connection, Condition condition) {
         checkArgument(connection != null, "Connection should not be null");
@@ -55,6 +59,7 @@ public class ConditionExecutor {
     private boolean execute(Connection connection, String query) {
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
+            logger.debug("Executed condition: {}", query);
             resultSet.next();
             return resultSet.getBoolean("result");
         }
