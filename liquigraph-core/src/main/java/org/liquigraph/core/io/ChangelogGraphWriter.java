@@ -21,6 +21,8 @@ import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.Condition;
 import org.liquigraph.core.model.Postcondition;
 import org.liquigraph.core.model.Precondition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,6 +54,8 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         // stores the possibly updated queries
         "MATCH (changeset:__LiquigraphChangeset {id: {1}, author: {2}}) " +
         "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}})";
+
+    private final Logger logger = LoggerFactory.getLogger(ChangelogGraphWriter.class);
 
     private final Connection writeConnection;
     private final Supplier<Connection> connectionSupplier;
@@ -98,6 +102,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
                 Postcondition postcondition = changeset.getPostcondition();
                 postConditionApplies = postcondition != null && executeCondition(postcondition);
             } while (postConditionApplies);
+            logger.info("Changeset version {} by {} was just executed", changeset.getId(), changeset.getAuthor());
         } catch (SQLException e) {
             throw propagate(e);
         }
@@ -108,8 +113,10 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         try (Statement statement = writeConnection.createStatement()) {
             for (String query : queries) {
                 statement.execute(query);
+                logger.debug("Executing query: {}", query);
             }
             writeConnection.commit();
+            logger.debug("Committing transaction");
         }
     }
 
