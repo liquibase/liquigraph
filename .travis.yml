@@ -12,14 +12,14 @@ os:
 env:
   matrix:
     - NEO_VERSION=3.0.0
-    - NEO_VERSION=3.0.11
       WITH_DOCKER=true
-    - NEO_VERSION=3.1.7
+    - NEO_VERSION=3.0.12
       WITH_DOCKER=true
-    - NEO_VERSION=3.2.8
+    - NEO_VERSION=3.1.9
       WITH_DOCKER=true
-    - NEO_VERSION=3.2.9
-    - NEO_VERSION=3.3.1
+    - NEO_VERSION=3.2.12
+      WITH_DOCKER=true
+    - NEO_VERSION=3.3.6
       WITH_DOCKER=true
 addons:
   sonarqube:
