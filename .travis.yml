@@ -11,16 +11,11 @@ os:
   - linux
 env:
   matrix:
-    - NEO_VERSION=3.0.0
-      WITH_DOCKER=true
-    - NEO_VERSION=3.0.12
-      WITH_DOCKER=true
-    - NEO_VERSION=3.1.9
-      WITH_DOCKER=true
-    - NEO_VERSION=3.2.12
-      WITH_DOCKER=true
-    - NEO_VERSION=3.3.6
-      WITH_DOCKER=true
+    - NEO_VERSION=3.0.0 WITH_DOCKER=true
+    - NEO_VERSION=3.0.12 WITH_DOCKER=true
+    - NEO_VERSION=3.1.9 WITH_DOCKER=true
+    - NEO_VERSION=3.2.12 WITH_DOCKER=true
+    - NEO_VERSION=3.3.6 WITH_DOCKER=true
 addons:
   sonarqube:
     organization: ${SONAR_ORGANIZATION}
