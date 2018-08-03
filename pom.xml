@@ -10,7 +10,7 @@
 
     <groupId>org.liquigraph</groupId>
     <artifactId>liquigraph-parent</artifactId>
-    <version>3.0.3</version>
+    <version>3.0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>liquigraph-parent</name>
