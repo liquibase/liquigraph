@@ -105,6 +105,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                  <locale>en_US</locale>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
