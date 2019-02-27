@@ -1,21 +1,24 @@
 sudo: required
 cache:
   directories:
-    - $HOME/.m2
+  - $HOME/.m2
 language: java
 services:
-  - docker
+- docker
 jdk:
-  - oraclejdk8
+- oraclejdk8
 os:
-  - linux
+- linux
 env:
   matrix:
-    - NEO_VERSION=3.0.0 WITH_DOCKER=true
-    - NEO_VERSION=3.0.12 WITH_DOCKER=true
-    - NEO_VERSION=3.1.9 WITH_DOCKER=true
-    - NEO_VERSION=3.2.12 WITH_DOCKER=true
-    - NEO_VERSION=3.3.6 WITH_DOCKER=true
+  - NEO_VERSION=3.0.0 WITH_DOCKER=true
+  - NEO_VERSION=3.0.12 WITH_DOCKER=true
+  - NEO_VERSION=3.1.9 WITH_DOCKER=true
+  - NEO_VERSION=3.2.13 WITH_DOCKER=true
+  - NEO_VERSION=3.2.14 WITH_DOCKER=false
+  - NEO_VERSION=3.3.9 WITH_DOCKER=true
+  - NEO_VERSION=3.4.12 WITH_DOCKER=true
+  - NEO_VERSION=3.5.3 WITH_DOCKER=true
 addons:
   sonarqube:
     organization: ${SONAR_ORGANIZATION}
@@ -23,13 +26,14 @@ addons:
       secure: ${SONAR_TOKEN}
     github_token:
       secure: ${GITHUB_TOKEN}
-before_script:
+before_script: null
 script:
-  - build/run.sh
-  - sonar-scanner
+- build/run.sh
+- sonar-scanner
 install:
-  - mvn -B -V install -DskipTests=true
+- mvn -B -V install -DskipTests=true
 after_success:
-  - mvn -B -V clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar coveralls:report
-  - "[ ${TRAVIS_PULL_REQUEST} = 'false' ] && [[ ${TRAVIS_BRANCH} = 'master' ]] && mvn clean deploy -DskipTests --settings ./deploy-settings.xml"
-
+- mvn -B -V clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
+  coveralls:report
+- '[ ${TRAVIS_PULL_REQUEST} = ''false'' ] && [[ ${TRAVIS_BRANCH} = ''master'' ]] &&
+  mvn clean deploy -DskipTests --settings ./deploy-settings.xml'
