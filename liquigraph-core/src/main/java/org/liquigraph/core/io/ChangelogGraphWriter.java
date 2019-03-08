@@ -98,7 +98,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
 
             boolean postConditionApplies;
             do {
-                LOGGER.error("Executing postcondition of changeset ID {} by {}", changeset.getId(), changeset.getAuthor());
+                LOGGER.info("Executing postcondition of changeset ID {} by {}", changeset.getId(), changeset.getAuthor());
                 executeChangesetQueries(changeset.getQueries());
 
                 Postcondition postcondition = changeset.getPostcondition();
