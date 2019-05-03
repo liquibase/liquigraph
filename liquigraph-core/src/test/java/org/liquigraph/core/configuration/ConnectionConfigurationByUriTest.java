@@ -20,7 +20,7 @@ import com.google.common.base.Supplier;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.liquigraph.core.configuration.ConnectionConfigurationByUri.UriConnectionProvider;
+import org.liquigraph.core.configuration.ConnectionConfigurationByUri.UriConnectionSupplier;
 
 import java.sql.Connection;
 
@@ -41,7 +41,7 @@ public class ConnectionConfigurationByUriTest {
                 "jdbc:neo4j:mem:mydb",
                 Optional.<String>absent(),
                 Optional.<String>absent(),
-                new MockedConnectionProvider(expectedConnection)
+                new MockedConnectionSupplier(expectedConnection)
         );
 
         Connection connection = connectionProvider.get();
@@ -56,7 +56,7 @@ public class ConnectionConfigurationByUriTest {
             "jdbc:neo4j:mem:mydb",
             Optional.<String>absent(),
             Optional.<String>absent(),
-            new ThrowingConnectionProvider(failure)
+            new ThrowingConnectionSupplier(failure)
         );
 
         thrown.expect(sameInstance(failure));
@@ -65,10 +65,10 @@ public class ConnectionConfigurationByUriTest {
 
     }
 
-    private static class ThrowingConnectionProvider implements UriConnectionProvider {
+    private static class ThrowingConnectionSupplier implements UriConnectionSupplier {
         private final RuntimeException exception;
 
-        public ThrowingConnectionProvider(RuntimeException exception) {
+        public ThrowingConnectionSupplier(RuntimeException exception) {
             this.exception = exception;
         }
 
@@ -83,10 +83,10 @@ public class ConnectionConfigurationByUriTest {
         }
     }
 
-    private static class MockedConnectionProvider implements UriConnectionProvider {
+    private static class MockedConnectionSupplier implements UriConnectionSupplier {
         private final Connection connection;
 
-        public MockedConnectionProvider(Connection connection) {
+        public MockedConnectionSupplier(Connection connection) {
             this.connection = connection;
         }
 

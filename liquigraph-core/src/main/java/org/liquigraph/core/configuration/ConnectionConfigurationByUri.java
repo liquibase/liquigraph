@@ -29,37 +29,37 @@ public class ConnectionConfigurationByUri implements ConnectionConfiguration {
     private final String uri;
     private final Optional<String> username;
     private final Optional<String> password;
-    private final UriConnectionProvider connectionProvider;
+    private final UriConnectionSupplier connectionSupplier;
 
     public ConnectionConfigurationByUri(String uri,
                                         Optional<String> username,
                                         Optional<String> password) {
 
-        this(uri, username, password, DefaultUriConnectionProvider.INSTANCE);
+        this(uri, username, password, DefaultUriConnectionSupplier.INSTANCE);
     }
 
     @VisibleForTesting
     ConnectionConfigurationByUri(String uri,
                                  Optional<String> username,
                                  Optional<String> password,
-                                 UriConnectionProvider connectionProvider) {
+                                 UriConnectionSupplier connectionSupplier) {
 
         this.uri = uri;
         this.username = username;
         this.password = password;
-        this.connectionProvider = connectionProvider;
+        this.connectionSupplier = connectionSupplier;
     }
 
     @Override
     public Connection get() {
         if (username.isPresent()) {
-            return connectionProvider.getConnection(uri, username.get(), password.or(""));
+            return connectionSupplier.getConnection(uri, username.get(), password.or(""));
         }
-        return connectionProvider.getConnection(uri);
+        return connectionSupplier.getConnection(uri);
 
     }
 
-    private enum DefaultUriConnectionProvider implements UriConnectionProvider {
+    private enum DefaultUriConnectionSupplier implements UriConnectionSupplier {
         INSTANCE;
 
         @Override
@@ -82,7 +82,7 @@ public class ConnectionConfigurationByUri implements ConnectionConfiguration {
     }
 
     @VisibleForTesting
-    interface UriConnectionProvider {
+    interface UriConnectionSupplier {
         Connection getConnection(String uri);
         Connection getConnection(String uri, String username, String password);
     }
