@@ -15,12 +15,12 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.liquigraph.core.configuration.ConnectionConfigurationByUri.UriConnectionProvider;
 
 import java.sql.Connection;
 
@@ -41,7 +41,7 @@ public class ConnectionConfigurationByUriTest {
                 "jdbc:neo4j:mem:mydb",
                 Optional.<String>absent(),
                 Optional.<String>absent(),
-                new MockedConnectionFunction(expectedConnection)
+                new MockedConnectionProvider(expectedConnection)
         );
 
         Connection connection = connectionProvider.get();
@@ -56,7 +56,7 @@ public class ConnectionConfigurationByUriTest {
             "jdbc:neo4j:mem:mydb",
             Optional.<String>absent(),
             Optional.<String>absent(),
-            new ThrowingConnectionFunction(failure)
+            new ThrowingConnectionProvider(failure)
         );
 
         thrown.expect(sameInstance(failure));
@@ -65,28 +65,38 @@ public class ConnectionConfigurationByUriTest {
 
     }
 
-    private static class ThrowingConnectionFunction implements Function<String, Connection> {
+    private static class ThrowingConnectionProvider implements UriConnectionProvider {
         private final RuntimeException exception;
 
-        public ThrowingConnectionFunction(RuntimeException exception) {
+        public ThrowingConnectionProvider(RuntimeException exception) {
             this.exception = exception;
         }
 
         @Override
-        public Connection apply(String s) {
+        public Connection getConnection(String uri) {
+            throw exception;
+        }
+
+        @Override
+        public Connection getConnection(String uri, String username, String password) {
             throw exception;
         }
     }
 
-    private static class MockedConnectionFunction implements Function<String, Connection> {
+    private static class MockedConnectionProvider implements UriConnectionProvider {
         private final Connection connection;
 
-        public MockedConnectionFunction(Connection connection) {
+        public MockedConnectionProvider(Connection connection) {
             this.connection = connection;
         }
 
         @Override
-        public Connection apply(String ignored) {
+        public Connection getConnection(String uri) {
+            return connection;
+        }
+
+        @Override
+        public Connection getConnection(String uri, String username, String password) {
             return connection;
         }
     }
