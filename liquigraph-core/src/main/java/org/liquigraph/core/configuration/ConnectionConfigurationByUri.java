@@ -16,9 +16,7 @@
 package org.liquigraph.core.configuration;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -31,56 +29,61 @@ public class ConnectionConfigurationByUri implements ConnectionConfiguration {
     private final String uri;
     private final Optional<String> username;
     private final Optional<String> password;
-    private final Function<String, Connection> driverManager;
+    private final UriConnectionSupplier connectionSupplier;
 
     public ConnectionConfigurationByUri(String uri,
                                         Optional<String> username,
                                         Optional<String> password) {
 
-        this(uri, username, password, UriToConnectionFunction.INSTANCE);
+        this(uri, username, password, DefaultUriConnectionSupplier.INSTANCE);
     }
 
     @VisibleForTesting
     ConnectionConfigurationByUri(String uri,
                                  Optional<String> username,
                                  Optional<String> password,
-                                 Function<String, Connection> driverManager) {
+                                 UriConnectionSupplier connectionSupplier) {
 
         this.uri = uri;
         this.username = username;
         this.password = password;
-        this.driverManager = driverManager;
+        this.connectionSupplier = connectionSupplier;
     }
 
     @Override
     public Connection get() {
-        return driverManager.apply(uri());
-    }
-
-    private String uri() {
-        if (!username.isPresent()) {
-            return uri;
+        if (username.isPresent()) {
+            return connectionSupplier.getConnection(uri, username.get(), password.or(""));
         }
-        return authenticatedUri();
+        return connectionSupplier.getConnection(uri);
+
     }
 
-    private String authenticatedUri() {
-        String firstDelimiter = uri.contains("?") ? "," : "?";
-        return uri
-                + firstDelimiter + "user=" + username.get()
-                + ",password=" + password.or("");
-    }
-
-    private enum UriToConnectionFunction implements Function<String, Connection> {
+    private enum DefaultUriConnectionSupplier implements UriConnectionSupplier {
         INSTANCE;
 
         @Override
-        public Connection apply(String uri) {
+        public Connection getConnection(String uri) {
             try {
                 return DriverManager.getConnection(uri);
             } catch (SQLException e) {
                 throw propagate(e);
             }
         }
+
+        @Override
+        public Connection getConnection(String uri, String username, String password) {
+            try {
+                return DriverManager.getConnection(uri, username, password);
+            } catch (SQLException e) {
+                throw propagate(e);
+            }
+        }
+    }
+
+    @VisibleForTesting
+    interface UriConnectionSupplier {
+        Connection getConnection(String uri);
+        Connection getConnection(String uri, String username, String password);
     }
 }
