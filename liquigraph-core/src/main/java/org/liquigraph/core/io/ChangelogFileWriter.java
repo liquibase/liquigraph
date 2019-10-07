@@ -33,7 +33,7 @@ import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.StandardOpenOption.APPEND;
 
 public class ChangelogFileWriter implements ChangelogWriter {
-
+    
     private final ConditionPrinter conditionPrinter;
     private final File outputFile;
 
