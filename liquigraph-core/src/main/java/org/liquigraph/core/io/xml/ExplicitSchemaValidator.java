@@ -48,6 +48,7 @@ class ExplicitSchemaValidator implements DomSourceValidator {
     public Collection<String> validate(DOMSource changelog) throws Exception {
         SchemaErrorHandler errorHandler = new SchemaErrorHandler();
         XMLReader reader = saxParser().getXMLReader();
+        reader.setEntityResolver(new RedirectAwareEntityResolver());
         reader.setErrorHandler(errorHandler);
         parse(changelog, reader);
         return errorHandler.getErrors();
@@ -57,8 +58,8 @@ class ExplicitSchemaValidator implements DomSourceValidator {
         SAXParser saxParser = saxParserFactory.newSAXParser();
         try {
             saxParser.setProperty(
-                "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-                "http://www.w3.org/2001/XMLSchema"
+            "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+            "http://www.w3.org/2001/XMLSchema"
             );
         } catch (SAXNotRecognizedException | SAXNotSupportedException ignored) {
         }
@@ -75,4 +76,5 @@ class ExplicitSchemaValidator implements DomSourceValidator {
             }
         }
     }
+
 }
