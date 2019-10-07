@@ -36,7 +36,6 @@ import static java.nio.file.StandardOpenOption.APPEND;
 
 public class ChangelogFileWriter implements ChangelogWriter {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogFileWriter.class);
     private final ConditionPrinter conditionPrinter;
     private final File outputFile;

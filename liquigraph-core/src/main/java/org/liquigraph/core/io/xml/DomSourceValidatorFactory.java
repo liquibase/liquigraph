@@ -15,10 +15,14 @@
  */
 package org.liquigraph.core.io.xml;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.xml.transform.dom.DOMSource;
 
 public class DomSourceValidatorFactory {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DomSourceValidatorFactory.class);
     private final SchemaDetector schemaDetector;
 
     public DomSourceValidatorFactory() {
@@ -27,8 +31,10 @@ public class DomSourceValidatorFactory {
 
     public DomSourceValidator createValidator(DOMSource source) {
         if (schemaDetector.hasExplicitSchema(source)) {
+            LOGGER.debug("Explicit schema detected: validation against schema to start");
             return new ExplicitSchemaValidator();
         }
+        LOGGER.debug("No schema detected: validation against embedded schema to start");
         return new ImplicitSchemaValidator();
     }
 }
