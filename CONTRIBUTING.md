@@ -18,7 +18,7 @@ such as:
 
 Please try your best to follow these practices:
 
-1. If if references an issue, start your message with `[#ISSUE-NUMBER] `
+1. If it references an issue, start your message with `[#ISSUE-NUMBER] `
 1. Separate subject from body with a blank line
 1. Limit the subject line to 50 characters
 1. Capitalize the subject line
@@ -35,5 +35,5 @@ The project history of commits should give a good idea as well.
 
 ## Coding style
 
-In order to keep a consistent coding style you included a `.editorconfig`. The current configuration keeps
-the current practices followed by the team.
+In order to keep a consistent coding style, an `.editorconfig` is included with the source code. 
+The current configuration keeps the current practices followed by the team.
