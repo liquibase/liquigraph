@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.model.predicates;
+package org.liquigraph.core.exception;
 
-import org.liquigraph.core.model.Changeset;
+public class Throwables {
 
-import java.util.function.Predicate;
+    private Throwables() {
+        throw new RuntimeException("static");
+    }
 
-public enum ChangesetRunAlways implements Predicate<Changeset> {
-    RUN_ALWAYS;
-
-    @Override
-    public boolean test(Changeset changeset) {
-        return changeset.isRunAlways();
+    public static RuntimeException propagate(Throwable t) {
+        if (t instanceof RuntimeException) {
+            return (RuntimeException) t;
+        }
+        return new RuntimeException(t);
     }
 }

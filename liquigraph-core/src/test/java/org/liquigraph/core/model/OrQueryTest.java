@@ -15,19 +15,19 @@
  */
 package org.liquigraph.core.model;
 
-import com.google.common.collect.Lists;
-import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class OrQueryTest {
+
     @Test
     public void should_have_equality_on_queries() {
-        new EqualsTester()
-                .addEqualityGroup(
-                        orQuery("MATCH (n) RETURN n", "MATCH(m) RETURN m"),
-                        orQuery("MATCH (n) RETURN n", "MATCH(m) RETURN m"))
-                .addEqualityGroup(orQuery("MATCH (m) RETURN m", "MATCH(n) RETURN n"))
-                .testEquals();
+        assertThat(orQuery("MATCH (n) RETURN n", "MATCH(m) RETURN m"))
+            .isEqualTo(orQuery("MATCH (n) RETURN n", "MATCH(m) RETURN m"))
+            .isNotEqualTo(orQuery("MATCH (m) RETURN m", "MATCH(n) RETURN n"));
     }
 
     private static OrQuery orQuery(String firstQuery, String secondQuery) {
@@ -36,7 +36,7 @@ public class OrQueryTest {
         firstSimpleQuery.setQuery(firstQuery);
         SimpleQuery secondSimpleQuery = new SimpleQuery();
         secondSimpleQuery.setQuery(secondQuery);
-        orQuery.setQueries(Lists.<Query>newArrayList(firstSimpleQuery, secondSimpleQuery));
+        orQuery.setQueries(Arrays.asList(firstSimpleQuery, secondSimpleQuery));
         return orQuery;
     }
 }

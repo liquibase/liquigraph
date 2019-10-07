@@ -15,14 +15,13 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Optional;
 
-import static com.google.common.base.Throwables.propagate;
+import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class ConnectionConfigurationByUri implements ConnectionConfiguration {
 
@@ -38,7 +37,7 @@ public class ConnectionConfigurationByUri implements ConnectionConfiguration {
         this(uri, username, password, DefaultUriConnectionSupplier.INSTANCE);
     }
 
-    @VisibleForTesting
+    // visible for testing
     ConnectionConfigurationByUri(String uri,
                                  Optional<String> username,
                                  Optional<String> password,
@@ -53,7 +52,7 @@ public class ConnectionConfigurationByUri implements ConnectionConfiguration {
     @Override
     public Connection get() {
         if (username.isPresent()) {
-            return connectionSupplier.getConnection(uri, username.get(), password.or(""));
+            return connectionSupplier.getConnection(uri, username.get(), password.orElse(""));
         }
         return connectionSupplier.getConnection(uri);
 
@@ -81,9 +80,10 @@ public class ConnectionConfigurationByUri implements ConnectionConfiguration {
         }
     }
 
-    @VisibleForTesting
+    // visible for testing
     interface UriConnectionSupplier {
         Connection getConnection(String uri);
+
         Connection getConnection(String uri, String username, String password);
     }
 }

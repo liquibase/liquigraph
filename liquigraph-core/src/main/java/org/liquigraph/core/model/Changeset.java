@@ -15,27 +15,25 @@
  */
 package org.liquigraph.core.model;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.nullToEmpty;
-import static com.google.common.collect.Lists.newArrayList;
+import static org.liquigraph.core.exception.Preconditions.checkArgument;
 import static org.liquigraph.core.model.Checksums.checksum;
 
 public class Changeset {
 
     private String id;
     private String author;
-    private Collection<String> queries = newArrayList();
+    private Collection<String> queries = new ArrayList<>();
     private String checksum;
-    private Collection<String> executionsContexts = newArrayList();
+    private Collection<String> executionsContexts = new ArrayList<>();
     private boolean runOnChange;
     private boolean runAlways;
     private Precondition precondition;
@@ -88,14 +86,14 @@ public class Changeset {
 
     @XmlAttribute(name = "contexts", required = false)
     String getContexts() {
-        return Joiner.on(',').join(executionsContexts);
+        return String.join(",", executionsContexts);
     }
 
     public void setContexts(String executionsContexts) {
-        this.executionsContexts = Splitter.on(',')
-            .omitEmptyStrings()
-            .trimResults()
-            .splitToList(nullToEmpty(executionsContexts));
+        this.executionsContexts = Arrays.stream((executionsContexts == null ? "" : executionsContexts).split(","))
+            .filter(s -> !s.isEmpty())
+            .map(String::trim)
+            .collect(Collectors.toList());
     }
 
     @XmlAttribute(name = "run-on-change", required = false)
@@ -149,23 +147,23 @@ public class Changeset {
         }
         final Changeset other = (Changeset) obj;
         return Objects.equals(this.id, other.id) &&
-                Objects.equals(this.author, other.author) &&
-                Objects.equals(this.checksum, other.checksum);
+            Objects.equals(this.author, other.author) &&
+            Objects.equals(this.checksum, other.checksum);
     }
 
     @Override
     public String toString() {
         return "Changeset{" +
-                "id='" + id + '\'' +
-                ", author='" + author + '\'' +
-                ", queries='" + queries + '\'' +
-                ", checksum='" + checksum + '\'' +
-                ", executionsContexts=" + executionsContexts +
-                ", runOnChange=" + runOnChange +
-                ", runAlways=" + runAlways +
-                ", precondition=" + precondition +
-                ", postcondition=" + postcondition +
-                '}';
+            "id='" + id + '\'' +
+            ", author='" + author + '\'' +
+            ", queries='" + queries + '\'' +
+            ", checksum='" + checksum + '\'' +
+            ", executionsContexts=" + executionsContexts +
+            ", runOnChange=" + runOnChange +
+            ", runAlways=" + runAlways +
+            ", precondition=" + precondition +
+            ", postcondition=" + postcondition +
+            '}';
     }
 
 }

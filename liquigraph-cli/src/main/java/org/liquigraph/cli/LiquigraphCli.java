@@ -17,11 +17,10 @@ package org.liquigraph.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,14 +31,12 @@ import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static com.google.common.base.Throwables.propagate;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class LiquigraphCli {
     private static final Logger LOGGER = LoggerFactory.getLogger(LiquigraphCli.class);
@@ -142,7 +139,7 @@ public class LiquigraphCli {
 
     private static void printVersion() {
         Optional<String> version = getVersion();
-        System.out.println(version.or("Unknown version!"));
+        System.out.println(version.orElse("Unknown version!"));
     }
 
     private static Optional<String> getVersion() {
@@ -150,12 +147,12 @@ public class LiquigraphCli {
             if (propsIs != null) {
                 Properties props = new Properties();
                 props.load(propsIs);
-                return Optional.fromNullable(props.getProperty("liquigraph.version"));
+                return Optional.ofNullable(props.getProperty("liquigraph.version"));
             }
         } catch (IOException e) {
             LOGGER.error("An exception occurred while loading the properties", e);
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private static String fileName(String changelog) {
@@ -175,14 +172,14 @@ public class LiquigraphCli {
             return emptyList();
         }
         Collection<String> result = new ArrayList<>();
-        for (String context : asList(executionContexts.split(","))) {
+        for (String context : executionContexts.split(",")) {
             result.add(context.trim());
         }
         return result;
     }
 
     private static ClassLoader classloader(String changelog, String dryRunOutputDirectory) {
-        ImmutableList.Builder<URL> resources = ImmutableList.builder();
+        List<URL> resources = new ArrayList<>();
         try {
             resources.add(toUrl(changelog));
             if (dryRunOutputDirectory != null) {
@@ -192,8 +189,7 @@ public class LiquigraphCli {
             throw propagate(e);
         }
 
-        Collection<URL> urls = resources.build();
-        return new URLClassLoader(urls.toArray(new URL[urls.size()]));
+        return new URLClassLoader(resources.toArray(new URL[0]));
     }
 
     private static URL toUrl(String location) throws MalformedURLException {

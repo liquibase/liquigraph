@@ -15,17 +15,14 @@
  */
 package org.liquigraph.core.io.xml;
 
-import com.google.common.base.Joiner;
-
 import org.liquigraph.core.model.Changelog;
 import org.liquigraph.core.model.Changeset;
 import org.w3c.dom.Node;
 
-import java.util.Collection;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import java.util.Collection;
 
 import static java.lang.String.format;
 
@@ -50,10 +47,10 @@ public final class ChangelogParser {
      * Parses a <code>masterChangelog</code> XML file from the specified classloader,
      * to a <code>Changelog</code> object.
      *
-     * @param changelogLoader     The changelog loader which loads the masterChangelog
+     * @param changelogLoader The changelog loader which loads the masterChangelog
      * @param masterChangelog Filename of the master changelog
-     * @throws IllegalArgumentException if there is an error during the conversion
      * @return A <code>Changelog</code> object that correspond to the XML file
+     * @throws IllegalArgumentException if there is an error during the conversion
      */
     public Collection<Changeset> parse(ChangelogLoader changelogLoader, String masterChangelog) {
         return parseChangelog(changelogLoader, masterChangelog).getChangesets();
@@ -86,6 +83,6 @@ public final class ChangelogParser {
     }
 
     private String formatErrorMessage(Collection<String> errors) {
-        return SEPARATOR + Joiner.on(SEPARATOR).join(errors);
+        return SEPARATOR + String.join(SEPARATOR, errors);
     }
 }

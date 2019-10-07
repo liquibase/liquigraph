@@ -15,19 +15,16 @@
  */
 package org.liquigraph.core.api;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import org.liquigraph.core.configuration.ExecutionContexts;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.predicates.ChangesetChecksumHasChanged;
 import org.liquigraph.core.model.predicates.ChangesetRunOnChange;
+import org.liquigraph.core.model.predicates.Predicates;
 
 import java.util.Collection;
+import java.util.function.Predicate;
 
-import static com.google.common.base.Predicates.in;
-import static com.google.common.base.Predicates.not;
-import static com.google.common.base.Predicates.or;
-import static com.google.common.collect.FluentIterable.from;
+import static java.util.stream.Collectors.toList;
 import static org.liquigraph.core.model.predicates.ChangesetMatchAnyExecutionContexts.BY_ANY_EXECUTION_CONTEXT;
 import static org.liquigraph.core.model.predicates.ChangesetRunAlways.RUN_ALWAYS;
 
@@ -37,28 +34,17 @@ class ChangelogDiffMaker {
                                                            Collection<Changeset> declaredChangesets,
                                                            Collection<Changeset> persistedChangesets) {
 
-        return diff(executionContexts, declaredChangesets, persistedChangesets);
-    }
-
-    private static Collection<Changeset> diff(ExecutionContexts executionContexts,
-                                       Collection<Changeset> declaredChangesets,
-                                       Collection<Changeset> persistedChangesets) {
-
-        return from(declaredChangesets)
+        return declaredChangesets.stream()
             .filter(BY_ANY_EXECUTION_CONTEXT(executionContexts))
             .filter(executionFilter(persistedChangesets))
-            .toList();
+            .collect(toList());
     }
 
     @SuppressWarnings("unchecked")
     private static Predicate<Changeset> executionFilter(Collection<Changeset> persistedChangesets) {
-        return or(
-            not(in(persistedChangesets)),
-            Predicates.and(
-                ChangesetRunOnChange.RUN_ON_CHANGE,
-                ChangesetChecksumHasChanged.CHECKSUM_HAS_CHANGED(persistedChangesets)
-            ),
-            RUN_ALWAYS
-        );
+        return Predicates.in(persistedChangesets).negate()
+            .or(ChangesetRunOnChange.RUN_ON_CHANGE
+                .and(ChangesetChecksumHasChanged.CHECKSUM_HAS_CHANGED(persistedChangesets)))
+            .or(RUN_ALWAYS);
     }
 }

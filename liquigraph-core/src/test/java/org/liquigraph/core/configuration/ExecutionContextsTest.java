@@ -15,39 +15,38 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.base.Optional;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
-import static com.google.common.base.Optional.fromNullable;
-import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.liquigraph.core.configuration.ExecutionContexts.DEFAULT_CONTEXT;
 
 public class ExecutionContextsTest {
 
     @Test
     public void no_configured_contexts_matches_any_changeset_contexts() {
-        Assertions.assertThat(ExecutionContexts.DEFAULT_CONTEXT.matches(Optional.<Collection<String>>absent())).isTrue();
-        Assertions.assertThat(ExecutionContexts.DEFAULT_CONTEXT.matches(fromNullable((Collection<String>) Collections.<String>emptyList()))).isTrue();
-        Assertions.assertThat(ExecutionContexts.DEFAULT_CONTEXT.matches(fromNullable((Collection<String>) newArrayList("foo")))).isTrue();
+        assertThat(DEFAULT_CONTEXT.matches(Optional.empty())).isTrue();
+        assertThat(DEFAULT_CONTEXT.matches(Optional.of(Collections.<String>emptyList()))).isTrue();
+        assertThat(DEFAULT_CONTEXT.matches(Optional.of(singletonList("foo")))).isTrue();
     }
 
     @Test
     public void changesets_with_no_context_always_match() {
-        assertThat(new ExecutionContexts(newArrayList("foo")).matches(Optional.<Collection<String>>absent())).isTrue();
+        assertThat(new ExecutionContexts(singletonList("foo")).matches(Optional.empty())).isTrue();
     }
 
     @Test
     public void changesets_with_at_least_1_matching_context_will_always_match() {
-        ExecutionContexts executionContexts = new ExecutionContexts(newArrayList("foo", "bar"));
+        ExecutionContexts executionContexts = new ExecutionContexts(asList("foo", "bar"));
 
-        assertThat(executionContexts.matches(Optional.<Collection<String>>fromNullable(newArrayList("foo")))).isTrue();
-        assertThat(executionContexts.matches(Optional.<Collection<String>>fromNullable(newArrayList("bar")))).isTrue();
-        assertThat(executionContexts.matches(Optional.<Collection<String>>fromNullable(newArrayList("foo", "bar")))).isTrue();
-        assertThat(executionContexts.matches(Optional.<Collection<String>>fromNullable(newArrayList("foo", "baz")))).isTrue();
-        assertThat(executionContexts.matches(Optional.<Collection<String>>fromNullable(newArrayList("baz")))).isFalse();
+        assertThat(executionContexts.matches(Optional.of(singletonList("foo")))).isTrue();
+        assertThat(executionContexts.matches(Optional.of(singletonList("bar")))).isTrue();
+        assertThat(executionContexts.matches(Optional.of(asList("foo", "bar")))).isTrue();
+        assertThat(executionContexts.matches(Optional.of(asList("foo", "baz")))).isTrue();
+        assertThat(executionContexts.matches(Optional.of(singletonList("baz")))).isFalse();
     }
 }

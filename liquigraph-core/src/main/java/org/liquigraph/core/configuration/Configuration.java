@@ -15,7 +15,6 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.base.Supplier;
 import org.liquigraph.core.io.ChangelogFileWriter;
 import org.liquigraph.core.io.ChangelogGraphWriter;
 import org.liquigraph.core.io.ChangelogWriter;
@@ -25,6 +24,7 @@ import org.liquigraph.core.io.xml.ChangelogLoader;
 import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
 
 import java.sql.Connection;
+import java.util.function.Supplier;
 
 /**
  * Immutable Liquigraph configuration settings.

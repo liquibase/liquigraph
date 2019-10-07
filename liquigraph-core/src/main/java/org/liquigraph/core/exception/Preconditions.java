@@ -13,17 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.model.predicates;
+package org.liquigraph.core.exception;
 
-import org.liquigraph.core.model.Changeset;
+public class Preconditions {
 
-import java.util.function.Predicate;
+    private Preconditions() {
+        throw new RuntimeException("static");
+    }
 
-public enum ChangesetRunAlways implements Predicate<Changeset> {
-    RUN_ALWAYS;
+    public static <T> T checkNotNull(T item) {
+        checkArgument(item != null, "argument is null");
+        return item;
+    }
 
-    @Override
-    public boolean test(Changeset changeset) {
-        return changeset.isRunAlways();
+    public static void checkArgument(boolean condition, String errorMessage) {
+        if (!condition) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+    }
+
+    public static void checkState(boolean condition) {
+        if (!condition) {
+            throw new IllegalStateException();
+        }
     }
 }

@@ -15,31 +15,34 @@
  */
 package org.liquigraph.core.validation;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
 import org.liquigraph.core.model.Changeset;
-import org.liquigraph.core.model.predicates.ChangesetById;
-import org.liquigraph.core.model.predicates.ChangesetRunOnChange;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.Collections2.filter;
-import static com.google.common.collect.Lists.newLinkedList;
 import static java.lang.String.format;
+import static org.liquigraph.core.model.predicates.ChangesetById.BY_ID;
+import static org.liquigraph.core.model.predicates.ChangesetRunOnChange.RUN_ON_CHANGE;
 
 public class PersistedChangesetValidator {
 
     public Collection<String> validate(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
-        Collection<Changeset> changesets = filter(declaredChangesets, not(ChangesetRunOnChange.RUN_ON_CHANGE));
+        List<Changeset> changesets = declaredChangesets.stream()
+            .filter(RUN_ON_CHANGE.negate())
+            .collect(Collectors.toList());
+
         return validateChecksums(changesets, persistedChangesets);
     }
 
     private Collection<String> validateChecksums(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
-        Collection<String> errors = newLinkedList();
+        Collection<String> errors = new ArrayList<>();
         for (Changeset declaredChangeset : declaredChangesets) {
-            Optional<Changeset> maybePersistedChangeset = FluentIterable.from(persistedChangesets)
-                .firstMatch(ChangesetById.BY_ID(declaredChangeset.getId(), declaredChangeset.getAuthor()));
+            Optional<Changeset> maybePersistedChangeset = persistedChangesets.stream()
+                .filter(BY_ID(declaredChangeset.getId(), declaredChangeset.getAuthor()))
+                .findFirst();
 
             if (!maybePersistedChangeset.isPresent()) {
                 continue;

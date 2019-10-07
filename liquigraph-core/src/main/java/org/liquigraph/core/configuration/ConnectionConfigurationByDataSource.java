@@ -15,13 +15,12 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.base.Optional;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
 
-import static com.google.common.base.Throwables.propagate;
+import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class ConnectionConfigurationByDataSource implements ConnectionConfiguration {
 
@@ -50,6 +49,6 @@ public class ConnectionConfigurationByDataSource implements ConnectionConfigurat
         if (!username.isPresent()) {
             return dataSource.getConnection();
         }
-        return dataSource.getConnection(username.get(), password.or(""));
+        return dataSource.getConnection(username.get(), password.orElse(""));
     }
 }

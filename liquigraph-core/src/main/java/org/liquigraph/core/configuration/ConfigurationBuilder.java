@@ -15,8 +15,6 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 
 import org.liquigraph.core.configuration.validators.DatasourceConfigurationValidator;
 import org.liquigraph.core.configuration.validators.ExecutionModeValidator;
@@ -25,16 +23,12 @@ import org.liquigraph.core.configuration.validators.UserCredentialsOptionValidat
 import org.liquigraph.core.io.xml.ChangelogLoader;
 import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
 
-import java.nio.file.Path;
-import java.util.Collection;
-
 import javax.sql.DataSource;
-
-import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Optional.fromNullable;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newLinkedList;
-import static java.lang.String.format;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Fluent {@link Configuration} builder.
@@ -43,10 +37,10 @@ import static java.lang.String.format;
 public final class ConfigurationBuilder {
 
     private String masterChangelog;
-    private Optional<DataSource> dataSource = absent();
-    private Optional<String> uri = absent();
-    private Optional<String> username = absent();
-    private Optional<String> password = absent();
+    private Optional<DataSource> dataSource = Optional.empty();
+    private Optional<String> uri = Optional.empty();
+    private Optional<String> username = Optional.empty();
+    private Optional<String> password = Optional.empty();
     private ExecutionContexts executionContexts = ExecutionContexts.DEFAULT_CONTEXT;
     private ExecutionMode executionMode;
 
@@ -59,6 +53,7 @@ public final class ConfigurationBuilder {
     /**
      * Specifies the location of the master changelog file.
      * Please note that this location should point to a readable Liquigraph changelog file.
+     *
      * @param masterChangelog Liquigraph changelog
      * @return itself for chaining purposes
      */
@@ -75,7 +70,7 @@ public final class ConfigurationBuilder {
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withUri(String uri) {
-        this.uri = fromNullable(uri);
+        this.uri = Optional.ofNullable(uri);
         return this;
     }
 
@@ -87,46 +82,47 @@ public final class ConfigurationBuilder {
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withDataSource(DataSource dataSource) {
-        this.dataSource = fromNullable(dataSource);
+        this.dataSource = Optional.ofNullable(dataSource);
         return this;
     }
 
     /**
      * Specifies the username allowed to connect to the remote graph database instance.
      * Please be sure to provide a password, if you provide a username, too.
+     *
      * @param username username
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withUsername(String username) {
-        this.username = fromNullable(username);
+        this.username = Optional.ofNullable(username);
         return this;
     }
 
     /**
      * Specifies the password allowed to connect to the remote graph database instance.
      * Please be sure to provide a username, if you provide a password, too.
+     *
      * @param password password
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withPassword(String password) {
-        this.password = fromNullable(password);
+        this.password = Optional.ofNullable(password);
         return this;
     }
 
     /**
-     * @see ConfigurationBuilder#withExecutionContexts(java.util.Collection)
-     *
      * @param executionContexts 0 or more Liquigraph execution contexts to allow changeset
      *                          filtering
      * @return itself for chaining purposes
+     * @see ConfigurationBuilder#withExecutionContexts(java.util.Collection)
      */
     public ConfigurationBuilder withExecutionContexts(String... executionContexts) {
-        return withExecutionContexts(newArrayList(executionContexts));
+        return withExecutionContexts(Arrays.asList(executionContexts));
     }
 
     /**
      * Specifies one or more execution contexts.
-     * 
+     *
      * @param executionContexts non-nullable execution contexts
      * @return itself for chaining purposes
      */
@@ -161,14 +157,13 @@ public final class ConfigurationBuilder {
     }
 
     /**
+     * @param classLoader class loader
+     * @return itself for chaining purposes
      * @deprecated Please use {@link #withChangelogLoader(ChangelogLoader)} with a {@link ClassLoaderChangelogLoader}.
-     *
+     * <p>
      * Sets ClassLoader to use when reading Liquigraph changelogs.
      * Default is <code>Thread.currentThread().getContextClassLoader()</code>.
      * Don't call this unless you REALLY know what you're doing.
-     *
-     * @param classLoader class loader
-     * @return itself for chaining purposes
      */
     @Deprecated
     public ConfigurationBuilder withClassLoader(ClassLoader classLoader) {
@@ -200,11 +195,11 @@ public final class ConfigurationBuilder {
      * @return Liquigraph configuration
      */
     public Configuration build() {
-        Collection<String> errors = newLinkedList();
+        Collection<String> errors = new ArrayList<>();
         errors.addAll(mandatoryOptionValidator.validate(changelogLoader, masterChangelog));
         errors.addAll(datasourceConnectionValidator.validate(uri, dataSource));
         errors.addAll(executionModeValidator.validate(executionMode));
-        errors.addAll(userCredentialsOptionValidator.validate(username.orNull(), password.orNull()));
+        errors.addAll(userCredentialsOptionValidator.validate(username.orElse(null), password.orElse(null)));
 
         if (!errors.isEmpty()) {
             throw new RuntimeException(formatErrors(errors));
@@ -228,6 +223,6 @@ public final class ConfigurationBuilder {
 
     private String formatErrors(Collection<String> errors) {
         String separator = "\n\t - ";
-        return format("%s%s", separator, Joiner.on(separator).join(errors));
+        return String.format("%s%s", separator, String.join(separator, errors));
     }
 }

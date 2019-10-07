@@ -42,6 +42,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LiquigraphLockTest {
+
     @InjectMocks
     private LiquigraphLock lock;
     @Mock(answer = RETURNS_DEEP_STUBS)
@@ -52,12 +53,9 @@ public class LiquigraphLockTest {
     private PreparedStatement deleteStatement;
 
     @Before
-    public void setUpConnection()
-            throws SQLException {
-        when(connection.prepareStatement(matches("CREATE\\s+\\(\\w*:__LiquigraphLock[^)]*\\).*")))
-                .thenReturn(createStatement);
-        when(connection.prepareStatement(matches("MATCH\\s+\\((\\w+):__LiquigraphLock[^)]*\\)\\s+DELETE\\s+\\1")))
-                .thenReturn(deleteStatement);
+    public void setUpConnection() throws SQLException {
+        when(connection.prepareStatement(matches("CREATE\\s+\\(\\w*:__LiquigraphLock[^)]*\\).*"))).thenReturn(createStatement);
+        when(connection.prepareStatement(matches("MATCH\\s+\\((\\w+):__LiquigraphLock[^)]*\\)\\s+DELETE\\s+\\1"))).thenReturn(deleteStatement);
     }
 
     @After
@@ -66,8 +64,7 @@ public class LiquigraphLockTest {
     }
 
     @Test
-    public void should_create_the_lock()
-            throws SQLException {
+    public void should_create_the_lock() throws SQLException {
         lock.acquire(connection);
 
         verify(createStatement).execute();
@@ -75,8 +72,7 @@ public class LiquigraphLockTest {
     }
 
     @Test
-    public void should_create_the_lock_once()
-            throws SQLException {
+    public void should_create_the_lock_once() throws SQLException {
         lock.acquire(connection);
         Connection connection2 = mock(Connection.class, RETURNS_DEEP_STUBS);
 
@@ -88,36 +84,23 @@ public class LiquigraphLockTest {
     }
 
     @Test
-    public void should_fail_when_the_lock_cannot_be_created()
-            throws SQLException {
+    public void should_fail_when_the_lock_cannot_be_created() throws SQLException {
         when(createStatement.execute()).thenThrow(SQLException.class);
 
-        assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                lock.acquire(connection);
-            }
-        }).isInstanceOf(LiquigraphLockException.class);
+        assertThatThrownBy(() -> lock.acquire(connection)).isInstanceOf(LiquigraphLockException.class);
     }
 
     @Test
-    public void should_fail_when_the_lock_cannot_be_constrained()
-            throws SQLException {
+    public void should_fail_when_the_lock_cannot_be_constrained() throws SQLException {
         Statement constraintStatement = mock(Statement.class);
         when(connection.createStatement()).thenReturn(constraintStatement);
         when(constraintStatement.execute(anyString())).thenThrow(SQLException.class);
 
-        assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                lock.acquire(connection);
-            }
-        }).isInstanceOf(LiquigraphLockException.class);
+        assertThatThrownBy(() -> lock.acquire(connection)).isInstanceOf(LiquigraphLockException.class);
     }
 
     @Test
-    public void should_delete_the_lock()
-            throws SQLException {
+    public void should_delete_the_lock() throws SQLException {
         lock.acquire(connection);
 
         lock.release(connection);
@@ -127,8 +110,7 @@ public class LiquigraphLockTest {
     }
 
     @Test
-    public void should_delete_the_lock_once()
-            throws SQLException {
+    public void should_delete_the_lock_once() throws SQLException {
         lock.acquire(connection);
         lock.release(connection);
 
@@ -139,8 +121,7 @@ public class LiquigraphLockTest {
     }
 
     @Test
-    public void should_not_fail_when_the_lock_cannot_be_deleted()
-            throws SQLException {
+    public void should_not_fail_when_the_lock_cannot_be_deleted() throws SQLException {
         when(deleteStatement.execute()).thenThrow(SQLException.class);
         lock.acquire(connection);
 
@@ -149,8 +130,7 @@ public class LiquigraphLockTest {
     }
 
     @Test
-    public void should_clean_up_an_unreleased_connection_and_delete_the_lock()
-            throws SQLException {
+    public void should_clean_up_an_unreleased_connection_and_delete_the_lock() throws SQLException {
         lock.acquire(connection);
 
         lock.cleanup();

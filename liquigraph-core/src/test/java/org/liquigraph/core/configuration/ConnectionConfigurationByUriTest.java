@@ -15,14 +15,14 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Supplier;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.core.configuration.ConnectionConfigurationByUri.UriConnectionSupplier;
 
 import java.sql.Connection;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -38,10 +38,10 @@ public class ConnectionConfigurationByUriTest {
     public void connects_via_the_provided_uri() {
         Connection expectedConnection = mock(Connection.class);
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByUri(
-                "jdbc:neo4j:mem:mydb",
-                Optional.<String>absent(),
-                Optional.<String>absent(),
-                new MockedConnectionSupplier(expectedConnection)
+            "jdbc:neo4j:mem:mydb",
+            Optional.<String>empty(),
+            Optional.<String>empty(),
+            new MockedConnectionSupplier(expectedConnection)
         );
 
         Connection connection = connectionProvider.get();
@@ -54,8 +54,8 @@ public class ConnectionConfigurationByUriTest {
         RuntimeException failure = new RuntimeException("oopsie");
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByUri(
             "jdbc:neo4j:mem:mydb",
-            Optional.<String>absent(),
-            Optional.<String>absent(),
+            Optional.<String>empty(),
+            Optional.<String>empty(),
             new ThrowingConnectionSupplier(failure)
         );
 

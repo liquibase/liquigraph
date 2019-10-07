@@ -19,10 +19,10 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.liquigraph.core.model.CompoundQueries.checkQueryListState;
 
@@ -30,7 +30,7 @@ import static org.liquigraph.core.model.CompoundQueries.checkQueryListState;
 @XmlRootElement(name = "or")
 public class OrQuery implements CompoundQuery {
 
-    private List<Query> queries = newArrayList();
+    private List<Query> queries = new ArrayList<>();
 
     @XmlElementRefs({
         @XmlElementRef(name = "and", type = AndQuery.class),

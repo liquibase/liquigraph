@@ -15,15 +15,30 @@
  */
 package org.liquigraph.core.model.predicates;
 
-import org.liquigraph.core.model.Changeset;
-
+import java.util.Collection;
 import java.util.function.Predicate;
 
-public enum ChangesetRunAlways implements Predicate<Changeset> {
-    RUN_ALWAYS;
+public class Predicates {
+
+    private Predicates() {
+        throw new RuntimeException("static");
+    }
+
+    public static <T> Predicate<T> in(Collection<T> items) {
+        return new InPredicate<>(items);
+    }
+}
+
+class InPredicate<T> implements Predicate<T> {
+
+    private final Collection<T> items;
+
+    public InPredicate(Collection<T> items) {
+        this.items = items;
+    }
 
     @Override
-    public boolean test(Changeset changeset) {
-        return changeset.isRunAlways();
+    public boolean test(T item) {
+        return items.contains(item);
     }
 }

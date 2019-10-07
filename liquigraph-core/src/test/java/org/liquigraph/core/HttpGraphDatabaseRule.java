@@ -15,8 +15,6 @@
  */
 package org.liquigraph.core;
 
-import com.google.common.base.Optional;
-import java.sql.ResultSet;
 import org.junit.Assume;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
@@ -25,15 +23,17 @@ import org.neo4j.jdbc.http.HttpDriver;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
-import static com.google.common.base.Throwables.propagate;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class HttpGraphDatabaseRule extends ExternalResource
-                                   implements GraphDatabaseRule {
+    implements GraphDatabaseRule {
 
     private final String uri;
     private final String username;

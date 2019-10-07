@@ -15,13 +15,12 @@
  */
 package org.liquigraph.core.model.predicates;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import org.liquigraph.core.model.Changeset;
 
 import java.util.Collection;
+import java.util.Optional;
+import java.util.function.Predicate;
 
-import static com.google.common.collect.FluentIterable.from;
 import static org.liquigraph.core.model.predicates.ChangesetById.BY_ID;
 
 public class ChangesetChecksumHasChanged implements Predicate<Changeset> {
@@ -37,9 +36,9 @@ public class ChangesetChecksumHasChanged implements Predicate<Changeset> {
     }
 
     @Override
-    public boolean apply(Changeset input) {
+    public boolean test(Changeset input) {
         Optional<Changeset> persistedChangeset =
-                from(persistedChangesets).firstMatch(BY_ID(input.getId(), input.getAuthor()));
+            persistedChangesets.stream().filter(BY_ID(input.getId(), input.getAuthor())).findFirst();
         return persistedChangeset.isPresent() && !input.getChecksum().equals(persistedChangeset.get().getChecksum());
     }
 }

@@ -21,18 +21,19 @@ import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 
 public class ConditionPrinter {
 
     public Collection<String> print(Precondition precondition) {
         if (precondition == null) {
-            return newArrayList();
+            return new ArrayList<>();
         }
-        Collection<String> lines = newArrayList();
+        Collection<String> lines = new ArrayList<>();
         lines.add(format("//Liquigraph precondition[if-not-met: %s]", precondition.getPolicy()));
         lines.addAll(print((Condition) precondition));
         return lines;
@@ -40,9 +41,9 @@ public class ConditionPrinter {
 
     public Collection<String> print(Condition precondition) {
         if (precondition == null) {
-            return newArrayList();
+            return new ArrayList<>();
         }
-        return newArrayList(traverseQuery(precondition.getQuery()));
+        return singletonList(traverseQuery(precondition.getQuery()));
     }
 
     private String traverseQuery(Query query) {

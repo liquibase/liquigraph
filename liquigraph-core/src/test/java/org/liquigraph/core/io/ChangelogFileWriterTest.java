@@ -15,9 +15,6 @@
  */
 package org.liquigraph.core.io;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,11 +25,12 @@ import org.liquigraph.core.model.Precondition;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -55,16 +53,16 @@ public class ChangelogFileWriterTest {
         ConditionPrinter conditionPrinter = given_precondition_printer_prints_nothing();
         outputFile = new File(temporaryFolder.newFolder(), "output.cypher");
         writer = new ChangelogFileWriter(
-                conditionPrinter,
+            conditionPrinter,
             outputFile
         );
     }
 
     @Test
     public void generates_a_simple_comment_when_nothing_has_to_be_written() throws IOException {
-        writer.write(Lists.<Changeset>newArrayList());
+        writer.write(Collections.emptyList());
 
-        String fileContents = Joiner.on("\n").join(Files.readAllLines(outputFile.toPath(), Charsets.UTF_8));
+        String fileContents = String.join("\n", Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8));
         assertThat(fileContents).isEqualTo(
             "//Liquigraph: nothing to persist!"
         );
@@ -72,37 +70,37 @@ public class ChangelogFileWriterTest {
 
     @Test
     public void persists_one_changeset_on_file() throws IOException {
-        Collection<Changeset> changesets = newArrayList(
+        Collection<Changeset> changesets = singletonList(
             changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})")
         );
 
         writer.write(changesets);
 
-        String fileContents = Joiner.on("\n").join(Files.readAllLines(outputFile.toPath(), Charsets.UTF_8));
+        String fileContents = String.join("\n", Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8));
         assertThat(fileContents).isEqualTo(
             "//Liquigraph changeset[author: fbiville, id: identifier]\n" +
-            "//Liquigraph changeset[executionContexts: none declared]\n" +
-            "CREATE (n: SomeNode {text:'yeah'})"
+                "//Liquigraph changeset[executionContexts: none declared]\n" +
+                "CREATE (n: SomeNode {text:'yeah'})"
         );
     }
 
     @Test
     public void persists_several_changesets_on_file() throws IOException {
-        Collection<Changeset> changesets = newArrayList(
+        Collection<Changeset> changesets = Arrays.asList(
             changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})"),
             changeset("identifier2", "mgazanayi", "CREATE (n2: SomeNode {text:'yeah'})", "preprod,prod")
         );
 
         writer.write(changesets);
 
-        String fileContents = Joiner.on("\n").join(Files.readAllLines(outputFile.toPath(), Charsets.UTF_8));
+        String fileContents = String.join("\n", Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8));
         assertThat(fileContents).isEqualTo(
             "//Liquigraph changeset[author: fbiville, id: identifier]\n" +
-            "//Liquigraph changeset[executionContexts: none declared]\n" +
-            "CREATE (n: SomeNode {text:'yeah'})\n" +
-            "//Liquigraph changeset[author: mgazanayi, id: identifier2]\n" +
-            "//Liquigraph changeset[executionContexts: preprod,prod]\n" +
-            "CREATE (n2: SomeNode {text:'yeah'})"
+                "//Liquigraph changeset[executionContexts: none declared]\n" +
+                "CREATE (n: SomeNode {text:'yeah'})\n" +
+                "//Liquigraph changeset[author: mgazanayi, id: identifier2]\n" +
+                "//Liquigraph changeset[executionContexts: preprod,prod]\n" +
+                "CREATE (n2: SomeNode {text:'yeah'})"
         );
     }
 

@@ -15,7 +15,6 @@
  */
 package org.liquigraph.core.parser;
 
-import com.google.common.collect.Lists;
 import org.assertj.core.api.iterable.Extractor;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,10 +34,11 @@ import org.liquigraph.core.model.SimpleQuery;
 import org.w3c.dom.Node;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +52,8 @@ import static org.mockito.Mockito.when;
 
 public class ChangelogParserTest {
 
-    @Rule public ExpectedException thrown = ExpectedException.none();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
     private final XmlSchemaValidator validator = new XmlSchemaValidator();
     private final ChangelogPreprocessor preprocessor = new ChangelogPreprocessor(new ImportResolver());
     private final ChangelogLoader changelogLoader = ClassLoaderChangelogLoader.currentThreadContextClassLoader();
@@ -90,16 +91,11 @@ public class ChangelogParserTest {
         Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/changelog-with-execution-contexts.xml");
 
         assertThat(changesets)
-            .extracting(new Extractor<Changeset, Collection<String>>() {
-                @Override
-                public Collection<String> extract(Changeset input) {
-                    return input.getExecutionsContexts();
-                }
-            })
+            .extracting((Extractor<Changeset, Collection<String>>) Changeset::getExecutionsContexts)
             .containsExactly(
-                newArrayList("foo", "bar"),
-                newArrayList("baz"),
-                Lists.<String>newArrayList()
+                Arrays.asList("foo", "bar"),
+                singletonList(("baz")),
+                Collections.emptyList()
             );
     }
 

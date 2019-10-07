@@ -21,17 +21,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
+import java.io.InputStream;
 
-import static com.google.common.base.Throwables.propagate;
+import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class ImportResolver {
 
@@ -56,7 +55,7 @@ public class ImportResolver {
         Element root = document.getDocumentElement();
 
         IterableNodeList imports = IterableNodeList.of(evaluateNodes("/changelog/import", root));
-        for (Node toImport: imports) {
+        for (Node toImport : imports) {
             String fullPath = parentFolder(changelog) + attributeTextContent(toImport, "resource");
             Node resolvedRoot = resolveImports(fullPath, changelogLoader);
             IterableNodeList changesets = IterableNodeList.of(evaluateNodes("/changelog/changeset", resolvedRoot));
@@ -76,8 +75,8 @@ public class ImportResolver {
     private Document document(InputStream changelog) {
         try {
             return DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
-                    .parse(changelog);
+                .newDocumentBuilder()
+                .parse(changelog);
         } catch (SAXException | IOException | ParserConfigurationException e) {
             throw propagate(e);
         }

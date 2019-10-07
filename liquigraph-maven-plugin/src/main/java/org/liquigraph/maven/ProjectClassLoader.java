@@ -25,7 +25,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static edu.emory.mathcs.backport.java.util.Collections.singletonList;
 
 public class ProjectClassLoader {
 
@@ -36,13 +36,13 @@ public class ProjectClassLoader {
             classpathElementUrls.add(new File(classPathElement).toURI().toURL());
         }
         return new URLClassLoader(
-            classpathElementUrls.toArray(new URL[classpathElementUrls.size()]),
+            classpathElementUrls.toArray(new URL[0]),
             Thread.currentThread().getContextClassLoader()
         );
     }
 
     @SuppressWarnings("unchecked")
     private static List<String> compileClassPathElements(MavenProject project) throws DependencyResolutionRequiredException {
-        return newArrayList(project.getCompileClasspathElements());
+        return singletonList(project.getCompileClasspathElements());
     }
 }

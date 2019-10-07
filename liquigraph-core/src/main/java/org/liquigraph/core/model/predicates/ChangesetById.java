@@ -15,10 +15,11 @@
  */
 package org.liquigraph.core.model.predicates;
 
-import com.google.common.base.Predicate;
 import org.liquigraph.core.model.Changeset;
 
-import static com.google.common.base.Preconditions.checkState;
+import java.util.function.Predicate;
+
+import static org.liquigraph.core.exception.Preconditions.checkState;
 
 public class ChangesetById implements Predicate<Changeset> {
 
@@ -37,8 +38,8 @@ public class ChangesetById implements Predicate<Changeset> {
     }
 
     @Override
-    public boolean apply(Changeset input) {
+    public boolean test(Changeset input) {
         return id.equals(input.getId()) &&
-               author.equals(input.getAuthor());
+            author.equals(input.getAuthor());
     }
 }

@@ -15,7 +15,6 @@
  */
 package org.liquigraph.core.model;
 
-import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -24,6 +23,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ChangesetTest {
+
     @Test(expected = IllegalArgumentException.class)
     public void should_fail_with_null_queries() {
         new Changeset().setQueries(null);
@@ -64,14 +64,11 @@ public class ChangesetTest {
 
     @Test
     public void should_have_equality_on_id_author_and_checksum() {
-        new EqualsTester()
-            .addEqualityGroup(
-                changeset("identifier", "author", "CREATE (n)"),
-                changeset("identifier", "author", "CREATE (n)"))
-            .addEqualityGroup(changeset("identifier", "author", "MATCH (n) RETURN n"))
-            .addEqualityGroup(changeset("identifier", "author2", "CREATE (n)"))
-            .addEqualityGroup(changeset("identifier2", "author", "CREATE (n)"))
-            .testEquals();
+        assertThat(changeset("identifier", "author", "CREATE (n)"))
+            .isEqualTo(changeset("identifier", "author", "CREATE (n)"))
+            .isNotEqualTo(changeset("identifier", "author", "MATCH (n) RETURN n"))
+            .isNotEqualTo(changeset("identifier", "author2", "CREATE (n)"))
+            .isNotEqualTo(changeset("identifier2", "author", "CREATE (n)"));
     }
 
     private Changeset changeset(String id, String author, String query) {

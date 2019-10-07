@@ -15,10 +15,9 @@
  */
 package org.liquigraph.core.model.predicates;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-
 import java.util.Collection;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class ExecutionContextsMatchAnyContext implements Predicate<String> {
     private final Optional<Collection<String>> contexts;
@@ -32,7 +31,7 @@ public class ExecutionContextsMatchAnyContext implements Predicate<String> {
     }
 
     @Override
-    public boolean apply(String input) {
+    public boolean test(String input) {
         return !contexts.isPresent() || contexts.get().contains(input);
     }
 }

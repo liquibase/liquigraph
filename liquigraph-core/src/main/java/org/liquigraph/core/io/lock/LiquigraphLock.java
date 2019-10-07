@@ -15,18 +15,19 @@
  */
 package org.liquigraph.core.io.lock;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.UUID;
 import org.liquigraph.core.exception.LiquigraphLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.google.common.collect.Sets.newIdentityHashSet;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Shared lock proxy using references on the connections to create and remove the lock node, more or less like
@@ -37,7 +38,7 @@ public class LiquigraphLock {
     private static final Logger LOGGER = LoggerFactory.getLogger(LiquigraphLock.class);
 
     private final UUID uuid = UUID.randomUUID();
-    private final Set<Connection> connections = newIdentityHashSet();
+    private final Map<Connection, Boolean> connections = new IdentityHashMap<>();
     private final Thread task = new Thread(new ShutdownTask(this));
 
     void acquire(Connection connection) {
@@ -58,14 +59,14 @@ public class LiquigraphLock {
     }
 
     void cleanup() {
-        for (Connection connection : new ArrayList<>(connections)) {
+        for (Connection connection : new HashSet<>(this.connections.keySet())) {
             release(connection);
         }
     }
 
     private boolean addConnection(Connection connection) {
         boolean wasEmpty = connections.isEmpty();
-        connections.add(connection);
+        connections.put(connection, Boolean.TRUE);
         return wasEmpty;
     }
 
@@ -89,37 +90,35 @@ public class LiquigraphLock {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE CONSTRAINT ON (lock:__LiquigraphLock) ASSERT lock.name IS UNIQUE");
             connection.commit();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new LiquigraphLockException(
-                    "Could not ensure __LiquigraphLock unicity\n\t" +
-                            "Please make sure your instance is in a clean state\n\t" +
-                            "No more than 1 lock should be there simultaneously!",
-                    e
+                "Could not ensure __LiquigraphLock unicity\n\t" +
+                    "Please make sure your instance is in a clean state\n\t" +
+                    "No more than 1 lock should be there simultaneously!",
+                e
             );
         }
     }
 
     private void tryWriteLock(Connection connection) {
         try (PreparedStatement statement = connection.prepareStatement(
-                "CREATE (:__LiquigraphLock {name:'John', uuid:{1}})")) {
+            "CREATE (:__LiquigraphLock {name:'John', uuid:{1}})")) {
 
             statement.setString(1, uuid.toString());
             statement.execute();
             connection.commit();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new LiquigraphLockException(
-                    "Cannot create __LiquigraphLock lock\n\t" +
-                            "Likely another Liquigraph execution is going on or has crashed.",
-                    e
+                "Cannot create __LiquigraphLock lock\n\t" +
+                    "Likely another Liquigraph execution is going on or has crashed.",
+                e
             );
         }
     }
 
     private void releaseLock(Connection connection) {
         try (PreparedStatement statement = connection.prepareStatement(
-                "MATCH (lock:__LiquigraphLock {uuid:{1}}) DELETE lock")) {
+            "MATCH (lock:__LiquigraphLock {uuid:{1}}) DELETE lock")) {
 
             statement.setString(1, uuid.toString());
             statement.execute();

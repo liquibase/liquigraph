@@ -15,7 +15,6 @@
  */
 package org.liquigraph.core.io;
 
-import com.google.common.base.Joiner;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -27,7 +26,8 @@ import org.liquigraph.core.model.PreconditionErrorPolicy;
 import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.Arrays;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConditionPrinterTest {
@@ -48,7 +48,8 @@ public class ConditionPrinterTest {
         thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.ConditionPrinterTest$1>");
 
         Precondition precondition = new Precondition();
-        precondition.setQuery(new Query() {});
+        precondition.setQuery(new Query() {
+        });
         conditionPrinter.print(precondition);
     }
 
@@ -59,11 +60,11 @@ public class ConditionPrinterTest {
             PreconditionErrorPolicy.CONTINUE
         );
 
-        String contents = Joiner.on("\n").join(conditionPrinter.print(precondition));
+        String contents = String.join("\n", conditionPrinter.print(precondition));
 
         assertThat(contents).isEqualTo(
             "//Liquigraph precondition[if-not-met: CONTINUE]\n" +
-            "FROM a RETURN a"
+                "FROM a RETURN a"
         );
     }
 
@@ -80,11 +81,11 @@ public class ConditionPrinterTest {
             PreconditionErrorPolicy.FAIL
         );
 
-        String contents = Joiner.on("\n").join(conditionPrinter.print(precondition));
+        String contents = String.join("\n", conditionPrinter.print(precondition));
 
         assertThat(contents).isEqualTo(
             "//Liquigraph precondition[if-not-met: FAIL]\n" +
-            "((FROM a RETURN a) OR (((FROM b RETURN b) AND (FROM c RETURN c))))");
+                "((FROM a RETURN a) OR (((FROM b RETURN b) AND (FROM c RETURN c))))");
     }
 
     private Precondition precondition(Query query, PreconditionErrorPolicy aContinue) {
@@ -96,13 +97,13 @@ public class ConditionPrinterTest {
 
     private CompoundQuery orQuery(Query query1, Query query2) {
         OrQuery orQuery = new OrQuery();
-        orQuery.setQueries(newArrayList(query1, query2));
+        orQuery.setQueries(Arrays.asList(query1, query2));
         return orQuery;
     }
 
     private CompoundQuery andQuery(Query query1, Query query2) {
         AndQuery andQuery = new AndQuery();
-        andQuery.setQueries(newArrayList(query1, query2));
+        andQuery.setQueries(Arrays.asList(query1, query2));
         return andQuery;
     }
 

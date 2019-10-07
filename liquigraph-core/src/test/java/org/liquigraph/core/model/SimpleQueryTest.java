@@ -15,18 +15,17 @@
  */
 package org.liquigraph.core.model;
 
-import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class SimpleQueryTest {
+
     @Test
     public void should_have_equality_on_query() {
-        new EqualsTester()
-                .addEqualityGroup(
-                        simpleQuery("MATCH (n) RETURN n"),
-                        simpleQuery("MATCH (n) RETURN n"))
-                .addEqualityGroup(simpleQuery("MATCH (m) RETURN m"))
-                .testEquals();
+        assertThat(simpleQuery("MATCH (n) RETURN n"))
+            .isEqualTo(simpleQuery("MATCH (n) RETURN n"))
+            .isNotEqualTo(simpleQuery("MATCH (m) RETURN m"));
     }
 
     private static SimpleQuery simpleQuery(String query) {

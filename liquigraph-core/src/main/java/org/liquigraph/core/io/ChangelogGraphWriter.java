@@ -15,7 +15,6 @@
  */
 package org.liquigraph.core.io;
 
-import com.google.common.base.Supplier;
 import org.liquigraph.core.exception.PreconditionNotMetException;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.Condition;
@@ -31,29 +30,30 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.function.Supplier;
 
-import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Iterables.get;
 import static java.lang.String.format;
+import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class ChangelogGraphWriter implements ChangelogWriter {
 
     private static final String CHANGESET_UPSERT =
         "MERGE (changelog:__LiquigraphChangelog) " +
-        "MERGE (changelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset {id: {1}, author: {3}}) " +
-        "ON MATCH SET  changeset.checksum = {2} " +
-        "ON CREATE SET changeset.checksum = {2}, " +
-        "              ewc.time = timestamp() " +
-        "WITH changeset " +
-        // deletes previous stored queries, if any
-        "OPTIONAL MATCH (changeset)<-[eq:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
-        "DELETE eq, query " +
-        "RETURN changeset ";
+            "MERGE (changelog)<-[ewc:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset {id: {1}, author: {3}}) " +
+            "ON MATCH SET  changeset.checksum = {2} " +
+            "ON CREATE SET changeset.checksum = {2}, " +
+            "              ewc.time = timestamp() " +
+            "WITH changeset " +
+            // deletes previous stored queries, if any
+            "OPTIONAL MATCH (changeset)<-[eq:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
+            "DELETE eq, query " +
+            "RETURN changeset ";
 
     private static final String QUERY_UPSERT =
         // stores the possibly updated queries
         "MATCH (changeset:__LiquigraphChangeset {id: {1}, author: {2}}) " +
-        "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}})";
+            "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}})";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogGraphWriter.class);
 
@@ -72,7 +72,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     /**
      * Runs the set of migrations against the configured database and inserts them
      * in the persisted migration graph.
-     *
+     * <p>
      * Please note that these two operations are performed in two separate transactions,
      * as user-defined migrations may operate on indices and those need be run apart
      * from data changes.
@@ -135,22 +135,22 @@ public class ChangelogGraphWriter implements ChangelogWriter {
             case FAIL:
                 LOGGER.info("Failing precondition of changeset {} by {}. Aborting now.", changeset.getId(), changeset.getAuthor());
                 throw new PreconditionNotMetException(
-                        format(
-                                "Changeset id=<%s>, author=<%s>: precondition query %s failed with policy <%s>. Aborting.",
-                                changeset.getId(),
-                                changeset.getAuthor(),
-                                precondition.getQuery(),
-                                precondition.getPolicy()
-                        )
+                    format(
+                        "Changeset id=<%s>, author=<%s>: precondition query %s failed with policy <%s>. Aborting.",
+                        changeset.getId(),
+                        changeset.getAuthor(),
+                        precondition.getQuery(),
+                        precondition.getPolicy()
+                    )
                 );
             default:
                 throw new IllegalArgumentException(
-                        format(
-                                "Changeset id=<%s>, author=<%s>: unsupported policy <%s>. Aborting.",
-                                changeset.getId(),
-                                changeset.getAuthor(),
-                                precondition.getPolicy()
-                        )
+                    format(
+                        "Changeset id=<%s>, author=<%s>: unsupported policy <%s>. Aborting.",
+                        changeset.getId(),
+                        changeset.getAuthor(),
+                        precondition.getPolicy()
+                    )
                 );
         }
     }
@@ -189,9 +189,23 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         Collection<String> queries = changeset.getQueries();
         for (int i = 0; i < queries.size(); i++) {
             queryStmt.setInt(3, i);
-            queryStmt.setString(4, get(queries, i));
+            queryStmt.setString(4, getNth(queries, i));
             queryStmt.execute();
         }
+    }
+
+    private <T> T getNth(Collection<T> items, int index) {
+        T result = null;
+        int i = 0;
+        for (T item : items) {
+            if (i++ == index) {
+                result = item;
+            }
+        }
+        if (result == null) {
+            throw new NoSuchElementException(String.format("element %d not found", index));
+        }
+        return result;
     }
 
     private void populateChangesetStatement(Changeset changeset, PreparedStatement changesetStmt) throws SQLException {

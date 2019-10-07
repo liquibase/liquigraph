@@ -15,27 +15,22 @@
  */
 package org.liquigraph.core.configuration.validators;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-
 import javax.sql.DataSource;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Optional;
 
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 
 public class DatasourceConfigurationValidator {
 
     public Collection<String> validate(Optional<String> uri, Optional<DataSource> dataSource) {
         if (uri.isPresent() == dataSource.isPresent()) {
-            return ImmutableList.of("Exactly one of JDBC URI or DataSource need to be configured");
+            return Collections.singletonList("Exactly one of JDBC URI or DataSource need to be configured");
         }
-
-        if (uri.isPresent()) {
-            return validateConnectionString(uri.get());
-        }
-        return Collections.emptyList();
+        return uri.map(DatasourceConfigurationValidator::validateConnectionString).orElse(emptyList());
     }
 
     private static Collection<String> validateConnectionString(String uri) {

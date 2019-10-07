@@ -15,9 +15,8 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.base.Supplier;
-
 import java.sql.Connection;
+import java.util.function.Supplier;
 
 public interface ConnectionConfiguration extends Supplier<Connection> {
 }

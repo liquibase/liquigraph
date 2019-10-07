@@ -19,6 +19,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.liquigraph.core.GraphDatabaseRule;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.liquigraph.core.io.lock.LockableConnection;
@@ -50,12 +51,13 @@ public abstract class GraphJdbcConnectorTestSuite implements GraphIntegrationTes
 
     @Test
     public void instantiates_a_remote_graph_database() throws SQLException {
+        GraphDatabaseRule graphDatabase = graphDatabase();
         try (Connection connection = connector.connect(new ConfigurationBuilder()
             .withRunMode()
             .withMasterChangelogLocation("changelog/changelog.xml")
-            .withUri(graphDatabase().uri())
-            .withUsername(graphDatabase().username().orNull())
-            .withPassword(graphDatabase().password().orNull())
+            .withUri(graphDatabase.uri())
+            .withUsername(graphDatabase.username().orElse(null))
+            .withPassword(graphDatabase.password().orElse(null))
             .build()
         )) {
             assertThat(connection).isInstanceOf(LockableConnection.class);

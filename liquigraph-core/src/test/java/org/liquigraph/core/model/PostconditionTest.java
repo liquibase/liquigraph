@@ -15,18 +15,16 @@
  */
 package org.liquigraph.core.model;
 
-import com.google.common.testing.EqualsTester;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PostconditionTest {
     @Test
     public void should_have_equality_on_query() {
-        new EqualsTester()
-                .addEqualityGroup(
-                        postcondition("MATCH (n) RETURN COUNT(n) > 0 AS result"),
-                        postcondition("MATCH (n) RETURN COUNT(n) > 0 AS result"))
-                .addEqualityGroup(postcondition("MATCH (m) RETURN COUNT(m) > 0 AS result"))
-                .testEquals();
+        assertThat(postcondition("MATCH (n) RETURN COUNT(n) > 0 AS result"))
+            .isEqualTo(postcondition("MATCH (n) RETURN COUNT(n) > 0 AS result"))
+            .isNotEqualTo(postcondition("MATCH (m) RETURN COUNT(m) > 0 AS result"));
     }
 
     private static Postcondition postcondition(String query) {

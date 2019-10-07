@@ -15,21 +15,20 @@
  */
 package org.liquigraph.core.model;
 
-import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.liquigraph.core.model.PreconditionErrorPolicy.CONTINUE;
+import static org.liquigraph.core.model.PreconditionErrorPolicy.MARK_AS_EXECUTED;
+
 public class PreconditionTest {
+
     @Test
     public void should_have_equality_on_policy_and_query() {
-        new EqualsTester()
-                .addEqualityGroup(
-                        precondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "MATCH (n) RETURN COUNT(n) > 0 AS result"),
-                        precondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "MATCH (n) RETURN COUNT(n) > 0 AS result"))
-                .addEqualityGroup(
-                        precondition(PreconditionErrorPolicy.CONTINUE, "MATCH (n) RETURN COUNT(n) > 0 AS result"))
-                .addEqualityGroup(
-                        precondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "MATCH (m) RETURN COUNT(m) > 0 AS result"))
-                .testEquals();
+        assertThat(precondition(MARK_AS_EXECUTED, "MATCH (n) RETURN COUNT(n) > 0 AS result"))
+            .isEqualTo(precondition(MARK_AS_EXECUTED, "MATCH (n) RETURN COUNT(n) > 0 AS result"))
+            .isNotEqualTo(precondition(CONTINUE, "MATCH (n) RETURN COUNT(n) > 0 AS result"))
+            .isNotEqualTo(precondition(MARK_AS_EXECUTED, "MATCH (m) RETURN COUNT(m) > 0 AS result"));
     }
 
     private static Precondition precondition(PreconditionErrorPolicy policy, String query) {

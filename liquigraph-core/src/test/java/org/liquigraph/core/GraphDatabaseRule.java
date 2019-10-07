@@ -15,10 +15,10 @@
  */
 package org.liquigraph.core;
 
-import com.google.common.base.Optional;
 import org.junit.rules.TestRule;
 
 import java.sql.Connection;
+import java.util.Optional;
 
 public interface GraphDatabaseRule extends TestRule {
 

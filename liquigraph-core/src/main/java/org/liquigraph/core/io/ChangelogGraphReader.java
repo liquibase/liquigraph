@@ -23,13 +23,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableCollection;
+import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class ChangelogGraphReader {
 
@@ -61,7 +61,7 @@ public class ChangelogGraphReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogFileWriter.class);
 
     public final Collection<Changeset> read(Connection connection) {
-        Collection<Changeset> changesets = newArrayList();
+        Collection<Changeset> changesets = new ArrayList<>();
         try (Statement statement = connection.createStatement()) {
             LOGGER.debug("Migrating pre 1.0-RC3 history graph");
             statement.execute(MIGRATE_PRE_1_0_RC3_CHANGELOG);
@@ -73,8 +73,7 @@ public class ChangelogGraphReader {
             connection.commit();
             LOGGER.debug("Retrieved {} changesets", changesets.size());
             return changesets;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw propagate(e);
         }
     }

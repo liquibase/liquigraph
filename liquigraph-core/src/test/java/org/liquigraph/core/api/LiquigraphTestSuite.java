@@ -47,8 +47,8 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                         .withRunMode()
                         .withMasterChangelogLocation("changelog/changelog-with-1-node.xml")
                         .withUri(graphDatabase().uri())
-                        .withUsername(graphDatabase().username().orNull())
-                        .withPassword(graphDatabase().password().orNull())
+                        .withUsername(graphDatabase().username().orElse(null))
+                        .withPassword(graphDatabase().password().orElse(null))
                         .build()
         );
 
@@ -90,8 +90,8 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                         .withRunMode()
                         .withMasterChangelogLocation("schema/schema-changelog.xml")
                         .withUri(graphDatabase().uri())
-                        .withUsername(graphDatabase().username().orNull())
-                        .withPassword(graphDatabase().password().orNull())
+                        .withUsername(graphDatabase().username().orElse(null))
+                        .withPassword(graphDatabase().password().orElse(null))
                         .build()
         );
 

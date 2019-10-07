@@ -15,8 +15,6 @@
  */
 package org.liquigraph.core.io;
 
-import com.google.common.base.Supplier;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,8 +33,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Supplier;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +48,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
     private Connection connection;
 
     @Before
-    public void prepare() throws SQLException {
+    public void prepare() {
         connection = connectionSupplier.get();
         writer = new ChangelogGraphWriter(connection, connectionSupplier, new ConditionExecutor());
     }
@@ -62,7 +60,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
 
     @Test
     public void persists_changesets_in_graph() throws SQLException {
-        writer.write(newArrayList(changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})")));
+        writer.write(singletonList(changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})")));
 
         assertThatQueryIsExecutedAndHistoryPersisted();
     }
@@ -72,7 +70,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
         Precondition precondition = precondition(PreconditionErrorPolicy.FAIL, "RETURN true AS result");
         Changeset changeset = changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})", precondition);
 
-        writer.write(newArrayList(changeset));
+        writer.write(singletonList(changeset));
 
         assertThatQueryIsExecutedAndHistoryPersisted();
     }
@@ -83,7 +81,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
             Precondition precondition = precondition(PreconditionErrorPolicy.FAIL, "RETURN false AS result");
             Changeset changeset = changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})", precondition);
 
-            writer.write(newArrayList(changeset));
+            writer.write(singletonList(changeset));
             failBecauseExceptionWasNotThrown(PreconditionNotMetException.class);
         }
         catch (PreconditionNotMetException pnme) {
@@ -98,7 +96,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
         Precondition precondition = precondition(PreconditionErrorPolicy.CONTINUE, "RETURN false AS result");
         Changeset changeset = changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})", precondition);
 
-        writer.write(newArrayList(changeset));
+        writer.write(singletonList(changeset));
 
         try (Connection connection = graphDatabase().newConnection();
              Statement statement = connection.createStatement();
@@ -174,7 +172,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
         changeset.setRunAlways(true);
 
         for (int i = 0; i < 5; i++) {
-            writer.write(newArrayList(changeset));
+            writer.write(singletonList(changeset));
         }
 
         try (Connection connection = graphDatabase().newConnection();
@@ -204,7 +202,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
         Changeset changeset = changeset("identifier", "fbiville", "CREATE (n:SomeNode {prop: 1})");
         changeset.setRunOnChange(true);
 
-        writer.write(newArrayList(changeset));
+        writer.write(singletonList(changeset));
 
         changeset = changeset(changeset.getId(), changeset.getAuthor(),
                 "MERGE (n:SomeNode) " +
@@ -212,7 +210,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
                 "ON MATCH SET n.prop = n.prop + 1");
         changeset.setRunOnChange(true);
 
-        writer.write(newArrayList(changeset));
+        writer.write(singletonList(changeset));
 
         try (Connection connection = graphDatabase().newConnection();
              Statement transaction = connection.createStatement();
@@ -256,7 +254,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
                 "OPTIONAL MATCH (n:SomeNode) " +
                 "RETURN EXISTS((n)-->()) AS result"));
 
-            writer.write(newArrayList(changeset));
+            writer.write(singletonList(changeset));
 
             try (Statement transaction = connection.createStatement();
                  ResultSet resultSet = transaction.executeQuery(

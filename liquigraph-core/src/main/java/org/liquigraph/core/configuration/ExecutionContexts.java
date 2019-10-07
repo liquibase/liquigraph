@@ -15,22 +15,19 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import org.liquigraph.core.model.predicates.ExecutionContextsMatchAnyContext;
 
 import java.util.Collection;
-
-import static com.google.common.base.Optional.fromNullable;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class ExecutionContexts {
 
-    public static final ExecutionContexts DEFAULT_CONTEXT = new ExecutionContexts(Optional.<Collection<String>>absent());
+    public static final ExecutionContexts DEFAULT_CONTEXT = new ExecutionContexts(Optional.<Collection<String>>empty());
     private Predicate<String> anyContext;
 
     public ExecutionContexts(Collection<String> executionContexts) {
-        this(fromNullable(executionContexts));
+        this(Optional.ofNullable(executionContexts));
     }
 
     private ExecutionContexts(Optional<Collection<String>> contexts) {
@@ -45,6 +42,6 @@ public class ExecutionContexts {
         if (changesetContexts.isEmpty()) {
             return true;
         }
-        return FluentIterable.from(changesetContexts).anyMatch(anyContext);
+        return changesetContexts.stream().anyMatch(anyContext);
     }
 }

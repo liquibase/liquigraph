@@ -17,7 +17,7 @@ package org.liquigraph.core.model;
 
 import java.util.Collection;
 
-import static com.google.common.base.Preconditions.checkState;
+import static org.liquigraph.core.exception.Preconditions.checkState;
 
 public class CompoundQueries {
 

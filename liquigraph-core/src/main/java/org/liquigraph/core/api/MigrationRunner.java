@@ -15,8 +15,6 @@
  */
 package org.liquigraph.core.api;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Supplier;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ChangelogWriter;
@@ -33,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.function.Supplier;
 
 class MigrationRunner {
 
@@ -61,7 +60,6 @@ class MigrationRunner {
         this.conditionPrinter = conditionPrinter;
         this.persistedChangesetValidator = persistedChangesetValidator;
     }
-
 
 
     public void runMigrations(Configuration configuration) {
@@ -101,17 +99,17 @@ class MigrationRunner {
                                            Supplier<Connection> connectionSupplier,
                                            Collection<Changeset> changelogsToInsert) {
         ChangelogWriter changelogWriter = configuration.resolveWriter(
-            writeConnection,
-            connectionSupplier,
-            conditionExecutor,
-            conditionPrinter
+          writeConnection,
+          connectionSupplier,
+          conditionExecutor,
+          conditionPrinter
         );
         changelogWriter.write(changelogsToInsert);
     }
 
     private String formatErrorMessage(Collection<String> errors) {
         String separator = "\n\t";
-        return separator + Joiner.on(separator).join(errors);
+        return separator + String.join(separator, errors);
     }
 
     private class ConnectionSupplier implements Supplier<Connection> {

@@ -15,26 +15,25 @@
  */
 package org.liquigraph.core;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Throwables;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import org.junit.rules.ExternalResource;
+import org.liquigraph.core.exception.Throwables;
 import org.neo4j.harness.ServerControls;
 import org.neo4j.harness.TestServerBuilder;
 import org.neo4j.harness.TestServerBuilders;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
-import static com.google.common.base.Optional.absent;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BoltGraphDatabaseRule extends ExternalResource
-                                   implements GraphDatabaseRule {
+    implements GraphDatabaseRule {
 
     private final TestServerBuilder builder;
     private ServerControls controls;
@@ -63,12 +62,12 @@ public class BoltGraphDatabaseRule extends ExternalResource
 
     @Override
     public Optional<String> username() {
-        return absent();
+        return Optional.empty();
     }
 
     @Override
     public Optional<String> password() {
-        return absent();
+        return Optional.empty();
     }
 
     protected void before() {

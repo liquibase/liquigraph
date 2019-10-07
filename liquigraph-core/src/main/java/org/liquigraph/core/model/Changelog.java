@@ -17,15 +17,15 @@ package org.liquigraph.core.model;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.Collection;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
+import static org.liquigraph.core.exception.Preconditions.checkNotNull;
 
 @XmlRootElement(name = "changelog")
 public class Changelog {
 
-    private Collection<Changeset> changesets = newArrayList();
+    private Collection<Changeset> changesets = new ArrayList<>();
 
     @XmlElement(name = "changeset")
     public Collection<Changeset> getChangesets() {

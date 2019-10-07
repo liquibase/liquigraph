@@ -15,11 +15,11 @@
  */
 package org.liquigraph.core.model.predicates;
 
-import com.google.common.base.Predicate;
 import org.liquigraph.core.configuration.ExecutionContexts;
 import org.liquigraph.core.model.Changeset;
 
-import static com.google.common.base.Optional.fromNullable;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class ChangesetMatchAnyExecutionContexts implements Predicate<Changeset> {
 
@@ -34,7 +34,7 @@ public class ChangesetMatchAnyExecutionContexts implements Predicate<Changeset> 
     }
 
     @Override
-    public boolean apply(Changeset input) {
-        return executionContexts.matches(fromNullable(input.getExecutionsContexts()));
+    public boolean test(Changeset changeset) {
+        return executionContexts.matches(Optional.ofNullable(changeset.getExecutionsContexts()));
     }
 }

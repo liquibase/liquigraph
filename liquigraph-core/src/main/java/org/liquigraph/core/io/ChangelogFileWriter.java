@@ -15,28 +15,29 @@
  */
 package org.liquigraph.core.io;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
 import org.liquigraph.core.model.Changeset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
-import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.nio.file.Files.createFile;
 import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.StandardOpenOption.APPEND;
+import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class ChangelogFileWriter implements ChangelogWriter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogFileWriter.class);
+
     private final ConditionPrinter conditionPrinter;
     private final File outputFile;
 
@@ -69,17 +70,17 @@ public class ChangelogFileWriter implements ChangelogWriter {
     }
 
     private void writeNothingToPersist(Path path) throws IOException {
-        Files.write(path, newArrayList("//Liquigraph: nothing to persist!"), Charsets.UTF_8);
+        Files.write(path, Collections.singletonList("//Liquigraph: nothing to persist!"), StandardCharsets.UTF_8);
     }
 
     private void writeChangeset(Changeset changeset, Path path) throws IOException {
-        Files.write(path, conditionPrinter.print(changeset.getPrecondition()), Charsets.UTF_8, APPEND);
-        Files.write(path, changesetToString(changeset), Charsets.UTF_8, APPEND);
-        Files.write(path, conditionPrinter.print(changeset.getPostcondition()), Charsets.UTF_8, APPEND);
+        Files.write(path, conditionPrinter.print(changeset.getPrecondition()), StandardCharsets.UTF_8, APPEND);
+        Files.write(path, changesetToString(changeset), StandardCharsets.UTF_8, APPEND);
+        Files.write(path, conditionPrinter.print(changeset.getPostcondition()), StandardCharsets.UTF_8, APPEND);
     }
 
     private Collection<String> changesetToString(Changeset changeset) {
-        Collection<String> lines = newArrayList();
+        Collection<String> lines = new ArrayList<>();
         lines.add(format("//Liquigraph changeset[author: %s, id: %s]", changeset.getAuthor(), changeset.getId()));
         lines.add(format("//Liquigraph changeset[executionContexts: %s]", flatten(changeset.getExecutionsContexts())));
         lines.addAll(changeset.getQueries());
@@ -90,7 +91,7 @@ public class ChangelogFileWriter implements ChangelogWriter {
         if (executionsContexts.isEmpty()) {
             return "none declared";
         }
-        return Joiner.on(",").join(executionsContexts);
+        return String.join(",", executionsContexts);
     }
 
 }

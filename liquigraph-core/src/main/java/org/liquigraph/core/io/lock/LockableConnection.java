@@ -34,17 +34,17 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-import static com.google.common.base.Throwables.propagate;
+import static org.liquigraph.core.exception.Throwables.propagate;
 
 /**
  * This JDBC connection decorator writes a (:__LiquigraphLock)
  * Neo4j node in order to prevent concurrent executions.
- *
+ * <p>
  * Closing this connection will delete the created "Lock" node.
- *
+ * <p>
  * A shutdown hook is executed to remove the lock node if and
  * only if the connection has not been properly closed.
- *
+ * <p>
  * Please note that any {@link Connection} passed to this decorator
  * will be set to auto-commit: false`. The auto-commit property
  * is restored on close. The latter is done in order to minimize
@@ -75,8 +75,7 @@ public final class LockableConnection implements Connection {
             try {
                 if (connection != null) {
                     connection.close();
-                }
-                else {
+                } else {
                     delegate.close();
                 }
             } catch (SQLException exception) {
@@ -90,7 +89,7 @@ public final class LockableConnection implements Connection {
      * Removes lock node and removes the related cleanup
      * task shutdown hook before closing the underlying
      * connection.
-     *
+     * <p>
      * Pending transactions are explicitly rolled back
      * before resetting auto-commit. They could otherwise
      * end up being committed in delegate#close()

@@ -29,8 +29,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.liquigraph.core.exception.Preconditions.checkArgument;
 
 public class ConditionExecutor {
 

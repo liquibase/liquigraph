@@ -20,7 +20,7 @@ import org.w3c.dom.NodeList;
 
 import java.util.Iterator;
 
-import static com.google.common.base.Preconditions.checkState;
+import static org.liquigraph.core.exception.Preconditions.checkState;
 
 final class IterableNodeList implements Iterable<Node> {
 

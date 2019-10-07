@@ -15,7 +15,6 @@
  */
 package org.liquigraph.core.api;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ConditionExecutor;
@@ -36,20 +35,70 @@ public final class Liquigraph {
     private final MigrationRunner migrationRunner;
 
     public Liquigraph() {
-        this(new GraphJdbcConnector());
+        this(graphJdbcConnector());
     }
 
-    @VisibleForTesting
+    // visible for testing
     Liquigraph(LiquigraphJdbcConnector connector) {
-        migrationRunner = new MigrationRunner(
-                connector,
-                new ChangelogParser(new XmlSchemaValidator(), new ChangelogPreprocessor(new ImportResolver())),
-                new ChangelogGraphReader(),
-                new ChangelogDiffMaker(),
-                new ConditionExecutor(),
-                new ConditionPrinter(),
-                new PersistedChangesetValidator()
+        migrationRunner = migrationRunner(
+            connector,
+            changelogParser(xmlSchemaValidator(), changelogPreprocessor(importResolver())),
+            changelogGraphReader(),
+            changelogDiffMaker(),
+            conditionExecutor(),
+            conditionPrinter()
         );
+    }
+    private static GraphJdbcConnector graphJdbcConnector() {
+        return new GraphJdbcConnector();
+    }
+
+    private static MigrationRunner migrationRunner(LiquigraphJdbcConnector connector, ChangelogParser changelogParser, ChangelogGraphReader changelogGraphReader, ChangelogDiffMaker changelogDiffMaker, ConditionExecutor conditionExecutor, ConditionPrinter conditionPrinter) {
+        return new MigrationRunner(
+            connector,
+            changelogParser,
+            changelogGraphReader,
+            changelogDiffMaker,
+            conditionExecutor,
+            conditionPrinter,
+            persistedChangesetValidator()
+        );
+    }
+
+    private static PersistedChangesetValidator persistedChangesetValidator() {
+        return new PersistedChangesetValidator();
+    }
+
+    private static ConditionPrinter conditionPrinter() {
+        return new ConditionPrinter();
+    }
+
+    private static ConditionExecutor conditionExecutor() {
+        return new ConditionExecutor();
+    }
+
+    private static ChangelogDiffMaker changelogDiffMaker() {
+        return new ChangelogDiffMaker();
+    }
+
+    private static ChangelogGraphReader changelogGraphReader() {
+        return new ChangelogGraphReader();
+    }
+
+    private static ChangelogParser changelogParser(XmlSchemaValidator validator, ChangelogPreprocessor preprocessor) {
+        return new ChangelogParser(validator, preprocessor);
+    }
+
+    private static ChangelogPreprocessor changelogPreprocessor(ImportResolver resolver) {
+        return new ChangelogPreprocessor(resolver);
+    }
+
+    private static ImportResolver importResolver() {
+        return new ImportResolver();
+    }
+
+    private static XmlSchemaValidator xmlSchemaValidator() {
+        return new XmlSchemaValidator();
     }
 
     /**

@@ -15,11 +15,11 @@
  */
 package org.liquigraph.core.configuration.validators;
 
-import com.google.common.base.Optional;
 import org.junit.Test;
 
 import javax.sql.DataSource;
 import java.util.Collection;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,15 +32,16 @@ public class DatasourceConfigurationValidatorTest {
     public void validates_proper_configuration_by_uri() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
             Optional.of("jdbc:neo4j:bolt://localhost:666"),
-            Optional.<DataSource>absent()
+            Optional.empty()
         );
 
         assertThat(errors).isEmpty();
     }
+
     @Test
     public void validates_proper_configuration_by_datasource() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
-            Optional.<String>absent(),
+            Optional.empty(),
             Optional.of(mock(DataSource.class))
         );
 
@@ -50,8 +51,8 @@ public class DatasourceConfigurationValidatorTest {
     @Test
     public void returns_error_if_both_uri_and_datasource_are_provided() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
-                Optional.of("jdbc:neo4j:bolt://localhost:666"),
-                Optional.of(mock(DataSource.class))
+            Optional.of("jdbc:neo4j:bolt://localhost:666"),
+            Optional.of(mock(DataSource.class))
         );
 
         assertThat(errors).containsExactly("Exactly one of JDBC URI or DataSource need to be configured");
@@ -60,8 +61,8 @@ public class DatasourceConfigurationValidatorTest {
     @Test
     public void returns_error_if_both_uri_and_datasource_are_not_provided() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
-                Optional.<String>absent(),
-                Optional.<DataSource>absent()
+            Optional.empty(),
+            Optional.empty()
         );
 
         assertThat(errors).containsExactly("Exactly one of JDBC URI or DataSource need to be configured");
@@ -70,8 +71,8 @@ public class DatasourceConfigurationValidatorTest {
     @Test
     public void returns_error_if_uri_is_invalid() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
-                Optional.of("not:a:valid:jdbc:uri"),
-                Optional.<DataSource>absent()
+            Optional.of("not:a:valid:jdbc:uri"),
+            Optional.empty()
         );
 
         assertThat(errors).containsExactly(String.format(

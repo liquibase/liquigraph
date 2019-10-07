@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.model.predicates;
+package org.liquigraph.core.model;
 
-import org.liquigraph.core.model.Changeset;
+import org.junit.Test;
 
-import java.util.function.Predicate;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.liquigraph.core.model.Checksums.checksum;
 
-public enum ChangesetRunAlways implements Predicate<Changeset> {
-    RUN_ALWAYS;
+public class ChecksumsTest {
 
-    @Override
-    public boolean test(Changeset changeset) {
-        return changeset.isRunAlways();
+    @Test
+    public void computes_checksum_of_queries() {
+        assertThat(checksum(asList("MATCH (n) RETURN n", "MATCH (m) RETURN m")))
+            .isEqualTo("9c68d381cf24b9cab5843a506229c5dee1083f8e");
     }
 }

@@ -15,16 +15,12 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.base.Charsets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 

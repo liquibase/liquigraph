@@ -15,8 +15,6 @@
  */
 package org.liquigraph.core.configuration;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Supplier;
 import org.hamcrest.CoreMatchers;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,6 +23,8 @@ import org.junit.rules.ExpectedException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.mock;
@@ -42,8 +42,8 @@ public class ConnectionConfigurationByDataSourceTest {
         DataSource dataSource = mock(DataSource.class);
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByDataSource(
             dataSource,
-            Optional.<String>absent(),
-            Optional.<String>absent()
+            Optional.<String>empty(),
+            Optional.<String>empty()
         );
 
         connectionProvider.get();
@@ -57,7 +57,7 @@ public class ConnectionConfigurationByDataSourceTest {
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByDataSource(
             dataSource,
             Optional.of("user"),
-            Optional.<String>absent()
+            Optional.<String>empty()
         );
 
         connectionProvider.get();
@@ -84,9 +84,9 @@ public class ConnectionConfigurationByDataSourceTest {
         DataSource dataSource = mock(DataSource.class);
         when(dataSource.getConnection()).thenThrow(SQLException.class);
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByDataSource(
-                dataSource,
-                Optional.<String>absent(),
-                Optional.<String>absent()
+            dataSource,
+            Optional.<String>empty(),
+            Optional.<String>empty()
         );
         thrown.expect(RuntimeException.class);
         thrown.expectCause(CoreMatchers.isA(SQLException.class));
@@ -99,9 +99,9 @@ public class ConnectionConfigurationByDataSourceTest {
         DataSource dataSource = mock(DataSource.class);
         when(dataSource.getConnection("user", "s3cr3t")).thenThrow(SQLException.class);
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByDataSource(
-                dataSource,
-                Optional.of("user"),
-                Optional.of("s3cr3t")
+            dataSource,
+            Optional.of("user"),
+            Optional.of("s3cr3t")
         );
         thrown.expect(RuntimeException.class);
         thrown.expectCause(CoreMatchers.isA(SQLException.class));

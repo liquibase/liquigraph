@@ -15,9 +15,10 @@
  */
 package org.liquigraph.core.model.predicates;
 
-import com.google.common.base.Predicate;
 import org.junit.Test;
 import org.liquigraph.core.model.Changeset;
+
+import java.util.function.Predicate;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +29,7 @@ public class ChangesetByIdTest {
         Changeset changeset = changeset("identifier", "author", "MATCH (n) RETURN n");
         Predicate<Changeset> byId = ChangesetById.BY_ID("identifier", "author");
 
-        assertThat(byId.apply(changeset)).isTrue();
+        assertThat(byId.test(changeset)).isTrue();
     }
 
     @Test
@@ -36,7 +37,7 @@ public class ChangesetByIdTest {
         Changeset changeset = changeset("identifier", "author", "MATCH (n) RETURN n");
         Predicate<Changeset> byId = ChangesetById.BY_ID("identifier", "author2");
 
-        assertThat(byId.apply(changeset)).isFalse();
+        assertThat(byId.test(changeset)).isFalse();
     }
 
     @Test
@@ -44,7 +45,7 @@ public class ChangesetByIdTest {
         Changeset changeset = changeset("identifier", "author", "MATCH (n) RETURN n");
         Predicate<Changeset> byId = ChangesetById.BY_ID("identifier2", "author");
 
-        assertThat(byId.apply(changeset)).isFalse();
+        assertThat(byId.test(changeset)).isFalse();
     }
 
     @Test(expected = IllegalStateException.class)

@@ -15,7 +15,6 @@
  */
 package org.liquigraph.core.io;
 
-import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,9 +30,9 @@ import org.liquigraph.core.model.SimpleQuery;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.liquigraph.core.io.PatternMatcher.matchesPattern;
 
@@ -49,8 +48,8 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
         try (Connection connection = graphDatabase().newConnection()) {
             try (Statement ignored = connection.createStatement()) {
                 boolean result = executor.executeCondition(
-                        connection,
-                        simplePrecondition("RETURN true AS result")
+                    connection,
+                    simplePrecondition("RETURN true AS result")
                 );
 
                 assertThat(result).isTrue();
@@ -63,8 +62,8 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
         try (Connection connection = graphDatabase().newConnection()) {
             try (Statement ignored = connection.createStatement()) {
                 boolean result = executor.executeCondition(
-                        connection,
-                        andPrecondition("RETURN true AS result", "RETURN false AS result")
+                    connection,
+                    andPrecondition("RETURN true AS result", "RETURN false AS result")
                 );
 
                 assertThat(result).isFalse();
@@ -77,8 +76,8 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
         try (Connection connection = graphDatabase().newConnection()) {
             try (Statement ignored = connection.createStatement()) {
                 boolean result = executor.executeCondition(
-                        connection,
-                        orPrecondition("RETURN true AS result", "RETURN false AS result")
+                    connection,
+                    orPrecondition("RETURN true AS result", "RETURN false AS result")
                 );
 
                 assertThat(result).isTrue();
@@ -89,7 +88,7 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
     @Test
     public void executes_nested_mixed_precondition_queries_like_a_charm() throws SQLException {
         AndQuery andQuery = new AndQuery();
-        andQuery.setQueries(newArrayList(
+        andQuery.setQueries(Arrays.asList(
             orPreconditionQuery("RETURN false AS result", "RETURN true AS result"),
             simplePreconditionQuery("RETURN true AS result")
         ));
@@ -98,8 +97,8 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
         try (Connection connection = graphDatabase().newConnection()) {
             try (Statement ignored = connection.createStatement()) {
                 boolean result = executor.executeCondition(
-                        connection,
-                        precondition
+                    connection,
+                    precondition
                 );
 
                 assertThat(result).isTrue();
@@ -112,16 +111,16 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
         thrown.expect(ConditionExecutionException.class);
         thrown.expectMessage(matchesPattern(String.format(
             "(?ms)%nError executing condition:%n" +
-            "\tMake sure your query \\<toto\\> yields exactly one column named or aliased 'result'.%n" +
-            "\tActual cause: .*Invalid input 't': expected \\<init\\> \\(line 1, column 1 \\(offset: 0\\)\\)%n" +
-            "\"toto\"%n" +
-            " \\^.*")));
+                "\tMake sure your query \\<toto\\> yields exactly one column named or aliased 'result'.%n" +
+                "\tActual cause: .*Invalid input 't': expected \\<init\\> \\(line 1, column 1 \\(offset: 0\\)\\)%n" +
+                "\"toto\"%n" +
+                " \\^.*")));
 
         try (Connection connection = graphDatabase().newConnection()) {
             try (Statement ignored = connection.createStatement()) {
                 executor.executeCondition(
-                        connection,
-                        simplePrecondition("toto")
+                    connection,
+                    simplePrecondition("toto")
                 );
             }
         }
@@ -135,8 +134,8 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
         try (Connection connection = graphDatabase().newConnection()) {
             try (Statement ignored = connection.createStatement()) {
                 executor.executeCondition(
-                        connection,
-                        simplePrecondition("RETURN true")
+                    connection,
+                    simplePrecondition("RETURN true")
                 );
             }
         }
@@ -148,7 +147,8 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
         thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.ConditionExecutorTestSuite$1>");
 
         Precondition precondition = new Precondition();
-        precondition.setQuery(new Query() {});
+        precondition.setQuery(new Query() {
+        });
         try (Connection connection = graphDatabase().newConnection()) {
             executor.executeCondition(connection, precondition);
         }
@@ -179,8 +179,9 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
     }
 
     private List<Query> simpleQueries(String firstQuery, String secondQuery) {
-        return Lists.<Query>newArrayList(
-            simplePreconditionQuery(firstQuery), simplePreconditionQuery(secondQuery)
+        return Arrays.asList(
+            simplePreconditionQuery(firstQuery),
+            simplePreconditionQuery(secondQuery)
         );
     }
 

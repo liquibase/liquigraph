@@ -15,11 +15,11 @@
  */
 package org.liquigraph.core.model.predicates;
 
-import com.google.common.base.Predicate;
 import org.junit.Test;
 import org.liquigraph.core.model.Changeset;
 
 import java.util.Collections;
+import java.util.function.Predicate;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,9 +30,9 @@ public class ChangesetChecksumHasChangedTest {
     public void should_match_a_persisted_changeset_with_changed_checksum() {
         Changeset changeset = changeset("identifier", "author", "MATCH (n) RETURN n");
         Predicate<Changeset> checksumHasChanged =
-                CHECKSUM_HAS_CHANGED(singletonList(changeset(changeset.getId(), changeset.getAuthor(), "CREATE (n)")));
+            CHECKSUM_HAS_CHANGED(singletonList(changeset(changeset.getId(), changeset.getAuthor(), "CREATE (n)")));
 
-        assertThat(checksumHasChanged.apply(changeset)).isTrue();
+        assertThat(checksumHasChanged.test(changeset)).isTrue();
     }
 
     @Test
@@ -40,7 +40,7 @@ public class ChangesetChecksumHasChangedTest {
         Changeset changeset = changeset("identifier", "author", "MATCH (n) RETURN n");
         Predicate<Changeset> checksumHasChanged = CHECKSUM_HAS_CHANGED(singletonList(changeset));
 
-        assertThat(checksumHasChanged.apply(changeset)).isFalse();
+        assertThat(checksumHasChanged.test(changeset)).isFalse();
     }
 
     @Test
@@ -48,7 +48,7 @@ public class ChangesetChecksumHasChangedTest {
         Changeset changeset = changeset("identifier", "author", "MATCH (n) RETURN n");
         Predicate<Changeset> checksumHasChanged = CHECKSUM_HAS_CHANGED(Collections.<Changeset>emptyList());
 
-        assertThat(checksumHasChanged.apply(changeset)).isFalse();
+        assertThat(checksumHasChanged.test(changeset)).isFalse();
     }
 
     private Changeset changeset(String id, String author, String query) {

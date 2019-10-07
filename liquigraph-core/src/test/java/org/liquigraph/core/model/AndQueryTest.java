@@ -15,19 +15,18 @@
  */
 package org.liquigraph.core.model;
 
-import com.google.common.collect.Lists;
-import com.google.common.testing.EqualsTester;
 import org.junit.Test;
+
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AndQueryTest {
     @Test
     public void should_have_equality_on_queries() {
-        new EqualsTester()
-                .addEqualityGroup(
-                        andQuery("MATCH (n) RETURN n", "MATCH(m) RETURN m"),
-                        andQuery("MATCH (n) RETURN n", "MATCH(m) RETURN m"))
-                .addEqualityGroup(andQuery("MATCH (m) RETURN m", "MATCH(n) RETURN n"))
-                .testEquals();
+        assertThat(andQuery("MATCH (n) RETURN n", "MATCH(m) RETURN m"))
+            .isEqualTo(andQuery("MATCH (n) RETURN n", "MATCH(m) RETURN m"))
+            .isNotEqualTo(andQuery("MATCH (m) RETURN m", "MATCH(n) RETURN n"));
     }
 
     private static AndQuery andQuery(String firstQuery, String secondQuery) {
@@ -36,7 +35,7 @@ public class AndQueryTest {
         firstSimpleQuery.setQuery(firstQuery);
         SimpleQuery secondSimpleQuery = new SimpleQuery();
         secondSimpleQuery.setQuery(secondQuery);
-        andQuery.setQueries(Lists.<Query>newArrayList(firstSimpleQuery, secondSimpleQuery));
+        andQuery.setQueries(Arrays.asList(firstSimpleQuery, secondSimpleQuery));
         return andQuery;
     }
 }
