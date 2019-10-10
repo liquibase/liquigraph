@@ -33,17 +33,17 @@ public abstract class GraphJdbcConnectorTestSuite implements GraphIntegrationTes
 
     @Rule public ExpectedException thrown = ExpectedException.none();
 
-    protected final GraphJdbcConnector connector = new GraphJdbcConnector();
-
     @Ignore("TODO: This scheme isn't supported any longer")
     @Test
     public void instantiates_a_local_graph_database() throws SQLException {
-        try (Connection connection = connector.connect(new ConfigurationBuilder()
+        GraphJdbcConnector connector = new GraphJdbcConnector(new ConfigurationBuilder()
             .withRunMode()
             .withMasterChangelogLocation("changelog/changelog.xml")
             .withUri("jdbc:neo4j:mem")
             .build()
-        )) {
+        );
+
+        try (Connection connection = connector.connect()) {
             assertThat(connection).isInstanceOf(LockableConnection.class);
         }
 
@@ -52,14 +52,15 @@ public abstract class GraphJdbcConnectorTestSuite implements GraphIntegrationTes
     @Test
     public void instantiates_a_remote_graph_database() throws SQLException {
         GraphDatabaseRule graphDatabase = graphDatabase();
-        try (Connection connection = connector.connect(new ConfigurationBuilder()
+        GraphJdbcConnector connector = new GraphJdbcConnector(new ConfigurationBuilder()
             .withRunMode()
             .withMasterChangelogLocation("changelog/changelog.xml")
             .withUri(graphDatabase.uri())
             .withUsername(graphDatabase.username().orElse(null))
             .withPassword(graphDatabase.password().orElse(null))
             .build()
-        )) {
+        );
+        try (Connection connection = connector.connect()) {
             assertThat(connection).isInstanceOf(LockableConnection.class);
         }
     }

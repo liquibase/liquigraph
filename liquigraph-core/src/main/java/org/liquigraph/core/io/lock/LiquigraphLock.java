@@ -26,8 +26,8 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  * Shared lock proxy using references on the connections to create and remove the lock node, more or less like
@@ -40,6 +40,12 @@ public class LiquigraphLock {
     private final UUID uuid = UUID.randomUUID();
     private final Map<Connection, Boolean> connections = new IdentityHashMap<>();
     private final Thread task = new Thread(new ShutdownTask(this));
+
+    private final Supplier<Connection> connectionSupplier;
+
+    public LiquigraphLock(Supplier<Connection> connection) {
+        this.connectionSupplier = connection;
+    }
 
     void acquire(Connection connection) {
         if (addConnection(connection)) {
@@ -117,14 +123,23 @@ public class LiquigraphLock {
     }
 
     private void releaseLock(Connection connection) {
-        try (PreparedStatement statement = connection.prepareStatement(
-            "MATCH (lock:__LiquigraphLock {uuid:{1}}) DELETE lock")) {
-
+        String deleteLockQuery = "MATCH (lock:__LiquigraphLock {uuid:{1}}) DELETE lock";
+        try (PreparedStatement statement = connection.prepareStatement(deleteLockQuery)) {
             statement.setString(1, uuid.toString());
             statement.execute();
             connection.commit();
-        } catch (SQLException e) {
-            LOGGER.error("Cannot remove __LiquigraphLock during cleanup.", e);
+        } catch (SQLException firstAttemptException) {
+            LOGGER.info("Failed to remove __LiquigraphLock. Trying again with new connection", firstAttemptException);
+            // the connection used above probably points to a failed transaction and new statements cannot be committed
+            // a new connection is open so that the cleanup can actually happem
+            try (PreparedStatement statement = this.connectionSupplier.get().prepareStatement(deleteLockQuery)) {
+                statement.setString(1, uuid.toString());
+                statement.execute();
+                connection.commit();
+            }
+            catch (SQLException secondAttemptException) {
+                LOGGER.error("Cannot remove __LiquigraphLock during cleanup.", secondAttemptException);
+            }
         }
     }
 }

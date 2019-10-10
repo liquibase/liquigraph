@@ -20,20 +20,26 @@ import org.liquigraph.core.io.lock.LiquigraphLock;
 import org.liquigraph.core.io.lock.LockableConnection;
 
 import java.sql.Connection;
+import java.util.function.Supplier;
 
-public class GraphJdbcConnector implements LiquigraphJdbcConnector {
-    private final LiquigraphLock lock = new LiquigraphLock();
+public class GraphJdbcConnector {
+
+    private final LiquigraphLock lock;
+    private final Configuration configuration;
+
+    public GraphJdbcConnector(Configuration configuration) {
+        lock = new LiquigraphLock(configuration.dataSourceConfiguration());
+        this.configuration = configuration;
+    }
 
     /**
      * Acquires a new connection to the configured instance
      * and tries to lock it (fail-fast).
      *
      * @see LockableConnection
-     * @param configuration Liquigraph settings
      * @return JDBC connection
      */
-    @Override
-    public final Connection connect(Configuration configuration) {
+    public final Connection connect() {
         Connection connection = configuration.dataSourceConfiguration().get();
         return LockableConnection.acquire(connection, lock);
     }

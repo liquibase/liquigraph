@@ -135,19 +135,36 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                         .build()
         );
 
-        assertThatThrownBy(new ThrowableAssert.ThrowingCallable() {
-            @Override
-            public void call() throws Throwable {
-                liquigraph.runMigrations(
-                        new ConfigurationBuilder()
-                                .withRunMode()
-                                .withMasterChangelogLocation("changelog/changelog-edited.xml")
-                                .withUri(graphDatabase().uri())
-                                .build()
-                );
-            }
-        })
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Changeset with ID <second-changelog> and author <team> has conflicted checksums");
+        assertThatThrownBy(() -> liquigraph.runMigrations(
+                new ConfigurationBuilder()
+                        .withRunMode()
+                        .withMasterChangelogLocation("changelog/changelog-edited.xml")
+                        .withUri(graphDatabase().uri())
+                        .build()
+        ))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Changeset with ID <second-changelog> and author <team> has conflicted checksums");
+    }
+
+    @Test
+    public void removes_lock_even_after_failed_migration() throws SQLException {
+        assertThatThrownBy(() ->
+            liquigraph.runMigrations(
+                new ConfigurationBuilder()
+                    .withRunMode()
+                    .withMasterChangelogLocation("changelog/invalid_changesets/changelog-invalid-query.xml")
+                    .withUri(graphDatabase().uri())
+                    .build()
+            ))
+        .hasCauseInstanceOf(SQLException.class)
+        .hasMessageContaining("Invalid input 'n'");
+
+        try (Connection connection = graphDatabase().newConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (lock:__LiquigraphLock) RETURN lock")) {
+
+            assertThat(resultSet.next()).isFalse();
+            connection.rollback();
+        }
     }
 }

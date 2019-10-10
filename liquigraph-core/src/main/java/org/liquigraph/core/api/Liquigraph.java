@@ -20,7 +20,6 @@ import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
 import org.liquigraph.core.io.GraphJdbcConnector;
-import org.liquigraph.core.io.LiquigraphJdbcConnector;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.io.xml.ChangelogPreprocessor;
 import org.liquigraph.core.io.xml.ImportResolver;
@@ -35,13 +34,7 @@ public final class Liquigraph {
     private final MigrationRunner migrationRunner;
 
     public Liquigraph() {
-        this(graphJdbcConnector());
-    }
-
-    // visible for testing
-    Liquigraph(LiquigraphJdbcConnector connector) {
         migrationRunner = migrationRunner(
-            connector,
             changelogParser(xmlSchemaValidator(), changelogPreprocessor(importResolver())),
             changelogGraphReader(),
             changelogDiffMaker(),
@@ -49,13 +42,9 @@ public final class Liquigraph {
             conditionPrinter()
         );
     }
-    private static GraphJdbcConnector graphJdbcConnector() {
-        return new GraphJdbcConnector();
-    }
 
-    private static MigrationRunner migrationRunner(LiquigraphJdbcConnector connector, ChangelogParser changelogParser, ChangelogGraphReader changelogGraphReader, ChangelogDiffMaker changelogDiffMaker, ConditionExecutor conditionExecutor, ConditionPrinter conditionPrinter) {
+    private static MigrationRunner migrationRunner(ChangelogParser changelogParser, ChangelogGraphReader changelogGraphReader, ChangelogDiffMaker changelogDiffMaker, ConditionExecutor conditionExecutor, ConditionPrinter conditionPrinter) {
         return new MigrationRunner(
-            connector,
             changelogParser,
             changelogGraphReader,
             changelogDiffMaker,

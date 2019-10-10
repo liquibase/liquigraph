@@ -29,6 +29,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
@@ -51,11 +52,14 @@ public class LiquigraphLockTest {
     private PreparedStatement createStatement;
     @Mock
     private PreparedStatement deleteStatement;
+    @Mock
+    private Supplier<Connection> connectionSupplier;
 
     @Before
     public void setUpConnection() throws SQLException {
         when(connection.prepareStatement(matches("CREATE\\s+\\(\\w*:__LiquigraphLock[^)]*\\).*"))).thenReturn(createStatement);
         when(connection.prepareStatement(matches("MATCH\\s+\\((\\w+):__LiquigraphLock[^)]*\\)\\s+DELETE\\s+\\1"))).thenReturn(deleteStatement);
+        when(connectionSupplier.get()).thenReturn(connection);
     }
 
     @After

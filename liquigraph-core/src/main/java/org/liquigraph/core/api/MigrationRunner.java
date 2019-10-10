@@ -20,7 +20,7 @@ import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ChangelogWriter;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
-import org.liquigraph.core.io.LiquigraphJdbcConnector;
+import org.liquigraph.core.io.GraphJdbcConnector;
 import org.liquigraph.core.io.xml.ChangelogLoader;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.model.Changeset;
@@ -36,7 +36,6 @@ import java.util.function.Supplier;
 class MigrationRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationRunner.class);
-    private final LiquigraphJdbcConnector connector;
     private final ChangelogParser changelogParser;
     private final ChangelogGraphReader changelogReader;
     private final ChangelogDiffMaker changelogDiffMaker;
@@ -44,15 +43,13 @@ class MigrationRunner {
     private final ConditionPrinter conditionPrinter;
     private final PersistedChangesetValidator persistedChangesetValidator;
 
-    public MigrationRunner(LiquigraphJdbcConnector connector,
-                           ChangelogParser changelogParser,
+    public MigrationRunner(ChangelogParser changelogParser,
                            ChangelogGraphReader changelogGraphReader,
                            ChangelogDiffMaker changelogDiffMaker,
                            ConditionExecutor conditionExecutor,
                            ConditionPrinter conditionPrinter,
                            PersistedChangesetValidator persistedChangesetValidator) {
 
-        this.connector = connector;
         this.changelogParser = changelogParser;
         this.changelogReader = changelogGraphReader;
         this.changelogDiffMaker = changelogDiffMaker;
@@ -64,8 +61,7 @@ class MigrationRunner {
 
     public void runMigrations(Configuration configuration) {
         Collection<Changeset> declaredChangesets = parseChangesets(configuration.changelogLoader(), configuration.masterChangelog());
-
-        Supplier<Connection> connectionSupplier = new ConnectionSupplier(configuration);
+        Supplier<Connection> connectionSupplier = new ConnectionSupplier(new GraphJdbcConnector(configuration));
         try (Connection writeConnection = connectionSupplier.get()) {
             Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, writeConnection);
 
@@ -112,16 +108,17 @@ class MigrationRunner {
         return separator + String.join(separator, errors);
     }
 
-    private class ConnectionSupplier implements Supplier<Connection> {
-        private final Configuration configuration;
+    private static class ConnectionSupplier implements Supplier<Connection> {
 
-        public ConnectionSupplier(Configuration configuration) {
-            this.configuration = configuration;
+        private final GraphJdbcConnector connector;
+
+        public ConnectionSupplier(GraphJdbcConnector connector) {
+            this.connector = connector;
         }
 
         @Override
         public Connection get() {
-            return connector.connect(configuration);
+            return connector.connect();
         }
     }
 }
