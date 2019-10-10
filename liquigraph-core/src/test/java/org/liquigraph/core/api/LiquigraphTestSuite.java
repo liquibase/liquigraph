@@ -60,7 +60,6 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 
                 assertThat(resultSet.next()).isTrue();
                 assertThat(resultSet.next()).isFalse();
-                connection.commit();
             }
 
             try (PreparedStatement statement = connection.prepareStatement(
@@ -78,8 +77,8 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                     assertThat(resultSet.next()).isTrue();
                     assertThat(resultSet.next()).isFalse();
                 }
-                connection.commit();
             }
+            connection.rollback();
         }
     }
 
@@ -101,7 +100,7 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 
             assertThat(resultSet.next()).isTrue();
             assertThat(resultSet.next()).isFalse();
-            connection.commit();
+            connection.rollback();
         }
     }
 
@@ -121,7 +120,7 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 
             assertThat(resultSet.next()).isTrue();
             assertThat(resultSet.next()).isFalse();
-            connection.commit();
+            connection.rollback();
         }
     }
 
