@@ -26,6 +26,7 @@ import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
 import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -37,6 +38,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.liquigraph.core.io.PatternMatcher.matchesPattern;
 
 public abstract class ConditionExecutorTestSuite implements GraphIntegrationTestSuite {
+
+    static {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+    }
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();

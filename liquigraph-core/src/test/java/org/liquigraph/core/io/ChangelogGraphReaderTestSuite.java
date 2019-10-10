@@ -21,6 +21,7 @@ import java.util.Iterator;
 import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.model.Changeset;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -33,6 +34,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.liquigraph.core.model.Checksums.checksum;
 
 abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuite {
+
+    static {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+    }
 
     private ChangelogGraphReader reader = new ChangelogGraphReader();
 

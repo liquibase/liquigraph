@@ -26,6 +26,7 @@ import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
 import org.liquigraph.core.model.SimpleQuery;
 import org.neo4j.graphdb.Node;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -42,6 +43,10 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.liquigraph.core.model.Checksums.checksum;
 
 abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuite {
+
+    static {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+    }
 
     private ConnectionSupplier connectionSupplier = new ConnectionSupplier();
     private ChangelogGraphWriter writer;
