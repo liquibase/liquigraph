@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 if [ "$WITH_DOCKER" = true ] ; then
-    docker pull neo4j:${NEO_VERSION}
+    docker pull neo4j:"${NEO_VERSION}"
     docker run --detach --publish=7474:7474 --volume=$HOME/neo4j/data:/data --env=NEO4J_AUTH=neo4j/j4oen neo4j:${NEO_VERSION}
     # Wait up to 30s for Neo4j to become available
     for i in {1..30}; do
@@ -9,4 +9,4 @@ if [ "$WITH_DOCKER" = true ] ; then
         sleep 1
     done
 fi
-mvn -T4 -q -B -V clean verify -Dneo4j.version=${NEO_VERSION}
+mvn -T1C -q -B -V clean verify -Dneo4j.version="${NEO_VERSION}"
