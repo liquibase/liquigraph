@@ -79,13 +79,13 @@ public class ChangelogGraphReader {
     }
 
     @SuppressWarnings("unchecked")
-    private Changeset mapRow(Object line) throws SQLException {
-        if (line instanceof Map) {
-            return changeset((Map<String, Object>) line);
+    private Changeset mapRow(Object row) {
+        if (row instanceof Map) {
+            return changeset((Map<String, Object>) row);
         }
         throw new IllegalArgumentException(format(
            "Unsupported row.\n\t" +
-           "Cannot parse: %s", line));
+           "Cannot parse: %s", row));
     }
 
     private Changeset changeset(Map<String, Object> node) {
