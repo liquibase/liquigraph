@@ -17,6 +17,7 @@ package org.liquigraph.core.validation;
 
 import org.junit.Test;
 import org.liquigraph.core.model.Changeset;
+import org.liquigraph.core.model.SimpleQuery;
 
 import java.util.Collection;
 
@@ -72,8 +73,8 @@ public class PersistedChangesetValidatorTest {
                 "Changeset with ID <identifier> and author <author> has conflicted checksums.%n" +
                     "\t - Declared: <%s>%n" +
                     "\t - Persisted: <%s>.",
-                checksum(singletonList("MATCH m RETURN m")),
-                checksum(singletonList("MATCH (m)-->(z) RETURN m, z"))
+                checksum(singletonList(new SimpleQuery("MATCH m RETURN m"))),
+                checksum(singletonList(new SimpleQuery("MATCH (m)-->(z) RETURN m, z")))
             )
         );
     }
@@ -88,7 +89,7 @@ public class PersistedChangesetValidatorTest {
         Changeset changeset = new Changeset();
         changeset.setId(id);
         changeset.setAuthor(author);
-        changeset.setQueries(singletonList(query));
+        changeset.setQueries(singletonList(new SimpleQuery(query)));
         return changeset;
     }
 }

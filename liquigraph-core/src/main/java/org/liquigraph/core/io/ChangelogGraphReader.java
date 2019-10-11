@@ -16,6 +16,8 @@
 package org.liquigraph.core.io;
 
 import org.liquigraph.core.model.Changeset;
+import org.liquigraph.core.model.Query;
+import org.liquigraph.core.model.SimpleQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +27,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableCollection;
+import static java.util.stream.Collectors.toList;
 import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class ChangelogGraphReader {
@@ -97,7 +102,7 @@ public class ChangelogGraphReader {
         return changeset;
     }
 
-    private Collection<String> adaptQueries(Object rawQuery) {
-        return unmodifiableCollection((Collection<String>) rawQuery);
+    private List<Query> adaptQueries(Object rawQuery) {
+        return ((Collection<String>) rawQuery).stream().map(SimpleQuery::new).collect(toList());
     }
 }

@@ -15,11 +15,11 @@
  */
 package org.liquigraph.core.io;
 
-import org.liquigraph.core.model.CompoundQuery;
+import org.liquigraph.core.model.CompoundConditionQuery;
 import org.liquigraph.core.model.Condition;
 import org.liquigraph.core.model.Precondition;
-import org.liquigraph.core.model.Query;
-import org.liquigraph.core.model.SimpleQuery;
+import org.liquigraph.core.model.ConditionQuery;
+import org.liquigraph.core.model.SimpleConditionQuery;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,12 +46,12 @@ public class ConditionPrinter {
         return singletonList(traverseQuery(precondition.getQuery()));
     }
 
-    private String traverseQuery(Query query) {
-        if (query instanceof SimpleQuery) {
-            return ((SimpleQuery) query).getQuery();
+    private String traverseQuery(ConditionQuery query) {
+        if (query instanceof SimpleConditionQuery) {
+            return ((SimpleConditionQuery) query).getQuery();
         }
-        if (query instanceof CompoundQuery) {
-            CompoundQuery compoundQuery = (CompoundQuery) query;
+        if (query instanceof CompoundConditionQuery) {
+            CompoundConditionQuery compoundQuery = (CompoundConditionQuery) query;
             return compoundQuery.compose(
                 traverseQuery(compoundQuery.getFirstQuery()),
                 traverseQuery(compoundQuery.getSecondQuery())

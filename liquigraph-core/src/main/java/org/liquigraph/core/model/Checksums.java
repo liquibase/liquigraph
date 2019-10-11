@@ -26,10 +26,13 @@ public class Checksums {
 
     private static final char[] HEX_DIGITS = "0123456789abcdef".toCharArray();
 
-    public static String checksum(Collection<String> queries) {
+    public static String checksum(Collection<Query> queries) {
         MessageDigest messageDigest = sha1MessageDigest();
-        for (String query : queries) {
-            messageDigest.update(query.getBytes(UTF_8));
+        for (Query query : queries) {
+            messageDigest.update(query.getQuery().getBytes(UTF_8));
+            query.getParameters().forEach((parameter) -> {
+                messageDigest.update(parameter.toString().getBytes(UTF_8));
+            });
         }
         return buildHexadecimalRepresentation(messageDigest.digest());
     }

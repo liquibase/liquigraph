@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class OrQueryTest {
+public class OrConditionQueryTest {
 
     @Test
     public void should_have_equality_on_queries() {
@@ -30,11 +30,11 @@ public class OrQueryTest {
             .isNotEqualTo(orQuery("MATCH (m) RETURN m", "MATCH(n) RETURN n"));
     }
 
-    private static OrQuery orQuery(String firstQuery, String secondQuery) {
-        OrQuery orQuery = new OrQuery();
-        SimpleQuery firstSimpleQuery = new SimpleQuery();
+    private static OrConditionQuery orQuery(String firstQuery, String secondQuery) {
+        OrConditionQuery orQuery = new OrConditionQuery();
+        SimpleConditionQuery firstSimpleQuery = new SimpleConditionQuery();
         firstSimpleQuery.setQuery(firstQuery);
-        SimpleQuery secondSimpleQuery = new SimpleQuery();
+        SimpleConditionQuery secondSimpleQuery = new SimpleConditionQuery();
         secondSimpleQuery.setQuery(secondQuery);
         orQuery.setQueries(Arrays.asList(firstSimpleQuery, secondSimpleQuery));
         return orQuery;

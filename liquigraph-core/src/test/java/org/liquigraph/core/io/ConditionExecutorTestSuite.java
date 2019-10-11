@@ -20,12 +20,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.exception.ConditionExecutionException;
-import org.liquigraph.core.model.AndQuery;
-import org.liquigraph.core.model.OrQuery;
+import org.liquigraph.core.model.AndConditionQuery;
+import org.liquigraph.core.model.OrConditionQuery;
 import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
-import org.liquigraph.core.model.Query;
-import org.liquigraph.core.model.SimpleQuery;
+import org.liquigraph.core.model.ConditionQuery;
+import org.liquigraph.core.model.SimpleConditionQuery;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -87,7 +87,7 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
 
     @Test
     public void executes_nested_mixed_precondition_queries_like_a_charm() throws SQLException {
-        AndQuery andQuery = new AndQuery();
+        AndConditionQuery andQuery = new AndConditionQuery();
         andQuery.setQueries(Arrays.asList(
             orPreconditionQuery("RETURN false AS result", "RETURN true AS result"),
             simplePreconditionQuery("RETURN true AS result")
@@ -147,7 +147,7 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
         thrown.expectMessage("Unsupported query type <org.liquigraph.core.io.ConditionExecutorTestSuite$1>");
 
         Precondition precondition = new Precondition();
-        precondition.setQuery(new Query() {
+        precondition.setQuery(new ConditionQuery() {
         });
         try (Connection connection = graphDatabase().newConnection()) {
             executor.executeCondition(connection, precondition);
@@ -166,34 +166,34 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
         return precondition(orPreconditionQuery(firstQuery, secondQuery));
     }
 
-    private AndQuery andPreconditionQuery(String firstQuery, String secondQuery) {
-        AndQuery andQuery = new AndQuery();
+    private AndConditionQuery andPreconditionQuery(String firstQuery, String secondQuery) {
+        AndConditionQuery andQuery = new AndConditionQuery();
         andQuery.setQueries(simpleQueries(firstQuery, secondQuery));
         return andQuery;
     }
 
-    private OrQuery orPreconditionQuery(String firstQuery, String secondQuery) {
-        OrQuery orQuery = new OrQuery();
+    private OrConditionQuery orPreconditionQuery(String firstQuery, String secondQuery) {
+        OrConditionQuery orQuery = new OrConditionQuery();
         orQuery.setQueries(simpleQueries(firstQuery, secondQuery));
         return orQuery;
     }
 
-    private List<Query> simpleQueries(String firstQuery, String secondQuery) {
+    private List<ConditionQuery> simpleQueries(String firstQuery, String secondQuery) {
         return Arrays.asList(
             simplePreconditionQuery(firstQuery),
             simplePreconditionQuery(secondQuery)
         );
     }
 
-    private Precondition precondition(Query query) {
+    private Precondition precondition(ConditionQuery query) {
         Precondition precondition = new Precondition();
         precondition.setPolicy(PreconditionErrorPolicy.MARK_AS_EXECUTED);
         precondition.setQuery(query);
         return precondition;
     }
 
-    private SimpleQuery simplePreconditionQuery(String query) {
-        SimpleQuery simpleQuery = new SimpleQuery();
+    private SimpleConditionQuery simplePreconditionQuery(String query) {
+        SimpleConditionQuery simpleQuery = new SimpleConditionQuery();
         simpleQuery.setQuery(query);
         return simpleQuery;
     }

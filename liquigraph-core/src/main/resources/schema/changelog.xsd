@@ -17,16 +17,23 @@
 
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:simpleType name="QueryType">
+    <xs:simpleType name="SimpleQueryType">
         <xs:restriction base="xs:string" />
     </xs:simpleType>
+
+    <xs:complexType name="ParameterizedQueryType">
+        <xs:sequence>
+            <xs:element name="query" type="SimpleQueryType" minOccurs="1" maxOccurs="1" />
+            <xs:element name="parameter" type="xs:anyType" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="ConditionChildType">
         <xs:sequence>
             <xs:choice minOccurs="1" maxOccurs="unbounded">
                 <xs:element name="and" type="ConditionChildType" minOccurs="0" />
                 <xs:element name="or" type="ConditionChildType" minOccurs="0" />
-                <xs:element name="query" type="QueryType" minOccurs="0" />
+                <xs:element name="query" type="SimpleQueryType" minOccurs="0" />
             </xs:choice>
         </xs:sequence>
     </xs:complexType>
@@ -36,7 +43,7 @@
             <xs:choice minOccurs="1" maxOccurs="1">
                 <xs:element name="and" type="ConditionChildType" minOccurs="0" />
                 <xs:element name="or" type="ConditionChildType" minOccurs="0" />
-                <xs:element name="query" type="QueryType" minOccurs="0" />
+                <xs:element name="query" type="SimpleQueryType" minOccurs="0" />
             </xs:choice>
         </xs:sequence>
 
@@ -48,7 +55,7 @@
             <xs:choice minOccurs="1" maxOccurs="1">
                 <xs:element name="and" type="ConditionChildType" minOccurs="0" />
                 <xs:element name="or" type="ConditionChildType" minOccurs="0" />
-                <xs:element name="query" type="QueryType" minOccurs="0" />
+                <xs:element name="query" type="SimpleQueryType" minOccurs="0" />
             </xs:choice>
         </xs:sequence>
     </xs:complexType>
@@ -60,7 +67,10 @@
     <xs:complexType name="ChangesetType">
         <xs:sequence>
             <xs:element name="precondition" type="PreconditionType" minOccurs="0" maxOccurs="1" />
-            <xs:element name="query" type="QueryType" minOccurs="1" maxOccurs="unbounded" />
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="query" type="SimpleQueryType" minOccurs="0" />
+                <xs:element name="parameterized-query" type="ParameterizedQueryType" minOccurs="0" />
+            </xs:choice>
             <xs:element name="postcondition" type="PostconditionType" minOccurs="0" maxOccurs="1" />
         </xs:sequence>
 

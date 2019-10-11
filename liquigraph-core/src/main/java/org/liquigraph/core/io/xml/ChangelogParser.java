@@ -70,12 +70,12 @@ public final class ChangelogParser {
             throw new IllegalArgumentException(format("Unable to parse changelog <%s>.", masterChangelog), e);
         }
     }
-
     /*
      * Ugly workaround due to the way JAXB handles setters
      * The checksum invariant of changesets cannot be properly
      * managed.
      */
+
     private void fixUpChangesets(Changelog changelog) {
         for (Changeset changeset : changelog.getChangesets()) {
             changeset.setQueries(changeset.getQueries());

@@ -21,9 +21,12 @@ import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.exception.PreconditionNotMetException;
 import org.liquigraph.core.model.Changeset;
+import org.liquigraph.core.model.ParameterizedQuery;
 import org.liquigraph.core.model.Postcondition;
 import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
+import org.liquigraph.core.model.Query;
+import org.liquigraph.core.model.SimpleConditionQuery;
 import org.liquigraph.core.model.SimpleQuery;
 import org.neo4j.graphdb.Node;
 
@@ -31,9 +34,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -138,9 +145,9 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
            "id",
            "fbiville",
            asList(
-              "CREATE (n:Human) RETURN n",
-              "MATCH (n:Human) SET n.age = 42 RETURN n")
-        );
+              new SimpleQuery("CREATE (n:Human) RETURN n"),
+              new SimpleQuery("MATCH (n:Human) SET n.age = 42 RETURN n"))
+            );
 
         writer.write(singletonList(changeset));
 
@@ -185,10 +192,10 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
             assertThat(property(changesetNode, "id")).isEqualTo("identifier");
             assertThat(property(changesetNode, "author")).isEqualTo("fbiville");
             assertThat(property(changesetNode, "checksum"))
-                    .isEqualTo(checksum(singletonList(
+                    .isEqualTo(checksum(singletonList(new SimpleQuery(
                             "MERGE (n:SomeNode) " +
                             "ON CREATE SET n.prop = 1 " +
-                            "ON MATCH SET n.prop = n.prop + 1")));
+                            "ON MATCH SET n.prop = n.prop + 1"))));
             assertThat(changesetSet.next()).as("No more result in changeset result set").isFalse();
 
             assertThat(propSet.next()).isTrue();
@@ -222,10 +229,10 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
             assertThat(property(changesetNode, "id")).isEqualTo("identifier");
             assertThat(property(changesetNode, "author")).isEqualTo("fbiville");
             assertThat(property(changesetNode, "checksum"))
-                    .isEqualTo(checksum(singletonList(
+                    .isEqualTo(checksum(singletonList(new SimpleQuery(
                             "MERGE (n:SomeNode) " +
                             "ON CREATE SET n.prop = 1 " +
-                            "ON MATCH SET n.prop = n.prop + 1")));
+                            "ON MATCH SET n.prop = n.prop + 1"))));
             assertThat(changesetSet.next()).as("No more result in changeset result set").isFalse();
 
             assertThat(propSet.next()).isTrue();
@@ -258,12 +265,32 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
 
             try (Statement transaction = connection.createStatement();
                  ResultSet resultSet = transaction.executeQuery(
-                     "MATCH (n:SomeNode) " +
-                     "RETURN n.prop AS prop")) {
+                     "MATCH (n:SomeNode) RETURN n.prop AS prop")) {
 
                 assertThat(resultSet.next()).isTrue();
-
                 assertThat(resultSet.getLong("prop")).isEqualTo(2);
+            }
+        }
+    }
+
+    @Test
+    public void applies_changesets_with_parameterized_queries() throws SQLException {
+        try (Connection connection = graphDatabase().newConnection()) {
+            Changeset changeset = changeset("identifier", "fbiville",
+                asList(
+                    new SimpleQuery("CREATE (n:Person)"),
+                    new ParameterizedQuery("MATCH (n:Person) SET n.name = {1}, n.city = {2}", asList("Florent", "Paris"))
+                ));
+
+            writer.write(singletonList(changeset));
+
+            try (Statement transaction = connection.createStatement();
+                 ResultSet resultSet = transaction.executeQuery("MATCH (n:Person) RETURN n.name AS name, n.city AS city")) {
+
+                assertThat(resultSet.next()).isTrue();
+                assertThat(resultSet.getString("name")).isEqualTo("Florent");
+                assertThat(resultSet.getString("city")).isEqualTo("Paris");
+                assertThat(resultSet.next()).isFalse();
             }
         }
     }
@@ -271,7 +298,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
     private Precondition precondition(PreconditionErrorPolicy policy, String query) {
         Precondition precondition = new Precondition();
         precondition.setPolicy(policy);
-        SimpleQuery simpleQuery = new SimpleQuery();
+        SimpleConditionQuery simpleQuery = new SimpleConditionQuery();
         simpleQuery.setQuery(query);
         precondition.setQuery(simpleQuery);
         return precondition;
@@ -279,7 +306,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
 
     private static Postcondition postcondition(String query) {
         Postcondition postcondition = new Postcondition();
-        SimpleQuery simpleQuery = new SimpleQuery();
+        SimpleConditionQuery simpleQuery = new SimpleConditionQuery();
         simpleQuery.setQuery(query);
         postcondition.setQuery(simpleQuery);
         return postcondition;
@@ -292,11 +319,14 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
     }
 
     private Changeset changeset(String identifier, String author, String query) {
-        Collection<String> queries = singletonList(query);
-        return changeset(identifier, author, queries);
+        return changeset(identifier, author, new SimpleQuery(query));
     }
 
-    private Changeset changeset(String identifier, String author, Collection<String> queries) {
+    private Changeset changeset(String identifier, String author, Query query) {
+        return changeset(identifier, author, singletonList(query));
+    }
+
+    private Changeset changeset(String identifier, String author, List<Query> queries) {
         Changeset changeset = new Changeset();
         changeset.setId(identifier);
         changeset.setAuthor(author);
@@ -329,7 +359,7 @@ abstract class ChangelogGraphWriterTestSuite implements GraphIntegrationTestSuit
         Object changeset = resultSet.getObject("changeset");
         assertThat(property(changeset, "id")).isEqualTo("identifier");
         assertThat(property(changeset, "author")).isEqualTo("fbiville");
-        assertThat(property(changeset, "checksum")).isEqualTo(checksum(singletonList("CREATE (n: SomeNode {text:'yeah'})")));
+        assertThat(property(changeset, "checksum")).isEqualTo(checksum(singletonList(new SimpleQuery("CREATE (n: SomeNode {text:'yeah'})"))));
     }
 
     private static void assertThatQueryIsExecuted(ResultSet resultSet) throws SQLException {

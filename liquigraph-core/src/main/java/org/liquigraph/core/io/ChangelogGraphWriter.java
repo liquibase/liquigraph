@@ -20,6 +20,7 @@ import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.Condition;
 import org.liquigraph.core.model.Postcondition;
 import org.liquigraph.core.model.Precondition;
+import org.liquigraph.core.model.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +30,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.liquigraph.core.exception.Throwables.propagate;
@@ -53,7 +56,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     private static final String QUERY_UPSERT =
         // stores the possibly updated queries
         "MATCH (changeset:__LiquigraphChangeset {id: {1}, author: {2}}) " +
-            "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}})";
+            "CREATE (changeset)<-[:EXECUTED_WITHIN_CHANGESET {`order`:{3}}]-(:__LiquigraphQuery {query: {4}, parameters: {5}})";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogGraphWriter.class);
 
@@ -112,14 +115,19 @@ public class ChangelogGraphWriter implements ChangelogWriter {
         return StatementExecution.SUCCESS;
     }
 
-    private void executeChangesetQueries(Collection<String> queries) throws SQLException {
-        try (Statement statement = writeConnection.createStatement()) {
-            for (String query : queries) {
-                statement.execute(query);
-                LOGGER.debug("Executing query: {}", query);
+    private void executeChangesetQueries(Collection<Query> queries) throws SQLException {
+        for (Query query : queries) {
+            try (PreparedStatement statement = writeConnection.prepareStatement(query.getQuery())) {
+                List<String> parameters = query.getParameters();
+                for (int i = 1; i <= parameters.size(); i++) {
+                    statement.setString(i, parameters.get(i-1));
+                }
+                LOGGER.debug("Executing query: {}", query.getQuery());
+                LOGGER.trace("...with parameters: {}", parameters.stream().map(Object::toString).collect(Collectors.joining(", ")));
+                statement.execute();
+                LOGGER.debug("Committing transaction");
+                writeConnection.commit();
             }
-            writeConnection.commit();
-            LOGGER.debug("Committing transaction");
         }
     }
 
@@ -127,7 +135,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
                                                                Changeset changeset) {
         switch (precondition.getPolicy()) {
             case MARK_AS_EXECUTED:
-                LOGGER.info("Skipping execution of changeset {} by {} but marking as executed", changeset.getId(), changeset.getAuthor());
+                LOGGER.info("Skipping execution of precondition of the changeset {} by {} but marking as executed", changeset.getId(), changeset.getAuthor());
                 return StatementExecution.SUCCESS;
             case CONTINUE:
                 LOGGER.info("Ignoring precondition failure of changeset {} by {}", changeset.getId(), changeset.getAuthor());
@@ -146,7 +154,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
             default:
                 throw new IllegalArgumentException(
                     format(
-                        "Changeset id=<%s>, author=<%s>: unsupported policy <%s>. Aborting.",
+                        "Changeset id=<%s>, author=<%s>: unsupported precondition policy <%s>. Aborting.",
                         changeset.getId(),
                         changeset.getAuthor(),
                         precondition.getPolicy()
@@ -186,10 +194,12 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     private void insertQueryNodes(Changeset changeset, PreparedStatement queryStmt) throws SQLException {
         queryStmt.setString(1, changeset.getId());
         queryStmt.setString(2, changeset.getAuthor());
-        Collection<String> queries = changeset.getQueries();
+        Collection<Query> queries = changeset.getQueries();
         for (int i = 0; i < queries.size(); i++) {
             queryStmt.setInt(3, i);
-            queryStmt.setString(4, getNth(queries, i));
+            Query query = getNth(queries, i);
+            queryStmt.setString(4, query.getQuery());
+            queryStmt.setObject(5, query.getParameters());
             queryStmt.execute();
         }
     }

@@ -18,6 +18,7 @@ package org.liquigraph.core.api;
 import org.junit.Test;
 import org.liquigraph.core.configuration.ExecutionContexts;
 import org.liquigraph.core.model.Changeset;
+import org.liquigraph.core.model.SimpleQuery;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -208,7 +209,7 @@ public class ChangelogDiffMakerTest {
         Changeset changeset = new Changeset();
         changeset.setId(id);
         changeset.setAuthor(author);
-        changeset.setQueries(singletonList(query));
+        changeset.setQueries(singletonList(new SimpleQuery(query)));
         return changeset;
     }
 }

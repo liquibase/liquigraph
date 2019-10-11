@@ -24,7 +24,7 @@ import java.util.Objects;
 public class Precondition implements Condition {
 
     private PreconditionErrorPolicy policy;
-    private Query query;
+    private ConditionQuery query;
 
     @XmlAttribute(name = "if-not-met", required = true)
     public PreconditionErrorPolicy getPolicy() {
@@ -36,16 +36,16 @@ public class Precondition implements Condition {
     }
 
     @XmlElementRefs({
-        @XmlElementRef(name = "and", type = AndQuery.class),
-        @XmlElementRef(name = "or", type = OrQuery.class),
-        @XmlElementRef(name = "query", type = SimpleQuery.class)
+        @XmlElementRef(name = "and", type = AndConditionQuery.class),
+        @XmlElementRef(name = "or", type = OrConditionQuery.class),
+        @XmlElementRef(name = "query", type = SimpleConditionQuery.class)
     })
     @Override
-    public Query getQuery() {
+    public ConditionQuery getQuery() {
         return query;
     }
 
-    public void setQuery(Query query) {
+    public void setQuery(ConditionQuery query) {
         this.query = query;
     }
 

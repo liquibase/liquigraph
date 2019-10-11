@@ -21,7 +21,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.liquigraph.core.model.Changeset;
+import org.liquigraph.core.model.ParameterizedQuery;
 import org.liquigraph.core.model.Precondition;
+import org.liquigraph.core.model.Query;
+import org.liquigraph.core.model.SimpleQuery;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,6 +88,23 @@ public class ChangelogFileWriterTest {
     }
 
     @Test
+    public void persists_one_changeset_with_parameterized_queries_on_file() throws IOException {
+        Query query = new ParameterizedQuery("CREATE (n: SomeNode {text: {1}, city: {2}})", Arrays.asList("yeah", "somewhere"));
+        Collection<Changeset> changesets = singletonList(
+            changeset("identifier", "fbiville", query)
+        );
+
+        writer.write(changesets);
+
+        String fileContents = String.join("\n", Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8));
+        assertThat(fileContents).isEqualTo(
+            "//Liquigraph changeset[author: fbiville, id: identifier]\n" +
+            "//Liquigraph changeset[executionContexts: none declared]\n" +
+            "CREATE (n: SomeNode {text: {1}, city: {2}}) // {1: yeah, 2: somewhere}"
+        );
+    }
+
+    @Test
     public void persists_several_changesets_on_file() throws IOException {
         Collection<Changeset> changesets = Arrays.asList(
             changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})"),
@@ -111,10 +131,14 @@ public class ChangelogFileWriterTest {
     }
 
     private Changeset changeset(String identifier, String author, String query) {
+        return changeset(identifier, author, new SimpleQuery(query));
+    }
+
+    private Changeset changeset(String identifier, String author, Query simpleQuery) {
         Changeset changeset = new Changeset();
         changeset.setId(identifier);
         changeset.setAuthor(author);
-        changeset.setQueries(singletonList(query));
+        changeset.setQueries(singletonList(simpleQuery));
         return changeset;
     }
 

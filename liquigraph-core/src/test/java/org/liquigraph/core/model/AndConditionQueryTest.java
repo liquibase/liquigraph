@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AndQueryTest {
+public class AndConditionQueryTest {
     @Test
     public void should_have_equality_on_queries() {
         assertThat(andQuery("MATCH (n) RETURN n", "MATCH(m) RETURN m"))
@@ -29,11 +29,11 @@ public class AndQueryTest {
             .isNotEqualTo(andQuery("MATCH (m) RETURN m", "MATCH(n) RETURN n"));
     }
 
-    private static AndQuery andQuery(String firstQuery, String secondQuery) {
-        AndQuery andQuery = new AndQuery();
-        SimpleQuery firstSimpleQuery = new SimpleQuery();
+    private static AndConditionQuery andQuery(String firstQuery, String secondQuery) {
+        AndConditionQuery andQuery = new AndConditionQuery();
+        SimpleConditionQuery firstSimpleQuery = new SimpleConditionQuery();
         firstSimpleQuery.setQuery(firstQuery);
-        SimpleQuery secondSimpleQuery = new SimpleQuery();
+        SimpleConditionQuery secondSimpleQuery = new SimpleConditionQuery();
         secondSimpleQuery.setQuery(secondQuery);
         andQuery.setQueries(Arrays.asList(firstSimpleQuery, secondSimpleQuery));
         return andQuery;

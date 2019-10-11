@@ -17,10 +17,13 @@ package org.liquigraph.core.model;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -31,7 +34,7 @@ public class Changeset {
 
     private String id;
     private String author;
-    private Collection<String> queries = new ArrayList<>();
+    private List<Query> queries = new ArrayList<>();
     private String checksum;
     private Collection<String> executionsContexts = new ArrayList<>();
     private boolean runOnChange;
@@ -57,14 +60,15 @@ public class Changeset {
         this.author = author;
     }
 
-    @XmlElement(name = "query", required = true)
-    public Collection<String> getQueries() {
+    @XmlElementRefs({
+        @XmlElementRef(type = SimpleQuery.class),
+        @XmlElementRef(type = ParameterizedQuery.class)
+    })
+    public List<Query> getQueries() {
         return queries;
     }
 
-    public void setQueries(Collection<String> queries) {
-        checkArgument(queries != null, "Queries cannot be null");
-        checkArgument(queries.size() > 0, "At least one query must be defined");
+    public void setQueries(List<Query> queries) {
         this.queries = queries;
         setChecksum(checksum(queries));
     }

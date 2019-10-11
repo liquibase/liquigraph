@@ -15,13 +15,10 @@
  */
 package org.liquigraph.core.model;
 
-import java.util.Collection;
+public interface CompoundConditionQuery extends ConditionQuery {
 
-import static org.liquigraph.core.exception.Preconditions.checkState;
-
-public class CompoundQueries {
-
-    public static void checkQueryListState(Collection<Query> queries) {
-        checkState(queries.size() == 2);
-    }
+    ConditionQuery getFirstQuery();
+    ConditionQuery getSecondQuery();
+    boolean compose(boolean firstResult, boolean secondResult);
+    String compose(String firstQuery, String secondQuery);
 }

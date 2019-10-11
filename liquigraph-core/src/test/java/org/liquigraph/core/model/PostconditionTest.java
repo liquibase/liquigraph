@@ -29,7 +29,7 @@ public class PostconditionTest {
 
     private static Postcondition postcondition(String query) {
         Postcondition postcondition = new Postcondition();
-        SimpleQuery simpleQuery = new SimpleQuery();
+        SimpleConditionQuery simpleQuery = new SimpleConditionQuery();
         simpleQuery.setQuery(query);
         postcondition.setQuery(simpleQuery);
         return postcondition;

@@ -15,33 +15,33 @@
  */
 package org.liquigraph.core.parser;
 
-import org.assertj.core.api.iterable.Extractor;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.liquigraph.core.io.xml.ChangelogLoader;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.io.xml.ChangelogPreprocessor;
 import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
 import org.liquigraph.core.io.xml.ImportResolver;
 import org.liquigraph.core.io.xml.XmlSchemaValidator;
-import org.liquigraph.core.model.AndQuery;
+import org.liquigraph.core.model.AndConditionQuery;
 import org.liquigraph.core.model.Changeset;
-import org.liquigraph.core.model.OrQuery;
+import org.liquigraph.core.model.OrConditionQuery;
+import org.liquigraph.core.model.ParameterizedQuery;
 import org.liquigraph.core.model.Precondition;
 import org.liquigraph.core.model.PreconditionErrorPolicy;
+import org.liquigraph.core.model.Query;
+import org.liquigraph.core.model.SimpleConditionQuery;
 import org.liquigraph.core.model.SimpleQuery;
 import org.w3c.dom.Node;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.liquigraph.core.model.Checksums.checksum;
 import static org.liquigraph.core.model.PreconditionErrorPolicy.FAIL;
@@ -52,8 +52,6 @@ import static org.mockito.Mockito.when;
 
 public class ChangelogParserTest {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private final XmlSchemaValidator validator = new XmlSchemaValidator();
     private final ChangelogPreprocessor preprocessor = new ChangelogPreprocessor(new ImportResolver());
     private final ChangelogLoader changelogLoader = ClassLoaderChangelogLoader.currentThreadContextClassLoader();
@@ -67,8 +65,8 @@ public class ChangelogParserTest {
         assertThat(changesets)
             .extracting("author", "id", "queries")
             .containsExactly(
-                tuple("fbiville", "first-changelog", singletonList("MATCH (n) RETURN n")),
-                tuple("team", "second-changelog", singletonList("MATCH (m) RETURN m"))
+                tuple("fbiville", "first-changelog", singletonList(new SimpleQuery("MATCH (n) RETURN n"))),
+                tuple("team", "second-changelog", singletonList(new SimpleQuery("MATCH (m) RETURN m")))
             );
     }
 
@@ -79,9 +77,9 @@ public class ChangelogParserTest {
         assertThat(changesets)
             .extracting("author", "id", "queries")
             .containsExactly(
-                tuple("fbiville", "first-changelog", singletonList("MATCH (n) RETURN n")),
-                tuple("team", "second-changelog", singletonList("MATCH (m) RETURN m")),
-                tuple("company", "third-changelog", singletonList("MATCH (l) RETURN l"))
+                tuple("fbiville", "first-changelog", singletonList(new SimpleQuery("MATCH (n) RETURN n"))),
+                tuple("team", "second-changelog", singletonList(new SimpleQuery("MATCH (m) RETURN m"))),
+                tuple("company", "third-changelog", singletonList(new SimpleQuery("MATCH (l) RETURN l")))
             );
     }
 
@@ -91,7 +89,7 @@ public class ChangelogParserTest {
         Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/changelog-with-execution-contexts.xml");
 
         assertThat(changesets)
-            .extracting((Extractor<Changeset, Collection<String>>) Changeset::getExecutionsContexts)
+            .extracting(Changeset::getExecutionsContexts)
             .containsExactly(
                 Arrays.asList("foo", "bar"),
                 singletonList(("baz")),
@@ -132,32 +130,35 @@ public class ChangelogParserTest {
 
         assertThat(changesets).extracting("precondition.query.class")
             .containsExactly(
-                SimpleQuery.class,
-                AndQuery.class,
-                OrQuery.class,
-                OrQuery.class
+                SimpleConditionQuery.class,
+                AndConditionQuery.class,
+                OrConditionQuery.class,
+                OrConditionQuery.class
             );
     }
 
     @Test
     public void forwards_validation_errors() throws Exception {
-        given_validation_errors(asList("error1", "error2"));
+        XmlSchemaValidator validator = mock(XmlSchemaValidator.class);
+        when(validator.validateSchema(any(Node.class))).thenReturn(asList("error1", "error2"));
+        ChangelogParser parser = new ChangelogParser(validator, preprocessor);
 
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(String.format("%n\terror1%n\terror2"));
-
-        parser.parse(changelogLoader, "changelog/changelog.xml");
+        assertThatThrownBy(() -> parser.parse(changelogLoader, "changelog/changelog.xml"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage(String.format("%n\terror1%n\terror2"));
     }
 
     @Test
     public void populates_checksum() {
         Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/changelog.xml");
 
+        SimpleQuery expectedQuery1 = new SimpleQuery("MATCH (n) RETURN n");
+        SimpleQuery expectedQuery2 = new SimpleQuery("MATCH (m) RETURN m");
         assertThat(changesets)
             .extracting("queries", "checksum")
             .containsExactly(
-                tuple(singletonList("MATCH (n) RETURN n"), checksum(singletonList("MATCH (n) RETURN n"))),
-                tuple(singletonList("MATCH (m) RETURN m"), checksum(singletonList("MATCH (m) RETURN m")))
+                tuple(singletonList(expectedQuery1), checksum(singletonList(expectedQuery1))),
+                tuple(singletonList(expectedQuery2), checksum(singletonList(expectedQuery2)))
             );
     }
 
@@ -167,24 +168,28 @@ public class ChangelogParserTest {
 
         assertThat(changesets)
             .hasSize(1)
-            .flatExtracting("queries")
+            .extracting(Changeset::getQueries)
+            .flatExtracting(queries -> queries.stream().map(Query::getQuery).collect(toList()))
             .containsExactly("MATCH (n) RETURN n", "MATCH (m) RETURN m");
     }
 
-    // fragile: uses reflection
-    private void given_validation_errors(List<String> errors) throws Exception {
-        XmlSchemaValidator validator = mock(XmlSchemaValidator.class);
-        when(validator.validateSchema(any(Node.class))).thenReturn(errors);
+    @Test
+    public void should_also_support_simple_parameterized_queries() {
+        Collection<Changeset> changesets = parser.parse(changelogLoader, "changelog/parameterized_queries/changelog.xml");
 
-        Field field = ChangelogParser.class.getDeclaredField("validator");
-        field.setAccessible(true);
-        field.set(parser, validator);
+        assertThat(changesets).hasSize(1);
+        assertThat(changesets.iterator().next().getQueries())
+            .containsExactly(
+                new SimpleQuery("CREATE (n:Person) RETURN n"),
+                new ParameterizedQuery("MATCH (n:Person) SET n.name = {1} RETURN n", singletonList("some name")),
+                new SimpleQuery("CREATE (o:Place) RETURN o"),
+                new ParameterizedQuery("MATCH (o:Place) SET o.name = {1}, o.city = {2} RETURN o", Arrays.<String>asList("some other name", "some place")));
     }
 
     private Precondition precondition(PreconditionErrorPolicy errorPolicy, String query) {
         Precondition precondition = new Precondition();
         precondition.setPolicy(errorPolicy);
-        SimpleQuery simpleQuery = new SimpleQuery();
+        SimpleConditionQuery simpleQuery = new SimpleConditionQuery();
         simpleQuery.setQuery(query);
         precondition.setQuery(simpleQuery);
         return precondition;

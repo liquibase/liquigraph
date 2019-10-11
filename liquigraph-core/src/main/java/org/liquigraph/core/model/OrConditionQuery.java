@@ -24,46 +24,47 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.lang.String.format;
+import static org.liquigraph.core.model.CompoundConditionQueries.checkQueryListState;
 
-@XmlSeeAlso(Query.class)
-@XmlRootElement(name = "and")
-public class AndQuery implements CompoundQuery {
+@XmlSeeAlso(ConditionQuery.class)
+@XmlRootElement(name = "or")
+public class OrConditionQuery implements CompoundConditionQuery {
 
-    private List<Query> queries = new ArrayList<>();
+    private List<ConditionQuery> queries = new ArrayList<>();
 
     @XmlElementRefs({
-        @XmlElementRef(name = "and", type = AndQuery.class),
-        @XmlElementRef(name = "or", type = OrQuery.class),
-        @XmlElementRef(name = "query", type = SimpleQuery.class)
+        @XmlElementRef(name = "and", type = AndConditionQuery.class),
+        @XmlElementRef(name = "or", type = OrConditionQuery.class),
+        @XmlElementRef(name = "query", type = SimpleConditionQuery.class)
     })
-    public List<Query> getQueries() {
+    public List<ConditionQuery> getQueries() {
         return queries;
     }
 
-    public void setQueries(List<Query> queries) {
+    public void setQueries(List<ConditionQuery> queries) {
         this.queries = queries;
     }
 
     @Override
-    public Query getFirstQuery() {
-        CompoundQueries.checkQueryListState(queries);
+    public ConditionQuery getFirstQuery() {
+        checkQueryListState(queries);
         return queries.get(0);
     }
 
     @Override
-    public Query getSecondQuery() {
-        CompoundQueries.checkQueryListState(queries);
+    public ConditionQuery getSecondQuery() {
+        checkQueryListState(queries);
         return queries.get(1);
     }
 
     @Override
     public boolean compose(boolean firstResult, boolean secondResult) {
-        return firstResult && secondResult;
+        return firstResult || secondResult;
     }
 
     @Override
     public String compose(String firstQuery, String secondQuery) {
-        return format("((%s) AND (%s))", firstQuery, secondQuery);
+        return format("((%s) OR (%s))", firstQuery, secondQuery);
     }
 
     @Override
@@ -79,12 +80,12 @@ public class AndQuery implements CompoundQuery {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        final AndQuery other = (AndQuery) obj;
+        final OrConditionQuery other = (OrConditionQuery) obj;
         return Objects.equals(this.queries, other.queries);
     }
 
     @Override
     public String toString() {
-        return format("<%s> AND <%s>", getFirstQuery(), getSecondQuery());
+        return format("<%s> OR <%s>", getFirstQuery(), getSecondQuery());
     }
 }

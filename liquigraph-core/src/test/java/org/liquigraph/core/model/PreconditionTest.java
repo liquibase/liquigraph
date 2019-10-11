@@ -34,7 +34,7 @@ public class PreconditionTest {
     private static Precondition precondition(PreconditionErrorPolicy policy, String query) {
         Precondition precondition = new Precondition();
         precondition.setPolicy(policy);
-        SimpleQuery simpleQuery = new SimpleQuery();
+        SimpleConditionQuery simpleQuery = new SimpleConditionQuery();
         simpleQuery.setQuery(query);
         precondition.setQuery(simpleQuery);
         return precondition;

@@ -16,5 +16,5 @@
 package org.liquigraph.core.model;
 
 public interface Condition {
-    Query getQuery();
+    ConditionQuery getQuery();
 }

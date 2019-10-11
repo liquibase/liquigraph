@@ -16,10 +16,10 @@
 package org.liquigraph.core.io;
 
 import org.liquigraph.core.exception.ConditionExecutionException;
-import org.liquigraph.core.model.CompoundQuery;
+import org.liquigraph.core.model.CompoundConditionQuery;
 import org.liquigraph.core.model.Condition;
-import org.liquigraph.core.model.Query;
-import org.liquigraph.core.model.SimpleQuery;
+import org.liquigraph.core.model.ConditionQuery;
+import org.liquigraph.core.model.SimpleConditionQuery;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +41,13 @@ public class ConditionExecutor {
         return applyPrecondition(connection, condition.getQuery());
     }
 
-    private boolean applyPrecondition(Connection connection, Query query) {
-        if (query instanceof SimpleQuery) {
-            SimpleQuery simpleQuery = (SimpleQuery) query;
+    private boolean applyPrecondition(Connection connection, ConditionQuery query) {
+        if (query instanceof SimpleConditionQuery) {
+            SimpleConditionQuery simpleQuery = (SimpleConditionQuery) query;
             return execute(connection, simpleQuery.getQuery());
         }
-        if (query instanceof CompoundQuery) {
-            CompoundQuery compoundQuery = (CompoundQuery) query;
+        if (query instanceof CompoundConditionQuery) {
+            CompoundConditionQuery compoundQuery = (CompoundConditionQuery) query;
             return compoundQuery.compose(
                 applyPrecondition(connection, compoundQuery.getFirstQuery()),
                 applyPrecondition(connection, compoundQuery.getSecondQuery())

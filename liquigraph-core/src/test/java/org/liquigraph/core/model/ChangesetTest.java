@@ -15,23 +15,32 @@
  */
 package org.liquigraph.core.model;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import java.io.StringReader;
 import java.util.Collections;
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ChangesetTest {
 
+    @Ignore("not possible to prevent anymore with parameterized queries in the picture " +
+        "(@XmlElementRef(s) seems to call setters with default values first)")
     @Test(expected = IllegalArgumentException.class)
     public void should_fail_with_null_queries() {
         new Changeset().setQueries(null);
     }
 
+    @Ignore("not possible to prevent anymore with parameterized queries in the picture " +
+        "(@XmlElementRef(s) seems to call setters with default values first)")
     @Test(expected = IllegalArgumentException.class)
     public void should_fail_with_empty_queries() {
-        new Changeset().setQueries(Collections.<String>emptyList());
+        new Changeset().setQueries(Collections.emptyList());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -65,17 +74,17 @@ public class ChangesetTest {
     @Test
     public void should_have_equality_on_id_author_and_checksum() {
         assertThat(changeset("identifier", "author", "CREATE (n)"))
-            .isEqualTo(changeset("identifier", "author", "CREATE (n)"))
-            .isNotEqualTo(changeset("identifier", "author", "MATCH (n) RETURN n"))
-            .isNotEqualTo(changeset("identifier", "author2", "CREATE (n)"))
-            .isNotEqualTo(changeset("identifier2", "author", "CREATE (n)"));
+        .isEqualTo(changeset("identifier", "author", "CREATE (n)"))
+        .isNotEqualTo(changeset("identifier", "author", "MATCH (n) RETURN n"))
+        .isNotEqualTo(changeset("identifier", "author2", "CREATE (n)"))
+        .isNotEqualTo(changeset("identifier2", "author", "CREATE (n)"));
     }
 
     private Changeset changeset(String id, String author, String query) {
         Changeset changeset = new Changeset();
         changeset.setId(id);
         changeset.setAuthor(author);
-        changeset.setQueries(singletonList(query));
+        changeset.setQueries(singletonList(new SimpleQuery(query)));
         return changeset;
     }
 }

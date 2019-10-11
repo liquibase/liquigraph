@@ -15,16 +15,18 @@
  */
 package org.liquigraph.core.validation;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.liquigraph.core.io.xml.XmlSchemaValidator;
-import org.liquigraph.core.model.Changeset;
 import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.Locale;
 
@@ -32,19 +34,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class XmlSchemaValidatorTest {
 
+    private static final Locale initialLocale = Locale.getDefault();
+
     @Rule public ExpectedException thrown = ExpectedException.none();
+
     private final XmlSchemaValidator validator = new XmlSchemaValidator();
 
     @Before
-    public void setUp(){
+    public void prepare(){
         Locale.setDefault(Locale.ENGLISH);
     }
 
+    @After
+    public void reset() {
+        Locale.setDefault(initialLocale);
+    }
 
     @Test
-    public void parses_changelog_without_author() throws Exception {
+    public void validates_empty_changelog() throws Exception {
+        assertThat(validator.validateSchema(contentsAsNode("<changelog />")))
+            .isEmpty();
+    }
+
+    @Test
+    public void invalidates_changelog_without_author() throws Exception {
         Collection<String> errors = validator.validateSchema(
-            asNode("changelog/invalid_changesets/changelog-without-author.xml")
+            fileAsNode("changelog/invalid_changesets/changelog-without-author.xml")
         );
 
         assertThat(errors)
@@ -52,9 +67,9 @@ public class XmlSchemaValidatorTest {
     }
 
     @Test
-    public void parses_changelog_without_id() throws Exception {
+    public void invalidates_changelog_without_id() throws Exception {
         Collection<String> errors = validator.validateSchema(
-            asNode("changelog/invalid_changesets/changelog-without-id.xml")
+            fileAsNode("changelog/invalid_changesets/changelog-without-id.xml")
         );
 
         assertThat(errors)
@@ -62,21 +77,38 @@ public class XmlSchemaValidatorTest {
     }
 
     @Test
-    public void parses_changelog_without_query() throws Exception {
+    public void invalidates_changelog_without_query() throws Exception {
         Collection<String> errors = validator.validateSchema(
-            asNode("changelog/invalid_changesets/changelog-without-query.xml")
+            fileAsNode("changelog/invalid_changesets/changelog-without-query.xml")
         );
 
         assertThat(errors)
             .containsExactly(
                 "cvc-complex-type.2.4.b: The content of element 'changeset' is not complete. " +
-                "One of '{precondition, query}' is expected.");
+                "One of '{precondition, query, parameterized-query}' is expected.");
     }
 
     @Test
-    public void parses_changelog_with_invalid_precondition() throws Exception {
+    public void invalidates_changelog_with_empty_precondition() throws Exception {
         Collection<String> errors = validator.validateSchema(
-            asNode("changelog/invalid_changesets/changelog-with-invalid-precondition-query.xml")
+            contentsAsNode(
+                "<changelog>\n" +
+                "    <changeset author=\"fbiville\" id=\"first-changelog\">\n" +
+                "        <precondition if-not-met=\"FAIL\" />\n" +
+                "        <query><![CDATA[MATCH (n) RETURN n]]></query>\n" +
+                "    </changeset>\n" +
+                "</changelog>")
+        );
+
+        assertThat(errors).containsExactly(
+            "cvc-complex-type.2.4.b: The content of element 'precondition' is not complete. " +
+            "One of '{and, or, query}' is expected.");
+    }
+
+    @Test
+    public void invalidates_changelog_with_malformed_precondition() throws Exception {
+        Collection<String> errors = validator.validateSchema(
+            fileAsNode("changelog/invalid_changesets/changelog-with-invalid-precondition-query.xml")
         );
 
         assertThat(errors)
@@ -86,9 +118,27 @@ public class XmlSchemaValidatorTest {
     }
 
     @Test
-    public void parses_changelog_with_duplicate_ids() throws Exception {
+    public void invalidates_changelog_with_empty_postcondition() throws Exception {
         Collection<String> errors = validator.validateSchema(
-            asNode("changelog/invalid_changesets/changelog-with-duplicate-ids.xml")
+            contentsAsNode(
+                "<changelog>\n" +
+                "    <changeset author=\"fbiville\" id=\"first-changelog\">\n" +
+                "        <query><![CDATA[MATCH (n) RETURN n]]></query>\n" +
+                "        <postcondition />\n" +
+                "    </changeset>\n" +
+                "</changelog>")
+        );
+
+        assertThat(errors)
+            .containsExactly(
+                "cvc-complex-type.2.4.b: The content of element 'postcondition' is not complete. " +
+                "One of '{and, or, query}' is expected.");
+    }
+
+    @Test
+    public void invalidates_changelog_with_duplicate_ids() throws Exception {
+        Collection<String> errors = validator.validateSchema(
+            fileAsNode("changelog/invalid_changesets/changelog-with-duplicate-ids.xml")
         );
 
         assertThat(errors)
@@ -97,18 +147,36 @@ public class XmlSchemaValidatorTest {
     }
 
     @Test
-    public void parses_changelog_with_explicit_schema() throws Exception {
-        assertThat(validator.validateSchema(asNode("changelog/changelog-with-old-RC3-schema-location.xml"))).isEmpty();
-        assertThat(validator.validateSchema(asNode("changelog/changelog-with-old-schema-location.xml"))).isEmpty();
-        assertThat(validator.validateSchema(asNode("changelog/changelog-with-RC3-schema-location.xml"))).isEmpty();
-        assertThat(validator.validateSchema(asNode("changelog/changelog-with-schema-location.xml"))).isEmpty();
+    public void validates_changelog_with_explicit_schema() throws Exception {
+        // TODO: have an offline copy of the old schema
+        assertThat(validator.validateSchema(fileAsNode("changelog/changelog-with-old-RC3-schema-location.xml"))).isEmpty();
+        assertThat(validator.validateSchema(fileAsNode("changelog/changelog-with-old-schema-location.xml"))).isEmpty();
+        assertThat(validator.validateSchema(fileAsNode("changelog/changelog-with-RC3-schema-location.xml"))).isEmpty();
+        assertThat(validator.validateSchema(fileAsNode("changelog/changelog-with-schema-location.xml"))).isEmpty();
     }
 
-    private Node asNode(String path) throws Exception {
+    @Test
+    public void validates_changelog_with_parameterized_queries() throws Exception {
+        assertThat(validator.validateSchema(fileAsNode("changelog/parameterized_queries/changelog.xml"))).isEmpty();
+    }
+
+    @Test
+    public void invalidates_changelog_with_parameterless_parameterized_queries() throws Exception {
+        assertThat(validator.validateSchema(fileAsNode("changelog/invalid_changesets/changelog-with-parameterless-parameterized-queries.xml")))
+            .containsExactly("cvc-complex-type.2.4.b: The content of element 'parameterized-query' is not complete. One of '{parameter}' is expected.");
+    }
+
+    private Node fileAsNode(String path) throws Exception {
         try (InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path)) {
             return DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
                 .parse(stream);
         }
+    }
+
+    private Node contentsAsNode(String contents) throws Exception {
+        return DocumentBuilderFactory.newInstance()
+            .newDocumentBuilder()
+            .parse(new InputSource(new StringReader(contents)));
     }
 }

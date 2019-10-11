@@ -21,6 +21,8 @@ import java.util.Iterator;
 import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.model.Changeset;
+import org.liquigraph.core.model.Query;
+import org.liquigraph.core.model.SimpleQuery;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -47,7 +49,7 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
                     "   id:'test'," +
                     "   checksum:'%s'" +
                     "})<-[:EXECUTED_WITHIN_CHANGESET]-(:__LiquigraphQuery {query: '%s'})"
-                , checksum(singletonList(query)), query),
+                , checksum(singletonList(new SimpleQuery(query))), query),
                 connection
             );
 
@@ -56,9 +58,9 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
             assertThat(changesets).hasSize(1);
             Changeset changeset = changesets.iterator().next();
             assertThat(changeset.getId()).isEqualTo("test");
-            assertThat(changeset.getChecksum()).isEqualTo(checksum(singletonList(query)));
+            assertThat(changeset.getChecksum()).isEqualTo(checksum(singletonList(new SimpleQuery(query))));
             assertThat(changeset.getAuthor()).isEqualTo("fbiville");
-            assertThat(changeset.getQueries()).containsExactly(query);
+            assertThat(changeset.getQueries()).containsExactly(new SimpleQuery(query));
         }
     }
 
@@ -75,7 +77,7 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
                     "           (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order: 1} ]-(:__LiquigraphQuery {query: '%s'}), " +
                     "           (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order: 0} ]-(:__LiquigraphQuery {query: '%s'}), " +
                     "           (changeset)<-[:EXECUTED_WITHIN_CHANGESET {order: 2}]-(:__LiquigraphQuery {query: '%s'})",
-                checksum(asList("MATCH m RETURN m", "MATCH n RETURN n", "Match o Return o")),
+                checksum(asList(new SimpleQuery("MATCH m RETURN m"), new SimpleQuery("MATCH n RETURN n"), new SimpleQuery("Match o Return o"))),
                 "MATCH n RETURN n",
                 "MATCH m RETURN m",
                 "MATCH o RETURN o"),
@@ -87,16 +89,19 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
             assertThat(changesets).hasSize(1);
             Changeset changeset = changesets.iterator().next();
             assertThat(changeset.getId()).isEqualTo("test");
-            assertThat(changeset.getChecksum()).isEqualTo(checksum(asList("MATCH m RETURN m", "MATCH n RETURN n", "Match o Return o")));
+            assertThat(changeset.getChecksum()).isEqualTo(checksum(asList(
+                new SimpleQuery("MATCH m RETURN m"),
+                new SimpleQuery("MATCH n RETURN n"),
+                new SimpleQuery("Match o Return o"))));
             assertThat(changeset.getAuthor()).isEqualTo("fbiville");
-            assertThat(changeset.getQueries()).containsExactly("MATCH m RETURN m", "MATCH n RETURN n", "MATCH o RETURN o");
+            assertThat(changeset.getQueries()).containsExactly(new SimpleQuery("MATCH m RETURN m"), new SimpleQuery("MATCH n RETURN n"), new SimpleQuery("MATCH o RETURN o"));
         }
     }
 
     @Test
     public void migrates_pre_1_0_rc3_changelog_before_reading() throws SQLException {
         try (Connection connection = graphDatabase().newConnection()) {
-            String[] queries = { "MATCH m RETURN m", "MATCH n RETURN n", "Match o Return o" };
+            Query[] queries = { new SimpleQuery("MATCH m RETURN m"), new SimpleQuery("MATCH n RETURN n"), new SimpleQuery("Match o Return o") };
             given_inserted_data(format(
                     "CREATE     (changelog:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {order: 1}]-" +
                         "           (:__LiquigraphChangeset {" +
@@ -120,11 +125,11 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
                         "               query:'%s'" +
                         "           })",
                     checksum(singletonList(queries[1])),
-                    queries[1],
+                    queries[1].getQuery(),
                     checksum(singletonList(queries[0])),
-                    queries[0],
+                    queries[0].getQuery(),
                     checksum(singletonList(queries[2])),
-                    queries[2]),
+                    queries[2].getQuery()),
                     connection
             );
 

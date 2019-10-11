@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SimpleQueryTest {
+public class SimpleConditionQueryTest {
 
     @Test
     public void should_have_equality_on_query() {
@@ -28,8 +28,8 @@ public class SimpleQueryTest {
             .isNotEqualTo(simpleQuery("MATCH (m) RETURN m"));
     }
 
-    private static SimpleQuery simpleQuery(String query) {
-        SimpleQuery simpleQuery = new SimpleQuery();
+    private static SimpleConditionQuery simpleQuery(String query) {
+        SimpleConditionQuery simpleQuery = new SimpleConditionQuery();
         simpleQuery.setQuery(query);
         return simpleQuery;
     }

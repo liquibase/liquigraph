@@ -15,17 +15,13 @@
  */
 package org.liquigraph.core.model;
 
+import java.util.Collection;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
-import java.util.Collections;
-import java.util.List;
+import static org.liquigraph.core.exception.Preconditions.checkState;
 
-@XmlSeeAlso({SimpleQuery.class, ParameterizedQuery.class})
-public interface Query {
+public class CompoundConditionQueries {
 
-    String getQuery();
-
-    default List<String> getParameters() {
-        return Collections.emptyList();
+    public static void checkQueryListState(Collection<ConditionQuery> queries) {
+        checkState(queries.size() == 2);
     }
 }

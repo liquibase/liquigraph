@@ -15,26 +15,25 @@
  */
 package org.liquigraph.core.model;
 
-
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementRefs;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlValue;
 import java.util.Objects;
 
-public class Postcondition implements Condition {
+import static java.lang.String.format;
 
-    private ConditionQuery query;
+@XmlSeeAlso(ConditionQuery.class)
+@XmlRootElement(name = "query")
+public class SimpleConditionQuery implements ConditionQuery {
 
-    @XmlElementRefs({
-        @XmlElementRef(name = "and", type = AndConditionQuery.class),
-        @XmlElementRef(name = "or", type = OrConditionQuery.class),
-        @XmlElementRef(name = "query", type = SimpleConditionQuery.class)
-    })
-    @Override
-    public ConditionQuery getQuery() {
+    private String query;
+
+    @XmlValue
+    public String getQuery() {
         return query;
     }
 
-    public void setQuery(ConditionQuery query) {
+    public void setQuery(String query) {
         this.query = query;
     }
 
@@ -51,14 +50,12 @@ public class Postcondition implements Condition {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        final Postcondition other = (Postcondition) obj;
+        final SimpleConditionQuery other = (SimpleConditionQuery) obj;
         return Objects.equals(this.query, other.query);
     }
 
     @Override
     public String toString() {
-        return "Postcondition{" +
-                "query='" + query + '\'' +
-                '}';
+        return format("<%s>", query);
     }
 }

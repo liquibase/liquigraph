@@ -15,50 +15,71 @@
  */
 package org.liquigraph.core.model;
 
+import org.liquigraph.core.exception.Preconditions;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import java.util.List;
 import java.util.Objects;
 
-@XmlRootElement(name = "query")
-public class SimpleQuery implements Query {
+import static org.liquigraph.core.exception.Preconditions.checkArgument;
+
+@XmlRootElement(name = "parameterized-query")
+public class ParameterizedQuery implements Query {
 
     private String query;
 
-    public SimpleQuery() {}
+    private List<String> parameters;
 
-    // visible for testing
-    public SimpleQuery(String query) {
-        this.query = query;
+    public ParameterizedQuery() {
     }
 
-    @XmlValue
-    @Override
-    public String getQuery() {
-        return query;
+    // visible for testing
+    public ParameterizedQuery(String query, List<String> parameters) {
+        this.query = query;
+        this.parameters = parameters;
     }
 
     public void setQuery(String query) {
         this.query = query;
     }
 
+    @XmlElement(name = "query")
+    @Override
+    public String getQuery() {
+        return query;
+    }
+
+    public void setParameters(List<String> parameters) {
+        this.parameters = parameters;
+    }
+
+    @XmlElement(name = "parameter")
+    @Override
+    public List<String> getParameters() {
+        return parameters;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SimpleQuery that = (SimpleQuery) o;
-        return Objects.equals(query, that.query);
+        ParameterizedQuery that = (ParameterizedQuery) o;
+        return Objects.equals(query, that.query) &&
+        Objects.equals(parameters, that.parameters);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(query);
+        return Objects.hash(query, parameters);
     }
 
     @Override
     public String toString() {
-        return "SimpleQuery{" +
+        return "ParameterizedQuery{" +
         "query='" + query + '\'' +
+        ", parameters=" + parameters +
         '}';
     }
 }

@@ -17,13 +17,14 @@
 
 -->
 <changelog>
-    <changeset id="first-changelog" author="fbiville" contexts="foo,bar">
+    <changeset id='some_id' author="fbiville">
+        <parameterized-query>
+            <query>MATCH (n) WHERE n.name = {1}</query>
+            <parameter>some name</parameter>
+        </parameterized-query>
         <query>MATCH (n) RETURN n</query>
-    </changeset>
-    <changeset id="second-changelog" author="team" contexts="baz">
-        <query>MATCH (m) RETURN m</query>
-    </changeset>
-    <changeset id="third-changelog" author="team">
-        <query>MATCH (m) RETURN m</query>
+        <parameterized-query>
+            <query>MATCH (n) WHERE n.name = {1}</query>
+        </parameterized-query>
     </changeset>
 </changelog>

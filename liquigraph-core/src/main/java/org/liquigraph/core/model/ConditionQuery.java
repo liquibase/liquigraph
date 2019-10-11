@@ -15,10 +15,9 @@
  */
 package org.liquigraph.core.model;
 
-public interface CompoundQuery extends Query {
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 
-    Query getFirstQuery();
-    Query getSecondQuery();
-    boolean compose(boolean firstResult, boolean secondResult);
-    String compose(String firstQuery, String secondQuery);
-}
+@XmlTransient
+@XmlSeeAlso({SimpleConditionQuery.class, AndConditionQuery.class, OrConditionQuery.class})
+public interface ConditionQuery {}

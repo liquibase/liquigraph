@@ -20,9 +20,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
-
-import java.sql.*;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -149,5 +153,29 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
         })
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Changeset with ID <second-changelog> and author <team> has conflicted checksums");
+    }
+
+    @Test
+    public void runs_migrations_with_parameterized_queries() throws Exception {
+        liquigraph.runMigrations(
+            new ConfigurationBuilder()
+                .withRunMode()
+                .withMasterChangelogLocation("changelog/parameterized_queries/changelog.xml")
+                .withUri(graphDatabase().uri())
+                .build()
+        );
+
+        try (Connection connection = graphDatabase().newConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(
+             "MATCH (pe:Person), (pl:Place) " +
+             "RETURN pe.name AS person_name, pl.name AS place_name, pl.city AS city")) {
+
+            assertThat(resultSet.next()).isTrue();
+            assertThat(resultSet.getString("person_name")).isEqualTo("some name");
+            assertThat(resultSet.getString("place_name")).isEqualTo("some other name");
+            assertThat(resultSet.getString("city")).isEqualTo("some place");
+            assertThat(resultSet.next()).isFalse();
+        }
     }
 }
