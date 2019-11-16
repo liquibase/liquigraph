@@ -39,7 +39,7 @@ public class DomSourceValidatorFactoryTest {
     public void instantiates_an_explicit_schema_validator_when_schema_is_set() throws Exception {
         String document =
                 "<changelog xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
-                "           xsi:noNamespaceSchemaLocation=\"http://liquigraph.org/schema/1.0-RC3/liquigraph.xsd\">\n" +
+                "           xsi:noNamespaceSchemaLocation=\"http://www.liquigraph.org/schema/1.0-RC3/liquigraph.xsd\">\n" +
                 "</changelog>";
         DomSourceValidator validator = factory.createValidator(domSource(document));
 
