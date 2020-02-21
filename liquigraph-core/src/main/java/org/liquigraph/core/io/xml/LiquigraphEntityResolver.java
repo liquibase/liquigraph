@@ -33,7 +33,7 @@ public class LiquigraphEntityResolver implements EntityResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final Map<String, String> knownEntities = new HashMap<String, String>();
+    private static final Map<String, String> knownEntities = new HashMap<>();
 
     static {
         knownEntities.put("http://www.liquigraph.org/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
