@@ -16,6 +16,8 @@
 package org.liquigraph.extensions;
 
 import org.liquigraph.core.io.ChangelogGraphReader;
+import org.liquigraph.core.io.lock.LiquigraphLock;
+import org.liquigraph.core.io.lock.LockableConnection;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.extensions.jdbc.GraphDatabaseServiceConnection;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -25,6 +27,7 @@ import org.neo4j.procedure.Procedure;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class LiquigraphExtensions {
@@ -32,14 +35,21 @@ public class LiquigraphExtensions {
     @Context
     public GraphDatabaseService graphDatabaseService;
 
-    @Procedure("liquigraph.changelog")
+    @Procedure(value = "liquigraph.changelog")
     public Stream<ChangesetRecord> changelog() {
-        try (Connection connection = new GraphDatabaseServiceConnection(graphDatabaseService)) {
+        Supplier<Connection> connectionSupplier = getConnectionSupplier();
+        try (Connection delegate = connectionSupplier.get();
+             Connection connection = LockableConnection.acquire(delegate, new LiquigraphLock(connectionSupplier))) {
+
             Collection<Changeset> changesets = new ChangelogGraphReader().read(connection);
             return changesets.stream().map(ChangesetRecord::new);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Supplier<Connection> getConnectionSupplier() {
+        return () -> new GraphDatabaseServiceConnection(graphDatabaseService);
     }
 }

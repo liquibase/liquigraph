@@ -42,7 +42,9 @@ public class GraphDatabaseServiceConnection implements Connection {
 
     private Transaction transaction;
 
-    private boolean closed = false;
+    private boolean closed;
+
+    private boolean autoCommit;
 
     public GraphDatabaseServiceConnection(GraphDatabaseService graphDatabaseService) {
         this.graphDatabaseService = graphDatabaseService;
@@ -96,7 +98,7 @@ public class GraphDatabaseServiceConnection implements Connection {
 
     @Override
     public PreparedStatement prepareStatement(String sql) {
-        throw new UnsupportedOperationException("not implemented");
+        return new GraphDatabaseServicePreparedStatement(graphDatabaseService, sql);
     }
 
     @Override
@@ -111,13 +113,12 @@ public class GraphDatabaseServiceConnection implements Connection {
 
     @Override
     public void setAutoCommit(boolean autoCommit) {
-        throw new UnsupportedOperationException("not implemented");
-
+        this.autoCommit = autoCommit;
     }
 
     @Override
     public boolean getAutoCommit() {
-        throw new UnsupportedOperationException("not implemented");
+        return this.autoCommit;
     }
 
     @Override

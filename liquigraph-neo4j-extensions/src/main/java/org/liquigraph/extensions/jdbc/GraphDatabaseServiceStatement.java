@@ -71,7 +71,7 @@ public class GraphDatabaseServiceStatement implements Statement {
 
     private void checkIfClosed() throws SQLException {
         if (this.isClosed()) {
-            throw new SQLException("ResultSet is already closed");
+            throw new SQLException("Statement is already closed");
         }
     }
 

@@ -46,12 +46,12 @@ public class LiquigraphExtensionsTest {
         expectedRow.put("id", "first-changelog");
         expectedRow.put("author", "fbiville");
         expectedRow.put("queries", singletonList("MATCH (n) RETURN n"));
+
         runMigrations("changelog/changelog.xml");
 
         GraphDatabaseService graphDb = neo4jRule.getGraphDatabaseService();
         try (Transaction transaction = graphDb.beginTx();
              Result result = graphDb.execute("CALL liquigraph.changelog()")) {
-
             assertThat(result).containsExactly(expectedRow);
             transaction.failure();
         }
