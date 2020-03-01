@@ -15,6 +15,9 @@
  */
 package org.liquigraph.core.io.xml;
 
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -25,6 +28,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.Collection;
 
 class ImplicitSchemaValidator implements DomSourceValidator {
@@ -50,8 +54,124 @@ class ImplicitSchemaValidator implements DomSourceValidator {
         }
     }
 
+    static private class InputSourceToLSInput implements LSInput {
+
+        private InputSource source;
+
+        private InputSourceToLSInput(InputSource source) {
+            this.source = source;
+        }
+
+        @Override
+        public Reader getCharacterStream() {
+            return source.getCharacterStream();
+        }
+
+        @Override
+        public void setCharacterStream(Reader characterStream) {
+            source.setCharacterStream(characterStream);
+        }
+
+        @Override
+        public InputStream getByteStream() {
+            return source.getByteStream();
+        }
+
+        @Override
+        public void setByteStream(InputStream byteStream) {
+            source.setByteStream(byteStream);
+        }
+
+        @Override
+        public String getStringData() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void setStringData(String stringData) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public String getSystemId() {
+            return source.getSystemId();
+        }
+
+        @Override
+        public void setSystemId(String systemId) {
+            source.setSystemId(systemId);
+        }
+
+        @Override
+        public String getPublicId() {
+            return source.getPublicId();
+        }
+
+        @Override
+        public void setPublicId(String publicId) {
+            source.setPublicId(publicId);
+        }
+
+        @Override
+        public String getBaseURI() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void setBaseURI(String baseURI) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public String getEncoding() {
+            return source.getEncoding();
+        }
+
+        @Override
+        public void setEncoding(String encoding) {
+            source.setEncoding(encoding);
+        }
+
+        @Override
+        public boolean getCertifiedText() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void setCertifiedText(boolean certifiedText) {
+            // TODO Auto-generated method stub
+        }
+
+    }
+
     private Validator validator(SchemaErrorHandler customErrorHandler) {
         Validator validator = schema.newValidator();
+        ChainedEntityResolver resolverChain = new ChainedEntityResolver();
+        resolverChain.addEntityResolver(new LiquigraphEntityResolver());
+        resolverChain.addEntityResolver(new RedirectAwareEntityResolver());
+        LSResourceResolver currentResolver = validator.getResourceResolver();
+        validator.setResourceResolver(new LSResourceResolver() {
+
+            @Override
+            public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId,
+                    String baseURI) {
+                try {
+                    InputSource input = resolverChain.resolveEntity(publicId, systemId);
+                    if (input != null) {
+                        return new InputSourceToLSInput(input);
+                    } else {
+                        return currentResolver.resolveResource(type, namespaceURI, publicId, systemId, baseURI);
+                    }
+                } catch (SAXException | IOException e) {
+                    throw new RuntimeException("Could not resolve with entity resolver", e);
+                }
+            }
+        });
         validator.setErrorHandler(customErrorHandler);
         return validator;
     }
