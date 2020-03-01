@@ -36,7 +36,7 @@ public class LiquigraphEntityResolver implements EntityResolver {
     private static final Map<String, String> knownEntities = new HashMap<>();
 
     static {
-        knownEntities.put("http://www.liquigraph.org/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
+        knownEntities.put("http://www.liquigraph.org/schema/1.0/liquigraph.xsd", "schema/changelog.xsd");
         knownEntities.put("http://www.liquigraph.org/schema/changelog.xsd", "schema/changelog.xsd");
     }
 
