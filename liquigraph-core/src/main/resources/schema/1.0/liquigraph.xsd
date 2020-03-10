@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright 2014-2018 the original author or authors.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="QueryType">
+        <xs:restriction base="xs:string" />
+    </xs:simpleType>
+
+    <xs:complexType name="ConditionChildType">
+        <xs:sequence>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="and" type="ConditionChildType" minOccurs="0" />
+                <xs:element name="or" type="ConditionChildType" minOccurs="0" />
+                <xs:element name="query" type="QueryType" minOccurs="0" />
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PreconditionType">
+        <xs:sequence>
+            <xs:choice minOccurs="1" maxOccurs="1">
+                <xs:element name="and" type="ConditionChildType" minOccurs="0" />
+                <xs:element name="or" type="ConditionChildType" minOccurs="0" />
+                <xs:element name="query" type="QueryType" minOccurs="0" />
+            </xs:choice>
+        </xs:sequence>
+
+        <xs:attribute name="if-not-met" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="PostconditionType">
+        <xs:sequence>
+            <xs:choice minOccurs="1" maxOccurs="1">
+                <xs:element name="and" type="ConditionChildType" minOccurs="0" />
+                <xs:element name="or" type="ConditionChildType" minOccurs="0" />
+                <xs:element name="query" type="QueryType" minOccurs="0" />
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ImportType">
+        <xs:attribute name="resource" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="ChangesetType">
+        <xs:sequence>
+            <xs:element name="precondition" type="PreconditionType" minOccurs="0" maxOccurs="1" />
+            <xs:element name="query" type="QueryType" minOccurs="1" maxOccurs="unbounded" />
+            <xs:element name="postcondition" type="PostconditionType" minOccurs="0" maxOccurs="1" />
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string" use="required" />
+        <xs:attribute name="author" type="xs:string" use="required" />
+        <xs:attribute name="contexts" type="xs:string" use="optional" />
+        <xs:attribute name="run-always" type="xs:boolean" use="optional" />
+        <xs:attribute name="run-on-change" type="xs:boolean" use="optional" />
+    </xs:complexType>
+
+    <xs:element name="changelog">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="import" type="ImportType" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="changeset" type="ChangesetType" minOccurs="0" maxOccurs="unbounded" />
+            </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="unique_id">
+            <xs:selector xpath="changeset" />
+            <xs:field xpath="@id" />
+        </xs:unique>
+    </xs:element>
+</xs:schema>

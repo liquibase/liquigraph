@@ -29,14 +29,23 @@ import org.xml.sax.SAXException;
 /**
  * Resolves XML entities against local classpath resources.
  */
-public class LiquigraphEntityResolver implements EntityResolver {
+public class LiquigraphLocalEntityResolver implements EntityResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final Map<String, String> knownEntities = new HashMap<>();
 
     static {
-        knownEntities.put("http://www.liquigraph.org/schema/1.0/liquigraph.xsd", "schema/changelog.xsd");
+        knownEntities.put("http://www.liquigraph.org/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
+        knownEntities.put("https://www.liquigraph.org/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
+        knownEntities.put("http://liquigraph.github.io/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
+        knownEntities.put("https://liquigraph.github.io/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");        
+        knownEntities.put("http://fbiville.github.io/liquigraph/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
+        knownEntities.put("https://fbiville.github.io/liquigraph/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
+        knownEntities.put("http://www.liquigraph.org/schema/1.0-RC3/liquigraph.xsd", "schema/1.0-RC3/liquigraph.xsd");
+        knownEntities.put("https://www.liquigraph.org/schema/1.0-RC3/liquigraph.xsd", "schema/1.0-RC3/liquigraph.xsd");
+        knownEntities.put("http://fbiville.github.io/liquigraph/schema/1.0-RC3/liquigraph.xsd", "schema/1.0-RC3/liquigraph.xsd");
+        knownEntities.put("https://fbiville.github.io/liquigraph/schema/1.0-RC3/liquigraph.xsd", "schema/1.0-RC3/liquigraph.xsd");
         knownEntities.put("http://www.liquigraph.org/schema/changelog.xsd", "schema/changelog.xsd");
     }
 

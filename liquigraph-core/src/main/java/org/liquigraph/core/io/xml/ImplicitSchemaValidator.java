@@ -152,7 +152,7 @@ class ImplicitSchemaValidator implements DomSourceValidator {
     private Validator validator(SchemaErrorHandler customErrorHandler) {
         Validator validator = schema.newValidator();
         ChainedEntityResolver resolverChain = new ChainedEntityResolver();
-        resolverChain.addEntityResolver(new LiquigraphEntityResolver());
+        resolverChain.addEntityResolver(new LiquigraphLocalEntityResolver());
         resolverChain.addEntityResolver(new RedirectAwareEntityResolver());
         LSResourceResolver currentResolver = validator.getResourceResolver();
         validator.setResourceResolver(new LSResourceResolver() {

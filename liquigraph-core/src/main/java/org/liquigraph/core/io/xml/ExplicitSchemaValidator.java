@@ -49,7 +49,7 @@ class ExplicitSchemaValidator implements DomSourceValidator {
         SchemaErrorHandler errorHandler = new SchemaErrorHandler();
         XMLReader reader = saxParser().getXMLReader();
         ChainedEntityResolver resolverChain = new ChainedEntityResolver();
-        resolverChain.addEntityResolver(new LiquigraphEntityResolver());
+        resolverChain.addEntityResolver(new LiquigraphLocalEntityResolver());
         resolverChain.addEntityResolver(new RedirectAwareEntityResolver());
         reader.setEntityResolver(resolverChain);
         reader.setErrorHandler(errorHandler);
