@@ -10,7 +10,7 @@
 
     <groupId>org.liquigraph</groupId>
     <artifactId>liquigraph-parent</artifactId>
-    <version>3.1.1-SNAPSHOT</version>
+    <version>3.1.1</version>
     <packaging>pom</packaging>
 
     <name>liquigraph-parent</name>
@@ -137,7 +137,7 @@
         <url>https://github.com/liquigraph/liquigraph</url>
         <connection>scm:git:git@github.com:liquigraph/liquigraph.git</connection>
         <developerConnection>scm:git:git@github.com:liquigraph/liquigraph.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>liquigraph-3.1.1</tag>
   </scm>
 
     <developers>
