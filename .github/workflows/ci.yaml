@@ -1,0 +1,102 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        neo4j_version:
+          - 3.0.0
+          - 3.0.12
+          - 3.1.9
+          - 3.2.14
+          - 3.3.9
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache ~/.m2/repository
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Build against Neo4j v${{ matrix.neo4j_version }} (${{ matrix.os }})
+        run: mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }}
+  remote-testing:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      WITH_DOCKER: true
+    strategy:
+      fail-fast: false
+      matrix:
+        neo4j_version:
+          - 3.0.0
+          - 3.0.12
+          - 3.1.9
+          - 3.2.14
+          - 3.3.9
+    services:
+      neo4j:
+        image: neo4j:${{ matrix.neo4j_version }}
+        ports:
+          - 7474:7474
+        env:
+          NEO4J_AUTH: neo4j/j4oen
+        volumes:
+          - $HOME/neo4j/data:/data
+        options: >-
+          --health-cmd "wget --quiet --tries=1 --spider http://localhost:7474/ || exit 1"
+          --health-interval 5s
+          --health-timeout 60s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache ~/.m2/repository
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Run remote tests against Neo4j v${{ matrix.neo4j_version }}
+        run: mvn --quiet --batch-mode --show-version --also-make --projects liquigraph-core test -Dneo4j.version=${{ matrix.neo4j_version }}
+  deploy-snapshot:
+    if: github.ref == 'refs/heads/master' && github.repository == 'liquigraph/liquigraph'
+    needs: remote-testing
+    runs-on: ubuntu-latest
+    env:
+      OSSRH_USER: ${{ secrets.OSSRH_USER }}
+      OSSRH_PASS: ${{ secrets.OSSRH_PASS }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache ~/.m2/repository
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Deploy SNAPSHOT to Maven Central
+        run: mvn clean deploy -DskipTests --settings ./deploy-settings.xml
+
