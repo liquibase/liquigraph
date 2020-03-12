@@ -117,8 +117,8 @@ public abstract class ConditionExecutorTestSuite implements GraphIntegrationTest
         thrown.expectMessage(matchesPattern(String.format(
             "(?ms)%nError executing condition:%n" +
                 "\tMake sure your query \\<toto\\> yields exactly one column named or aliased 'result'.%n" +
-                "\tActual cause: .*Invalid input 't': expected \\<init\\> \\(line 1, column 1 \\(offset: 0\\)\\)%n" +
-                "\"toto\"%n" +
+                "\tActual cause: .*Invalid input 't': expected \\<init\\> \\(line 1, column 1 \\(offset: 0\\)\\)\n" +
+                "\"toto\"\n" +
                 " \\^.*")));
 
         try (Connection connection = graphDatabase().newConnection()) {
