@@ -39,14 +39,19 @@ public class LiquigraphLocalEntityResolver implements EntityResolver {
         knownEntities.put("http://www.liquigraph.org/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
         knownEntities.put("https://www.liquigraph.org/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
         knownEntities.put("http://liquigraph.github.io/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
-        knownEntities.put("https://liquigraph.github.io/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");        
-        knownEntities.put("http://fbiville.github.io/liquigraph/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
-        knownEntities.put("https://fbiville.github.io/liquigraph/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
+        knownEntities.put("https://liquigraph.github.io/schema/1.0/liquigraph.xsd", "schema/1.0/liquigraph.xsd");
+        knownEntities.put("http://fbiville.github.io/liquigraph/schema/1.0/liquigraph.xsd",
+                "schema/1.0/liquigraph.xsd");
+        knownEntities.put("https://fbiville.github.io/liquigraph/schema/1.0/liquigraph.xsd",
+                "schema/1.0/liquigraph.xsd");
         knownEntities.put("http://www.liquigraph.org/schema/1.0-RC3/liquigraph.xsd", "schema/1.0-RC3/liquigraph.xsd");
         knownEntities.put("https://www.liquigraph.org/schema/1.0-RC3/liquigraph.xsd", "schema/1.0-RC3/liquigraph.xsd");
-        knownEntities.put("http://fbiville.github.io/liquigraph/schema/1.0-RC3/liquigraph.xsd", "schema/1.0-RC3/liquigraph.xsd");
-        knownEntities.put("https://fbiville.github.io/liquigraph/schema/1.0-RC3/liquigraph.xsd", "schema/1.0-RC3/liquigraph.xsd");
+        knownEntities.put("http://fbiville.github.io/liquigraph/schema/1.0-RC3/liquigraph.xsd",
+                "schema/1.0-RC3/liquigraph.xsd");
+        knownEntities.put("https://fbiville.github.io/liquigraph/schema/1.0-RC3/liquigraph.xsd",
+                "schema/1.0-RC3/liquigraph.xsd");
         knownEntities.put("http://www.liquigraph.org/schema/changelog.xsd", "schema/changelog.xsd");
+        knownEntities.put("https://www.liquigraph.org/schema/changelog.xsd", "schema/changelog.xsd");
     }
 
     @Override
