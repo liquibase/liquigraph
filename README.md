@@ -5,8 +5,7 @@ Please proceed to [this page](https://github.com/liquigraph/liquigraph/) for Neo
 
 ## Build status
 
-[![Build Status](https://travis-ci.org/liquigraph/liquigraph.png?branch=2.x)](https://travis-ci.org/liquigraph/liquigraph?branch=2.x)
-[![Coverage Status](https://coveralls.io/repos/liquigraph/liquigraph/badge.png?branch=2.x)](https://coveralls.io/r/liquigraph/liquigraph?branch=2.x)
+![Build Status](https://github.com/liquigraph/liquigraph/workflows/CI/badge.svg?branch=2.x)
 
 ## Mailing list
 
