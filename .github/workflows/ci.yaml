@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - 4.x
   pull_request: {}
 jobs:
   build:
@@ -12,12 +12,23 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         neo4j_version:
-          - 3.0.0
-          - 3.0.12
-          - 3.1.9
-          - 3.2.14
-          - 3.3.9
+          - 4.0.0
+          - 4.0.2
     steps:
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      #### temporary until JDBC release - begin
+      - uses: actions/checkout@v2
+        name: Clone JDBC driver 4.x (temporary)
+        with:
+          repository: neo4j-contrib/neo4j-jdbc
+          ref: '4.0'
+          path: 'jdbc'
+      - name: Install JDBC driver 4.x (temporary)
+        run: mvn --quiet --batch-mode --show-version --file jdbc install -DskipTests -D"maven.javadoc.skip"=true
+        #### temporary until JDBC release - end
       - uses: actions/checkout@v2
       - name: Cache ~/.m2/repository
         uses: actions/cache@v1
@@ -26,10 +37,6 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Setup Java
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
       - name: Build against Neo4j v${{ matrix.neo4j_version }} (${{ matrix.os }})
         run: mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }}
   remote-testing:
@@ -41,11 +48,8 @@ jobs:
       fail-fast: false
       matrix:
         neo4j_version:
-          - 3.0.0
-          - 3.0.12
-          - 3.1.9
-          - 3.2.14
-          - 3.3.9
+          - 4.0.0
+          - 4.0.2
     services:
       neo4j:
         image: neo4j:${{ matrix.neo4j_version }}
@@ -61,6 +65,20 @@ jobs:
           --health-timeout 60s
           --health-retries 12
     steps:
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      #### temporary until JDBC release - begin
+      - uses: actions/checkout@v2
+        name: Clone JDBC driver 4.x (temporary)
+        with:
+          repository: neo4j-contrib/neo4j-jdbc
+          ref: '4.0'
+          path: 'jdbc'
+      - name: Install JDBC driver 4.x (temporary)
+        run: mvn --quiet --batch-mode --show-version --file jdbc install -DskipTests -D"maven.javadoc.skip"=true
+      #### temporary until JDBC release - end
       - uses: actions/checkout@v2
       - name: Cache ~/.m2/repository
         uses: actions/cache@v1
@@ -69,20 +87,30 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Setup Java
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
       - name: Run remote tests against Neo4j v${{ matrix.neo4j_version }}
         run: mvn --quiet --batch-mode --show-version --also-make --projects liquigraph-core test -Dneo4j.version=${{ matrix.neo4j_version }}
   deploy-snapshot:
-    if: github.ref == 'refs/heads/master' && github.repository == 'liquigraph/liquigraph'
+    if: github.ref == 'refs/heads/4.x' && github.repository == 'liquigraph/liquigraph'
     needs: remote-testing
     runs-on: ubuntu-latest
     env:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_PASS: ${{ secrets.OSSRH_PASS }}
     steps:
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      #### temporary until JDBC release - begin
+      - uses: actions/checkout@v2
+        name: Clone JDBC driver 4.x (temporary)
+        with:
+          repository: neo4j-contrib/neo4j-jdbc
+          ref: '4.0'
+          path: 'jdbc'
+      - name: Install JDBC driver 4.x (temporary)
+        run: mvn --quiet --batch-mode --show-version --file jdbc install -DskipTests -D"maven.javadoc.skip"=true
+      #### temporary until JDBC release - end
       - uses: actions/checkout@v2
       - name: Cache ~/.m2/repository
         uses: actions/cache@v1
@@ -91,10 +119,6 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Setup Java
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
       - name: Deploy SNAPSHOT to Maven Central
         run: mvn clean deploy -DskipTests --settings ./deploy-settings.xml
 

@@ -24,7 +24,7 @@
                 WITH COALESCE(COLLECT(f1.bar),[]) AS all
                 OPTIONAL MATCH (f2:Foo)
                 WITH all, COALESCE(COLLECT(DISTINCT f2.bar),[]) AS uniq
-                RETURN (LENGTH(all)= LENGTH(uniq)) AS result
+                RETURN (SIZE(all)= SIZE(uniq)) AS result
             </query>
         </precondition>
         <query>CREATE CONSTRAINT ON (foo:Foo) ASSERT foo.bar IS UNIQUE</query>

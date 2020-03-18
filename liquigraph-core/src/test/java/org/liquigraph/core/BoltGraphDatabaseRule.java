@@ -15,12 +15,6 @@
  */
 package org.liquigraph.core;
 
-import org.junit.rules.ExternalResource;
-import org.liquigraph.core.exception.Throwables;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.TestServerBuilder;
-import org.neo4j.harness.TestServerBuilders;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -30,17 +24,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.junit.rules.ExternalResource;
+import org.liquigraph.core.exception.Throwables;
+import org.neo4j.harness.Neo4j;
+import org.neo4j.harness.Neo4jBuilder;
+import org.neo4j.harness.internal.InProcessNeo4jBuilder;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BoltGraphDatabaseRule extends ExternalResource
-    implements GraphDatabaseRule {
+implements GraphDatabaseRule {
 
-    private final TestServerBuilder builder;
-    private ServerControls controls;
+    private final Neo4jBuilder builder;
+    private Neo4j controls;
     private Collection<Connection> connections = new ArrayList<>();
 
     public BoltGraphDatabaseRule() {
-        builder = TestServerBuilders.newInProcessBuilder();
+        builder = new InProcessNeo4jBuilder();
     }
 
     @Override
@@ -50,7 +50,8 @@ public class BoltGraphDatabaseRule extends ExternalResource
             connection.setAutoCommit(false);
             connections.add(connection);
             return connection;
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -71,7 +72,7 @@ public class BoltGraphDatabaseRule extends ExternalResource
     }
 
     protected void before() {
-        controls = builder.newServer();
+        controls = builder.build();
     }
 
     protected void after() {
@@ -84,9 +85,11 @@ public class BoltGraphDatabaseRule extends ExternalResource
                     connection.close();
                 }
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             throw Throwables.propagate(e);
-        } finally {
+        }
+        finally {
             controls.close();
         }
         assertThat(openConnections).as("Connections remaining open").isEqualTo(0);

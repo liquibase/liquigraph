@@ -63,7 +63,7 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
             }
 
             try (PreparedStatement statement = connection.prepareStatement(
-                    "MATCH (changeset:__LiquigraphChangeset {id: {1}}) RETURN changeset"
+                    "MATCH (changeset:__LiquigraphChangeset {id: ?}) RETURN changeset"
             )) {
 
                 statement.setObject(1, "insert-fbiville");
@@ -125,7 +125,7 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
     }
 
     @Test
-    public void fails_migrations_with_edited_migration() throws SQLException {
+    public void fails_migrations_with_edited_migration() {
         liquigraph.runMigrations(
                 new ConfigurationBuilder()
                         .withRunMode()

@@ -15,6 +15,8 @@
  */
 package org.liquigraph.spring;
 
+import java.util.HashMap;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;
@@ -26,7 +28,7 @@ import org.liquigraph.spring.starter.LiquigraphAutoConfiguration;
 import org.liquigraph.spring.starter.LiquigraphDataSource;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
-import org.neo4j.harness.junit.Neo4jRule;
+import org.neo4j.harness.junit.rule.Neo4jRule;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.boot.test.util.EnvironmentTestUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -47,7 +49,7 @@ public class LiquigraphAutoconfigurationTest {
 
     @After
     public void prepare() {
-        try (Result ignored = graphDb().execute("MATCH (n) DETACH DELETE n")) { }
+        graphDb().executeTransactionally("MATCH (n) DETACH DELETE n");
     }
 
     @Test
@@ -146,23 +148,25 @@ public class LiquigraphAutoconfigurationTest {
     }
 
     private static void assertThatMigrationsHaveRun() {
-        try (Result result = graphDb().execute("MATCH (n:Sentence {text:'Hello world!'}) RETURN COUNT(n) AS count")) {
+        graphDb().executeTransactionally("MATCH (n:Sentence {text:'Hello world!'}) RETURN COUNT(n) AS count", new HashMap<>(0), (result) -> {
             assertThat(result.hasNext()).as("Query returns a count").isTrue();
             assertThat(result.next().get("count")).as("There is only 1 sentence in the graph").isEqualTo(1L);
             assertThat(result.hasNext()).as("No more counts are returned").isFalse();
-        }
+            return null;
+        });
     }
 
     private static void assertThatMigrationsHaveNotRun() {
-        try (Result result = graphDb().execute("MATCH (n) RETURN COUNT(n) AS count")) {
+        graphDb().executeTransactionally("MATCH (n) RETURN COUNT(n) AS count", new HashMap<>(0), (result) -> {
             assertThat(result.hasNext()).as("Query returns a count").isTrue();
             assertThat(result.next().get("count")).as("The graph is empty").isEqualTo(0L);
             assertThat(result.hasNext()).as("No more counts are returned").isFalse();
-        }
+            return null;
+        });
     }
 
     private static GraphDatabaseService graphDb() {
-        return neo4j.getGraphDatabaseService();
+        return neo4j.defaultDatabaseService();
     }
 
     private static String jdbcUrl() {

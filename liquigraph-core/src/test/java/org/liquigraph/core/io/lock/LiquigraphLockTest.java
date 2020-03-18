@@ -15,7 +15,13 @@
  */
 package org.liquigraph.core.io.lock;
 
-import org.assertj.core.api.ThrowableAssert;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.function.Supplier;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,22 +29,16 @@ import org.junit.runner.RunWith;
 import org.liquigraph.core.exception.LiquigraphLockException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.function.Supplier;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.matches;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -72,7 +72,7 @@ public class LiquigraphLockTest {
         lock.acquire(connection);
 
         verify(createStatement).execute();
-        verify(connection, times(2)).commit();
+        verify(connection, times(3)).commit();
     }
 
     @Test
@@ -83,8 +83,8 @@ public class LiquigraphLockTest {
         lock.acquire(connection2);
 
         verify(createStatement).execute();
-        verify(connection, times(2)).commit();
-        verifyZeroInteractions(connection2);
+        verify(connection, times(3)).commit();
+        verifyNoInteractions(connection2);
     }
 
     @Test
@@ -95,9 +95,22 @@ public class LiquigraphLockTest {
     }
 
     @Test
+    public void should_fail_when_the_lock_constraint_existence_fails() throws SQLException {
+        Statement constraintStatement = mock(Statement.class);
+        when(connection.createStatement()).thenReturn(constraintStatement);
+        when(constraintStatement.executeQuery(anyString())).thenThrow(SQLException.class);
+
+        assertThatThrownBy(() -> lock.acquire(connection)).isInstanceOf(LiquigraphLockException.class);
+    }
+
+    @Test
     public void should_fail_when_the_lock_cannot_be_constrained() throws SQLException {
         Statement constraintStatement = mock(Statement.class);
         when(connection.createStatement()).thenReturn(constraintStatement);
+        ResultSet resultSet = mock(ResultSet.class);
+        when(resultSet.next()).thenReturn(true, false);
+        when(resultSet.getBoolean("result")).thenReturn(false);
+        when(constraintStatement.executeQuery(anyString())).thenReturn(resultSet);
         when(constraintStatement.execute(anyString())).thenThrow(SQLException.class);
 
         assertThatThrownBy(() -> lock.acquire(connection)).isInstanceOf(LiquigraphLockException.class);
@@ -110,7 +123,7 @@ public class LiquigraphLockTest {
         lock.release(connection);
 
         verify(deleteStatement).execute();
-        verify(connection, times(3)).commit();
+        verify(connection, times(4)).commit();
     }
 
     @Test
@@ -121,7 +134,7 @@ public class LiquigraphLockTest {
         lock.release(connection);
 
         verify(deleteStatement).execute();
-        verify(connection, times(3)).commit();
+        verify(connection, times(4)).commit();
     }
 
     @Test
@@ -130,7 +143,7 @@ public class LiquigraphLockTest {
         lock.acquire(connection);
 
         lock.release(connection);
-        verify(connection, times(2)).commit();
+        verify(connection, times(3)).commit();
     }
 
     @Test
@@ -140,6 +153,6 @@ public class LiquigraphLockTest {
         lock.cleanup();
 
         verify(deleteStatement).execute();
-        verify(connection, times(3)).commit();
+        verify(connection, times(4)).commit();
     }
 }

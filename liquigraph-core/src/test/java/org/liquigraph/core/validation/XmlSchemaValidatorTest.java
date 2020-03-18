@@ -91,9 +91,8 @@ public class XmlSchemaValidatorTest {
             asNode("changelog/invalid_changesets/changelog-with-duplicate-ids.xml")
         );
 
-        assertThat(errors)
-            .containsExactly(
-                "Duplicate unique value [changelog] declared for identity constraint of element \"changelog\".");
+        assertThat(errors).hasSize(1);
+        assertThat(errors.iterator().next()).contains("Duplicate unique value [changelog] declared for identity constraint");
     }
 
     @Test

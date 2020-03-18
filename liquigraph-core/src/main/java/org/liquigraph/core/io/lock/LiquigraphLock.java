@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
@@ -51,7 +52,7 @@ public class LiquigraphLock {
         if (addConnection(connection)) {
             LOGGER.debug("Acquiring lock {} on database", uuid);
             addShutdownHook();
-            ensureLockUnicity(connection);
+            ensureLockUniqueness(connection);
             tryWriteLock(connection);
         }
     }
@@ -92,13 +93,16 @@ public class LiquigraphLock {
         Runtime.getRuntime().removeShutdownHook(task);
     }
 
-    private void ensureLockUnicity(Connection connection) {
+    private void ensureLockUniqueness(Connection connection) {
+        if (lockConstraintsExists(connection)) {
+            return;
+        }
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE CONSTRAINT ON (lock:__LiquigraphLock) ASSERT lock.name IS UNIQUE");
             connection.commit();
         } catch (SQLException e) {
             throw new LiquigraphLockException(
-                "Could not ensure __LiquigraphLock unicity\n\t" +
+                "Could not ensure __LiquigraphLock uniqueness\n\t" +
                     "Please make sure your instance is in a clean state\n\t" +
                     "No more than 1 lock should be there simultaneously!",
                 e
@@ -106,9 +110,27 @@ public class LiquigraphLock {
         }
     }
 
+    private boolean lockConstraintsExists(Connection connection) {
+        boolean result = false;
+        try (Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("CALL db.constraints() YIELD description "
+            + "WHERE description CONTAINS '__LiquigraphLock' AND description CONTAINS 'UNIQUE' "
+            + "RETURN SIZE(COLLECT(description)) > 0 AS result")) {
+
+            if (resultSet.next()) {
+                result = resultSet.getBoolean("result");
+            }
+            connection.commit();
+        }
+        catch (SQLException e) {
+            throw new LiquigraphLockException("Could not verify  __LiquigraphLock uniqueness constraint existence", e);
+        }
+        return result;
+    }
+
     private void tryWriteLock(Connection connection) {
         try (PreparedStatement statement = connection.prepareStatement(
-            "CREATE (:__LiquigraphLock {name:'John', uuid:{1}})")) {
+            "CREATE (:__LiquigraphLock {name:'John', uuid:?})")) {
 
             statement.setString(1, uuid.toString());
             statement.execute();
@@ -123,7 +145,7 @@ public class LiquigraphLock {
     }
 
     private void releaseLock(Connection connection) {
-        String deleteLockQuery = "MATCH (lock:__LiquigraphLock {uuid:{1}}) DELETE lock";
+        String deleteLockQuery = "MATCH (lock:__LiquigraphLock {uuid:?}) DELETE lock";
         try (PreparedStatement statement = connection.prepareStatement(deleteLockQuery)) {
             statement.setString(1, uuid.toString());
             statement.execute();

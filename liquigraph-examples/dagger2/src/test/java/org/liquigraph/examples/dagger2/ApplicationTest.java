@@ -21,7 +21,7 @@ import okhttp3.Response;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.harness.junit.Neo4jRule;
+import org.neo4j.harness.junit.rule.Neo4jRule;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class ApplicationTest {
     }
 
     @ClassRule
-    public static final Neo4jRule neo4j = withVersionAwareConfig(new Neo4jRule());
+    public static final Neo4jRule neo4j = new Neo4jRule();
 
     OkHttpClient httpClient = new OkHttpClient();
 
@@ -51,19 +51,6 @@ public class ApplicationTest {
 
         assertThat(response.isSuccessful()).as("Expected 2xx, got :" + response.code()).isTrue();
         assertThat(response.body().string()).contains("Hello world!");
-    }
-
-    private static Neo4jRule withVersionAwareConfig(Neo4jRule neo4jRule) {
-        Neo4jVersion currentNeo4jVersion = new Neo4jVersionReader().read("/neo4j.properties");
-        if (currentNeo4jVersion.compareTo(Neo4jVersion.parse("3.2")) < 0) {
-            return neo4jRule
-                .withConfig("dbms.connector.0.enabled", "false") /* BOLT */
-                .withConfig("dbms.connector.1.address", "localhost:" + Sockets.availablePort()); /* HTTP */
-        }
-        return neo4jRule
-            .withConfig("dbms.connector.bolt.enabled", "false")
-            .withConfig("dbms.connector.http.enabled", "true")
-            .withConfig("dbms.connector.http.address", "localhost:" + Sockets.availablePort());
     }
 
 }

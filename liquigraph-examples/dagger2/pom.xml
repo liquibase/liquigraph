@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.liquigraph</groupId>
         <artifactId>liquigraph-parent</artifactId>
-        <version>3.1.2-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
 	<relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -14,7 +14,7 @@
     <name>Dagger 2 - Integration Example</name>
 
     <properties>
-        <dagger.version>2.7</dagger.version>
+        <dagger.version>2.27</dagger.version>
         <jacoco.skip>true</jacoco.skip>
         <coveralls.skip>true</coveralls.skip>
     </properties>
@@ -105,5 +105,13 @@
                 <filtering>true</filtering>
             </testResource>
         </testResources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <sourcepath>src/main/java;${project.build.directory}/generated-sources/annotations</sourcepath>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>
