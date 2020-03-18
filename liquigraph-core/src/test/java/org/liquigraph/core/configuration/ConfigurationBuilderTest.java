@@ -67,13 +67,13 @@ public class ConfigurationBuilderTest {
     @Test
     public void fails_on_unsupported_protocol() {
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage(String.format(
-            "\t - Invalid JDBC URI. Supported configurations:%n" +
-            "\t - jdbc:neo4j://<host>:<port>/%n" +
-            "\t - jdbc:neo4j:file:/path/to/db%n" +
-            "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.%n" +
+        thrown.expectMessage(
+            "\t - Invalid JDBC URI. Supported configurations:\n" +
+            "\t - jdbc:neo4j://<host>:<port>/\n" +
+            "\t - jdbc:neo4j:file:/path/to/db\n" +
+            "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.\n" +
             "Given: ssh://sorry@buddy"
-        ));
+        );
 
         new ConfigurationBuilder()
             .withMasterChangelogLocation("changelog/changelog.xml")

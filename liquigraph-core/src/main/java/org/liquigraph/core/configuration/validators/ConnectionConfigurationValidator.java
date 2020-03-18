@@ -47,10 +47,10 @@ public class ConnectionConfigurationValidator {
     private static Collection<String> validateConnectionString(String uri) {
         Collection<String> errors = new LinkedList<>();
         if (!uri.startsWith(Driver.CON_PREFIX)) {
-            errors.add(format("Invalid JDBC URI. Supported configurations:%n" +
-                    "\t - jdbc:neo4j://<host>:<port>/%n" +
-                    "\t - jdbc:neo4j:file:/path/to/db%n" +
-                    "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.%n" +
+            errors.add(format("Invalid JDBC URI. Supported configurations:\n" +
+                    "\t - jdbc:neo4j://<host>:<port>/\n" +
+                    "\t - jdbc:neo4j:file:/path/to/db\n" +
+                    "\t - jdbc:neo4j:mem or jdbc:neo4j:mem:name.\n" +
                     "Given: %s", uri
             ));
         }
