@@ -54,7 +54,7 @@ class ImplicitSchemaValidator implements DomSourceValidator {
         }
     }
 
-    static private class InputSourceToLSInput implements LSInput {
+    private static class InputSourceToLSInput implements LSInput {
 
         private InputSource source;
 
