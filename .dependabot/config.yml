@@ -11,3 +11,5 @@ update_configs:
           dependency_name: "org.neo4j:neo4j*"
       - match:
           dependency_name: "org.springframework*"
+      - match: # only 2.x works
+          dependency_name: "org.assertj*"
