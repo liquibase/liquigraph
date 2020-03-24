@@ -25,8 +25,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import static edu.emory.mathcs.backport.java.util.Collections.singletonList;
-
 public class ProjectClassLoader {
 
     public static ClassLoader getClassLoader(MavenProject project) throws DependencyResolutionRequiredException, MalformedURLException {
@@ -43,6 +41,6 @@ public class ProjectClassLoader {
 
     @SuppressWarnings("unchecked")
     private static List<String> compileClassPathElements(MavenProject project) throws DependencyResolutionRequiredException {
-        return singletonList(project.getCompileClasspathElements());
+        return project.getCompileClasspathElements();
     }
 }
