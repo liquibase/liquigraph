@@ -1,0 +1,13 @@
+version: 1
+update_configs:
+  - package_manager: "java:maven"
+    directory: "/"
+    update_schedule: "daily" # live not supported yet for java/mvn
+    default_reviewers:
+      - "fbiville"
+    target_branch: "4.x"
+    ignored_updates:
+      - match:
+          dependency_name: "org.neo4j:neo4j*"
+      - match:
+          dependency_name: "org.springframework*"
