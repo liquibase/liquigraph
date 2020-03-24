@@ -14,7 +14,7 @@
     <name>liquigraph-maven-plugin</name>
 
     <properties>
-        <maven-plugin.version>3.4</maven-plugin.version>
+        <maven-plugin.version>3.6.0</maven-plugin.version>
         <rootDirectory>${basedir}/..</rootDirectory>
     </properties>
 
