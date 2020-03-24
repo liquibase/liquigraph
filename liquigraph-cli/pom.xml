@@ -77,7 +77,9 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
-                    <descriptor>src/assembly/assembly.xml</descriptor>
+                    <descriptors>
+                        <descriptor>src/assembly/assembly.xml</descriptor>
+                    </descriptors>
                     <tarLongFileMode>posix</tarLongFileMode>
                 </configuration>
                 <executions>
