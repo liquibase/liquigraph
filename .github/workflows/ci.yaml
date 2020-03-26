@@ -14,21 +14,13 @@ jobs:
         neo4j_version:
           - 4.0.0
           - 4.0.2
+        jdbc_driver_version:
+          - 4.0.0
     steps:
       - name: Setup Java
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      #### temporary until JDBC release - begin
-      - uses: actions/checkout@v2
-        name: Clone JDBC driver 4.x (temporary)
-        with:
-          repository: neo4j-contrib/neo4j-jdbc
-          ref: '4.0'
-          path: 'jdbc'
-      - name: Install JDBC driver 4.x (temporary)
-        run: mvn --quiet --batch-mode --show-version --file jdbc install -DskipTests -D"maven.javadoc.skip"=true
-        #### temporary until JDBC release - end
       - uses: actions/checkout@v2
       - name: Cache ~/.m2/repository
         uses: actions/cache@v1
@@ -38,7 +30,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Build against Neo4j v${{ matrix.neo4j_version }} (${{ matrix.os }})
-        run: mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }}
+        run: mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
   remote-testing:
     needs: build
     runs-on: ubuntu-latest
@@ -50,6 +42,8 @@ jobs:
         neo4j_version:
           - 4.0.0
           - 4.0.2
+        jdbc_driver_version:
+          - 4.0.0
     services:
       neo4j:
         image: neo4j:${{ matrix.neo4j_version }}
@@ -69,16 +63,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      #### temporary until JDBC release - begin
-      - uses: actions/checkout@v2
-        name: Clone JDBC driver 4.x (temporary)
-        with:
-          repository: neo4j-contrib/neo4j-jdbc
-          ref: '4.0'
-          path: 'jdbc'
-      - name: Install JDBC driver 4.x (temporary)
-        run: mvn --quiet --batch-mode --show-version --file jdbc install -DskipTests -D"maven.javadoc.skip"=true
-      #### temporary until JDBC release - end
       - uses: actions/checkout@v2
       - name: Cache ~/.m2/repository
         uses: actions/cache@v1
@@ -88,7 +72,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Run remote tests against Neo4j v${{ matrix.neo4j_version }}
-        run: mvn --quiet --batch-mode --show-version --also-make --projects liquigraph-core test -Dneo4j.version=${{ matrix.neo4j_version }}
+        run: mvn --quiet --batch-mode --show-version --also-make --projects liquigraph-core test -Dneo4j.version=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
   deploy-snapshot:
     if: github.ref == 'refs/heads/4.x' && github.repository == 'liquigraph/liquigraph'
     needs: remote-testing
@@ -101,16 +85,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      #### temporary until JDBC release - begin
-      - uses: actions/checkout@v2
-        name: Clone JDBC driver 4.x (temporary)
-        with:
-          repository: neo4j-contrib/neo4j-jdbc
-          ref: '4.0'
-          path: 'jdbc'
-      - name: Install JDBC driver 4.x (temporary)
-        run: mvn --quiet --batch-mode --show-version --file jdbc install -DskipTests -D"maven.javadoc.skip"=true
-      #### temporary until JDBC release - end
       - uses: actions/checkout@v2
       - name: Cache ~/.m2/repository
         uses: actions/cache@v1
