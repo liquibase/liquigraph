@@ -33,7 +33,7 @@ public class SchemaDetectorTest {
         String document =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<changelog xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-            "           xsi:noNamespaceSchemaLocation=\"http://liquigraph.org/schema/1.0-RC3/liquigraph.xsd\">\n" +
+            "           xsi:noNamespaceSchemaLocation=\"http://www.liquigraph.org/schema/1.0-RC3/liquigraph.xsd\">\n" +
             "</changelog>";
 
         assertThat(detector.hasExplicitSchema(domSource(document))).isTrue();
@@ -45,7 +45,7 @@ public class SchemaDetectorTest {
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<!-- here is an awesome comment -->\n" +
             "<changelog xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n" +
-            "           xsi:noNamespaceSchemaLocation=\"http://liquigraph.org/schema/1.0-RC3/liquigraph.xsd\">\n" +
+            "           xsi:noNamespaceSchemaLocation=\"http://www.liquigraph.org/schema/1.0-RC3/liquigraph.xsd\">\n" +
             "</changelog>";
 
         assertThat(detector.hasExplicitSchema(domSource(document))).isTrue();
