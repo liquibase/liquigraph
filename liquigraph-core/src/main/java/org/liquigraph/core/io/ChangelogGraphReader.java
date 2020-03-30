@@ -47,16 +47,17 @@ public class ChangelogGraphReader {
 
     private static final String MATCH_CHANGESETS =
         "MATCH (:__LiquigraphChangelog)<-[changelog_execution:EXECUTED_WITHIN_CHANGELOG]-(changeset:__LiquigraphChangeset), " +
-            "      (changeset)<-[changeset_execution:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
-            "WITH changeset, query " +
-            "ORDER BY changelog_execution.`time` ASC, changeset_execution.`order` ASC " +
-            "WITH changeset, COLLECT(query.query) AS queries " +
-            "RETURN {" +
-            "   id: changeset.id, " +
-            "   author:changeset.author, " +
-            "   checksum:changeset.checksum, " +
-            "   query:queries" +
-            "} AS changeset";
+        "      (changeset)<-[changeset_execution:EXECUTED_WITHIN_CHANGESET]-(query:__LiquigraphQuery) " +
+        "WITH changelog_execution.`time` AS changeset_position, changeset, query " +
+        "ORDER BY changeset_position ASC, changeset_execution.`order` ASC " +
+        "WITH changeset_position, changeset, COLLECT(query.query) AS queries " +
+        "RETURN {" +
+        "   id: changeset.id, " +
+        "   author:changeset.author, " +
+        "   checksum:changeset.checksum, " +
+        "   query:queries" +
+        "} AS changeset " +
+        "ORDER BY changeset_position ASC";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogFileWriter.class);
 
