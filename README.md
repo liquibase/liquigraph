@@ -8,7 +8,7 @@ Please proceed to [this page](https://github.com/liquigraph/liquigraph/tree/2.x)
 
 ## Build status
 
-![Build Status](https://github.com/liquigraph/liquigraph/workflows/CI/badge.svg)
+![Build Status](https://github.com/liquigraph/liquigraph/workflows/CI/badge.svg?branch=4.x)
 
 ## Mailing list
 
