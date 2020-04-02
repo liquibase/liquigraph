@@ -96,4 +96,13 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <!-- needed for site generation -->
+    <repositories>
+        <repository>
+            <id>maven-restlet</id>
+            <name>Restlet repository</name>
+            <url>https://maven.restlet.talend.com</url>
+        </repository>
+    </repositories>
 </project>
