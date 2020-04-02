@@ -13,7 +13,7 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
         neo4j_version:
           - 4.0.0
-          - 4.0.2
+          - 4.0.3
         jdbc_driver_version:
           - 4.0.0
     steps:
@@ -41,7 +41,7 @@ jobs:
       matrix:
         neo4j_version:
           - 4.0.0
-          - 4.0.2
+          - 4.0.3
         jdbc_driver_version:
           - 4.0.0
     services:
