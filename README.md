@@ -10,13 +10,9 @@ Please proceed to [this page](https://github.com/liquigraph/liquigraph/tree/4.x)
 
 ![Build Status](https://github.com/liquigraph/liquigraph/workflows/CI/badge.svg)
 
-## Mailing list
-
-Please subscribe [here](https://groups.google.com/forum/?hl=en-GB#!forum/liquigraph-dev).
-
 ## Getting started
 
-Please read [the website](http://liquigraph.github.io/).
+Please read [the website](https://liquigraph.org/).
 
 ## Homebrew
 
