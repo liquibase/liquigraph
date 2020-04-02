@@ -44,7 +44,7 @@ public class LiquigraphLock {
     void acquire(Connection connection) {
         if (addConnection(connection)) {
             addShutdownHook();
-            ensureLockUnicity(connection);
+            ensureLockUniqueness(connection);
             tryWriteLock(connection);
         }
     }
@@ -84,14 +84,14 @@ public class LiquigraphLock {
         Runtime.getRuntime().removeShutdownHook(task);
     }
 
-    private void ensureLockUnicity(Connection connection) {
+    private void ensureLockUniqueness(Connection connection) {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE CONSTRAINT ON (lock:__LiquigraphLock) ASSERT lock.name IS UNIQUE");
             connection.commit();
         }
         catch (SQLException e) {
             throw new LiquigraphLockException(
-                    "Could not ensure __LiquigraphLock unicity\n\t" +
+                    "Could not ensure __LiquigraphLock uniqueness\n\t" +
                             "Please make sure your instance is in a clean state\n\t" +
                             "No more than 1 lock should be there simultaneously!",
                     e
