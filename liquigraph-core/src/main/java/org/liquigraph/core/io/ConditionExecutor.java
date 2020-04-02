@@ -59,7 +59,7 @@ public class ConditionExecutor {
             return resultSet.getBoolean("result");
         }
         catch (SQLException e) {
-            throw new ConditionExecutionException("%nError executing condition:%n" +
+            throw new ConditionExecutionException(e, "%nError executing condition:%n" +
                "\tMake sure your query <%s> yields exactly one column named or aliased 'result'.%n" +
                "\tActual cause: %s", query, e.getMessage());
         }
