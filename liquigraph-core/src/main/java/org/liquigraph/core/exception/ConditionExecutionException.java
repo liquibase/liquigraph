@@ -19,7 +19,7 @@ import static java.lang.String.format;
 
 public class ConditionExecutionException extends RuntimeException {
 
-    public ConditionExecutionException(String message, Object... arguments) {
-        super(format(message, arguments));
+    public ConditionExecutionException(Throwable cause, String message, Object... arguments) {
+        super(format(message, arguments), cause);
     }
 }
