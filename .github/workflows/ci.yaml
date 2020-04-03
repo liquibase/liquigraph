@@ -26,7 +26,7 @@ jobs:
           - 3.4.0
           - 3.5.1
         exclude:
-          # Neo4j 3.4 only for JDBC driver 3.4 and 3.5
+          # Neo4j 3.4 only OK with JDBC driver 3.4 and 3.5
           - neo4j_version: 3.4.17
             jdbc_driver_version: 3.0.3
           - neo4j_version: 3.4.17
@@ -35,6 +35,11 @@ jobs:
             jdbc_driver_version: 3.1.0
           - neo4j_version: 3.4.17
             jdbc_driver_version: 3.3.1
+          # Neo4j JDBC driver 3.5 only OK with Neo4j 3.1+
+          - jdbc_driver_version: 3.5.1
+            neo4j_version: 3.0.0
+          - jdbc_driver_version: 3.5.1
+            neo4j_version: 3.0.12
     steps:
       - uses: actions/checkout@v2
       - name: Cache ~/.m2/repository
@@ -48,10 +53,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Build against Neo4j v${{ matrix.neo4j_version }} and JDBC v${{ matrix.jdbc_driver_version }} (${{ matrix.os }})
+      - name: Build against Neo4j v${{ matrix.neo4j_version }} and JDBC driver v${{ matrix.jdbc_driver_version }} (${{ matrix.os }})
         run: |
           if [[ "${{ matrix.neo4j_version }}" == 3.4* || "${{ matrix.neo4j_version }}" == 3.5* ]] ; then
-            EXTRA_FLAGS='-P!with-jetty-workaround'
+            EXTRA_FLAGS='"-P!with-jetty-workaround"'
           fi
           mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }} ${EXTRA_FLAGS}
   remote-testing:
@@ -77,7 +82,7 @@ jobs:
           - 3.4.0
           - 3.5.1
         exclude:
-          # Neo4j 3.4 only for JDBC driver 3.4 and 3.5
+          # Neo4j 3.4 only OK with JDBC driver 3.4 and 3.5
           - neo4j_version: 3.4.17
             jdbc_driver_version: 3.0.3
           - neo4j_version: 3.4.17
@@ -86,6 +91,11 @@ jobs:
             jdbc_driver_version: 3.1.0
           - neo4j_version: 3.4.17
             jdbc_driver_version: 3.3.1
+          # Neo4j JDBC driver 3.5 only OK with Neo4j 3.1+
+          - jdbc_driver_version: 3.5.1
+            neo4j_version: 3.0.0
+          - jdbc_driver_version: 3.5.1
+            neo4j_version: 3.0.12
     services:
       neo4j:
         image: neo4j:${{ matrix.neo4j_version }}
@@ -113,7 +123,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Run remote tests against Neo4j v${{ matrix.neo4j_version }}
+      - name: Run remote tests against Neo4j v${{ matrix.neo4j_version }} and JDBC driver v${{ matrix.jdbc_driver_version }}
         run: mvn --quiet --batch-mode --show-version --also-make --projects liquigraph-core test -Dneo4j.version=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
   deploy-snapshot:
     if: github.ref == 'refs/heads/master' && github.repository == 'liquigraph/liquigraph'
