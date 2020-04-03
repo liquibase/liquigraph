@@ -48,8 +48,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Build against Neo4j v${{ matrix.neo4j_version }} (${{ matrix.os }})
-        run: mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
+      - name: Build against Neo4j v${{ matrix.neo4j_version }} and JDBC v${{ matrix.jdbc_driver_version }} (${{ matrix.os }})
+        run: |
+          if [[ "${{ matrix.neo4j_version }}" == 3.4* || "${{ matrix.neo4j_version }}" == 3.5* ]] ; then
+            EXTRA_FLAGS='-P!with-jetty-workaround'
+          fi
+          mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }} ${EXTRA_FLAGS}
   remote-testing:
     needs: build
     runs-on: ubuntu-latest
