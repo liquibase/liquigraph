@@ -10,13 +10,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest]
+#        os: [macos-latest, ubuntu-latest, windows-latest]
         neo4j_version:
-          - 3.0.0
-          - 3.0.12
-          - 3.1.9
-          - 3.2.14
-          - 3.3.9
+#          - 3.0.0
+#          - 3.0.12
+#          - 3.1.9
+#          - 3.2.14
+#          - 3.3.9
           - 3.4.17
           - 3.5.17
         jdbc_driver_version:
@@ -54,11 +55,9 @@ jobs:
         with:
           java-version: 1.8
       - name: Build against Neo4j v${{ matrix.neo4j_version }} and JDBC driver v${{ matrix.jdbc_driver_version }} (${{ matrix.os }})
+        shell: bash
         run: |
-          if [[ "${{ matrix.neo4j_version }}" == 3.4* || "${{ matrix.neo4j_version }}" == 3.5* ]] ; then
-            EXTRA_FLAGS='"-P!with-jetty-workaround"'
-          fi
-          mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }} ${EXTRA_FLAGS}
+          mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }} -P'!with-jetty-workaround'
   remote-testing:
     needs: build
     runs-on: ubuntu-latest
