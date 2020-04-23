@@ -24,6 +24,7 @@ public interface GraphDatabaseRule extends TestRule {
 
     Connection newConnection();
     String uri();
+    Optional<String> database();
     Optional<String> username();
     Optional<String> password();
 }

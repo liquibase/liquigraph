@@ -191,4 +191,44 @@ public class ConfigurationBuilderTest {
                 .withRunMode()
                 .build();
     }
+
+    @Test
+    public void should_use_default_database_if_database_not_provided() {
+        new ConfigurationBuilder()
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("jdbc:neo4j:http://localhost:7474")
+                .withUsername("steve")
+                .withPassword("password")
+                .withRunMode()
+                .build();
+    }
+
+    @Test
+    public void should_use_database_if_provided() {
+        new ConfigurationBuilder()
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("jdbc:neo4j:http://localhost:7474")
+                .withUsername("user")
+                .withPassword("pw")
+                .withDatabase("myDatabase")
+                .withRunMode()
+                .build();
+    }
+
+    @Test
+    public void fails_on_database_provided_without_username_and_password_provided() {
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("Please provide username and password when providing a database.");
+
+        new ConfigurationBuilder()
+                .withMasterChangelogLocation("changelog/changelog.xml")
+                .withUri("jdbc:neo4j:http://localhost:7474")
+                .withDatabase("myDatabase")
+                .withUsername("myUser")
+                .withRunMode()
+                .build();
+    }
+
+
+
 }

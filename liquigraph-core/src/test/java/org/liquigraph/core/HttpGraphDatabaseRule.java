@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.liquigraph.core.exception.Throwables.propagate;
@@ -36,12 +37,14 @@ public class HttpGraphDatabaseRule extends ExternalResource
     implements GraphDatabaseRule {
 
     private final String uri;
+    private final String database;
     private final String username;
     private final String password;
     private final Collection<Connection> connections = new ArrayList<>();
 
     public HttpGraphDatabaseRule() {
         uri = "jdbc:neo4j:http://localhost:7474";
+        database = "neo4j";
         username = "neo4j";
         password = "j4oen";
     }
@@ -62,7 +65,7 @@ public class HttpGraphDatabaseRule extends ExternalResource
     @Override
     public Connection newConnection() {
         try {
-            Connection connection = DriverManager.getConnection(uri, username, password);
+            Connection connection = DriverManager.getConnection(uri, props());
             connection.setAutoCommit(false);
             connections.add(connection);
             return connection;
@@ -74,6 +77,19 @@ public class HttpGraphDatabaseRule extends ExternalResource
     @Override
     public String uri() {
         return uri;
+    }
+
+    public Properties props() {
+        Properties props = new Properties();
+        props.setProperty("database", database);
+        props.setProperty("user", username);
+        props.setProperty("password", password);
+        return props;
+    }
+
+    @Override
+    public Optional<String> database() {
+        return Optional.of(database);
     }
 
     @Override

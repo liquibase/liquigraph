@@ -56,6 +56,7 @@ public abstract class GraphJdbcConnectorTestSuite implements GraphIntegrationTes
             .withRunMode()
             .withMasterChangelogLocation("changelog/changelog.xml")
             .withUri(graphDatabase.uri())
+            .withDatabase(graphDatabase.database().orElse(null))
             .withUsername(graphDatabase.username().orElse(null))
             .withPassword(graphDatabase.password().orElse(null))
             .build()

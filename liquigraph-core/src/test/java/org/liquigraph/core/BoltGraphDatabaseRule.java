@@ -23,6 +23,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Properties;
 
 import org.junit.rules.ExternalResource;
 import org.liquigraph.core.exception.Throwables;
@@ -46,7 +47,7 @@ implements GraphDatabaseRule {
     @Override
     public Connection newConnection() {
         try {
-            Connection connection = DriverManager.getConnection(uri());
+            Connection connection = DriverManager.getConnection(uri(), props());
             connection.setAutoCommit(false);
             connections.add(connection);
             return connection;
@@ -61,6 +62,19 @@ implements GraphDatabaseRule {
         return "jdbc:neo4j:" + controls.boltURI() + "?noSsl";
     }
 
+    public Properties props() {
+        Properties props = new Properties();
+        username().ifPresent(user -> props.setProperty("user", user));
+        password().ifPresent(pw -> props.setProperty("password", pw));
+        props.setProperty("database", database().orElse("neo4j"));
+        return props;
+    }
+
+    @Override
+    public Optional<String> database() {
+        return Optional.empty();
+    }
+
     @Override
     public Optional<String> username() {
         return Optional.empty();
@@ -70,6 +84,7 @@ implements GraphDatabaseRule {
     public Optional<String> password() {
         return Optional.empty();
     }
+
 
     protected void before() {
         controls = builder.build();

@@ -17,6 +17,7 @@ package org.liquigraph.core.configuration.validators;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 public class UserCredentialsOptionValidator {
 
@@ -32,8 +33,23 @@ public class UserCredentialsOptionValidator {
     public Collection<String> validate(String username, String password) {
         if (username != null ^ password != null) {
             return Collections.singletonList("Please provide both username and password, or none.");
-        } else {
+        }
+        return Collections.emptyList();
+    }
+
+
+    /**
+     * Validates the given user credentials are provided; username and password
+     *
+     * @param username the username to use to connect
+     * @param password the password corresponding to {@code username}
+     * @return a collection of Strings describing possible errors, an empty
+     * collection if no errors
+     */
+    public Collection<String> validateWithDatabase(Optional<String> username, Optional<String> password) {
+        if (username.isPresent() && password.isPresent()) {
             return Collections.emptyList();
         }
+        return Collections.singletonList("Please provide username and password when providing a database.");
     }
 }

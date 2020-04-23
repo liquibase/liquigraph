@@ -39,6 +39,7 @@ public final class ConfigurationBuilder {
     private String masterChangelog;
     private Optional<DataSource> dataSource = Optional.empty();
     private Optional<String> uri = Optional.empty();
+    private Optional<String> database = Optional.empty();
     private Optional<String> username = Optional.empty();
     private Optional<String> password = Optional.empty();
     private ExecutionContexts executionContexts = ExecutionContexts.DEFAULT_CONTEXT;
@@ -83,6 +84,17 @@ public final class ConfigurationBuilder {
      */
     public ConfigurationBuilder withDataSource(DataSource dataSource) {
         this.dataSource = Optional.ofNullable(dataSource);
+        return this;
+    }
+
+    /**
+     * Specifies the database to run changes on.
+     *
+     * @param database username
+     * @return itself for chaining purposes
+     */
+    public ConfigurationBuilder withDatabase(String database) {
+        this.database = Optional.ofNullable(database);
         return this;
     }
 
@@ -199,7 +211,12 @@ public final class ConfigurationBuilder {
         errors.addAll(mandatoryOptionValidator.validate(changelogLoader, masterChangelog));
         errors.addAll(datasourceConnectionValidator.validate(uri, dataSource));
         errors.addAll(executionModeValidator.validate(executionMode));
-        errors.addAll(userCredentialsOptionValidator.validate(username.orElse(null), password.orElse(null)));
+        if (database.isPresent()) {
+            errors.addAll(userCredentialsOptionValidator.validateWithDatabase(username, password));
+        }
+        else {
+            errors.addAll(userCredentialsOptionValidator.validate(username.orElse(null), password.orElse(null)));
+        }
 
         if (!errors.isEmpty()) {
             throw new RuntimeException(formatErrors(errors));
@@ -216,7 +233,7 @@ public final class ConfigurationBuilder {
 
     private ConnectionConfiguration dataSourceConfiguration() {
         if (uri.isPresent()) {
-            return new ConnectionConfigurationByUri(uri.get(), username, password);
+            return new ConnectionConfigurationByUri(uri.get(), database, username, password);
         }
         return new ConnectionConfigurationByDataSource(dataSource.get(), username, password);
     }
