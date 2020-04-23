@@ -26,9 +26,12 @@ import static java.util.Collections.emptyList;
 
 public class DatasourceConfigurationValidator {
 
-    public Collection<String> validate(Optional<String> uri, Optional<DataSource> dataSource) {
+    public Collection<String> validate(Optional<String> uri, Optional<DataSource> dataSource, Optional<String> database) {
         if (uri.isPresent() == dataSource.isPresent()) {
             return Collections.singletonList("Exactly one of JDBC URI or DataSource need to be configured");
+        }
+        if (database.isPresent() && dataSource.isPresent()) {
+            return Collections.singletonList("Database instance cannot be configured when configuring a DataSource");
         }
         return uri.map(DatasourceConfigurationValidator::validateConnectionString).orElse(emptyList());
     }

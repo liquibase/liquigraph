@@ -15,13 +15,17 @@
  */
 package org.liquigraph.core.api;
 
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.Before;
 import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -111,6 +115,8 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                         .withRunMode()
                         .withMasterChangelogLocation("schema/schema-preconditions-changelog.xml")
                         .withUri(graphDatabase().uri())
+                        .withUsername(graphDatabase().username().orElse(null))
+                        .withPassword(graphDatabase().password().orElse(null))
                         .build()
         );
 
@@ -131,6 +137,8 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                         .withRunMode()
                         .withMasterChangelogLocation("changelog/changelog.xml")
                         .withUri(graphDatabase().uri())
+                        .withUsername(graphDatabase().username().orElse(null))
+                        .withPassword(graphDatabase().password().orElse(null))
                         .build()
         );
 
@@ -139,6 +147,8 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                         .withRunMode()
                         .withMasterChangelogLocation("changelog/changelog-edited.xml")
                         .withUri(graphDatabase().uri())
+                        .withUsername(graphDatabase().username().orElse(null))
+                        .withPassword(graphDatabase().password().orElse(null))
                         .build()
         ))
         .isInstanceOf(IllegalArgumentException.class)
@@ -153,6 +163,8 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
                     .withRunMode()
                     .withMasterChangelogLocation("changelog/invalid_changesets/changelog-invalid-query.xml")
                     .withUri(graphDatabase().uri())
+                    .withUsername(graphDatabase().username().orElse(null))
+                    .withPassword(graphDatabase().password().orElse(null))
                     .build()
             ))
         .hasCauseInstanceOf(SQLException.class)

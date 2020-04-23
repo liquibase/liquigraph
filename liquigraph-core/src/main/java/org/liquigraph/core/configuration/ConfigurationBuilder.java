@@ -39,6 +39,7 @@ public final class ConfigurationBuilder {
     private String masterChangelog;
     private Optional<DataSource> dataSource = Optional.empty();
     private Optional<String> uri = Optional.empty();
+    private Optional<String> database = Optional.empty();
     private Optional<String> username = Optional.empty();
     private Optional<String> password = Optional.empty();
     private ExecutionContexts executionContexts = ExecutionContexts.DEFAULT_CONTEXT;
@@ -83,6 +84,18 @@ public final class ConfigurationBuilder {
      */
     public ConfigurationBuilder withDataSource(DataSource dataSource) {
         this.dataSource = Optional.ofNullable(dataSource);
+        return this;
+    }
+
+    /**
+     * Specifies the database to run changes on.
+     * If not specified, the driver will select the default instance.
+     *
+     * @param database database
+     * @return itself for chaining purposes
+     */
+    public ConfigurationBuilder withDatabase(String database) {
+        this.database = Optional.ofNullable(database);
         return this;
     }
 
@@ -197,7 +210,7 @@ public final class ConfigurationBuilder {
     public Configuration build() {
         Collection<String> errors = new ArrayList<>();
         errors.addAll(mandatoryOptionValidator.validate(changelogLoader, masterChangelog));
-        errors.addAll(datasourceConnectionValidator.validate(uri, dataSource));
+        errors.addAll(datasourceConnectionValidator.validate(uri, dataSource, database));
         errors.addAll(executionModeValidator.validate(executionMode));
         errors.addAll(userCredentialsOptionValidator.validate(username.orElse(null), password.orElse(null)));
 
@@ -210,13 +223,14 @@ public final class ConfigurationBuilder {
             masterChangelog,
             dataSourceConfiguration(),
             executionContexts,
-            executionMode
+            executionMode,
+            database.orElse(null)
         );
     }
 
     private ConnectionConfiguration dataSourceConfiguration() {
         if (uri.isPresent()) {
-            return new ConnectionConfigurationByUri(uri.get(), username, password);
+            return new ConnectionConfigurationByUri(uri.get(), database, username, password);
         }
         return new ConnectionConfigurationByDataSource(dataSource.get(), username, password);
     }

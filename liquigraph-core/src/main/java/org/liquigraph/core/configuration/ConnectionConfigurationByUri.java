@@ -20,70 +20,66 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.Properties;
 
 import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class ConnectionConfigurationByUri implements ConnectionConfiguration {
 
     private final String uri;
-    private final Optional<String> username;
-    private final Optional<String> password;
+    private final Properties properties;
     private final UriConnectionSupplier connectionSupplier;
 
     public ConnectionConfigurationByUri(String uri,
+                                        Optional<String> database,
                                         Optional<String> username,
                                         Optional<String> password) {
 
-        this(uri, username, password, DefaultUriConnectionSupplier.INSTANCE);
+        this(uri, database, username, password, DefaultUriConnectionSupplier.INSTANCE);
     }
 
     // visible for testing
     ConnectionConfigurationByUri(String uri,
+                                 Optional<String> database,
                                  Optional<String> username,
                                  Optional<String> password,
                                  UriConnectionSupplier connectionSupplier) {
 
         this.uri = uri;
-        this.username = username;
-        this.password = password;
         this.connectionSupplier = connectionSupplier;
+        this.properties = createProperties(database, username, password);
     }
 
     @Override
     public Connection get() {
-        if (username.isPresent()) {
-            return connectionSupplier.getConnection(uri, username.get(), password.orElse(""));
-        }
-        return connectionSupplier.getConnection(uri);
+        return connectionSupplier.getConnection(uri, properties);
+    }
 
+
+    private static Properties createProperties(Optional<String> database, Optional<String> username, Optional<String> password) {
+        Properties props = new Properties();
+        username.ifPresent(user -> props.setProperty("user", user));
+        password.ifPresent(pw -> props.setProperty("password", pw));
+        database.ifPresent(db -> props.setProperty("database", db));
+        return props;
     }
 
     private enum DefaultUriConnectionSupplier implements UriConnectionSupplier {
         INSTANCE;
 
         @Override
-        public Connection getConnection(String uri) {
+        public Connection getConnection(String uri, Properties properties) {
             try {
-                return DriverManager.getConnection(uri);
+                return DriverManager.getConnection(uri, properties);
             } catch (SQLException e) {
                 throw propagate(e);
             }
         }
 
-        @Override
-        public Connection getConnection(String uri, String username, String password) {
-            try {
-                return DriverManager.getConnection(uri, username, password);
-            } catch (SQLException e) {
-                throw propagate(e);
-            }
-        }
     }
 
     // visible for testing
     interface UriConnectionSupplier {
-        Connection getConnection(String uri);
-
-        Connection getConnection(String uri, String username, String password);
+        Connection getConnection(String uri, Properties properties);
     }
 }

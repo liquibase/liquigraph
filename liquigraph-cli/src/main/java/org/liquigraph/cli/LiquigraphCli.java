@@ -74,6 +74,12 @@ public class LiquigraphCli {
     private String graphDbUri;
 
     @Parameter(
+            names = {"--database", "-db"},
+            description = "Graph DB database (remote only)"
+    )
+    private String database;
+
+    @Parameter(
             names = {"--username", "-u"},
             description = "Graph DB username (remote only)"
     )
@@ -119,6 +125,7 @@ public class LiquigraphCli {
         ConfigurationBuilder builder = new ConfigurationBuilder()
                 .withMasterChangelogLocation(fileName(cli.changelog))
                 .withUri(cli.graphDbUri)
+                .withDatabase(cli.database)
                 .withUsername(cli.username)
                 .withPassword(cli.password)
                 .withExecutionContexts(executionContexts(cli.executionContexts))

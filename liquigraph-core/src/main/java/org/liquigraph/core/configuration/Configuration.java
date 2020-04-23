@@ -41,18 +41,21 @@ public final class Configuration {
     private final ConnectionConfiguration connectionConfiguration;
     private final ExecutionContexts executionContexts;
     private final ExecutionMode executionMode;
+    private final String database;
 
     Configuration(ChangelogLoader changelogLoader,
                   String masterChangelog,
                   ConnectionConfiguration connectionConfiguration,
                   ExecutionContexts executionContexts,
-                  ExecutionMode executionMode) {
+                  ExecutionMode executionMode,
+                  String database) {
 
         this.changelogLoader = changelogLoader;
         this.masterChangelog = masterChangelog;
         this.connectionConfiguration = connectionConfiguration;
         this.executionContexts = executionContexts;
         this.executionMode = executionMode;
+        this.database = database;
     }
 
     /**
@@ -98,7 +101,7 @@ public final class Configuration {
         }
         if (executionMode instanceof DryRunMode) {
             DryRunMode dryRunMode = (DryRunMode) executionMode;
-            return new ChangelogFileWriter(conditionPrinter, dryRunMode.getOutputFile());
+            return new ChangelogFileWriter(conditionPrinter, database, dryRunMode.getOutputFile());
         }
         throw new IllegalStateException("Unsupported <executionMode>: " + executionMode);
     }

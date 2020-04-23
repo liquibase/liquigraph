@@ -47,13 +47,15 @@ public class ChangelogFileWriterTest {
 
     private ChangelogWriter writer;
     private File outputFile;
+    private ConditionPrinter conditionPrinter;
 
     @Before
     public void prepare() throws IOException {
-        ConditionPrinter conditionPrinter = given_precondition_printer_prints_nothing();
+        conditionPrinter = given_precondition_printer_prints_nothing();
         outputFile = new File(temporaryFolder.newFolder(), "output.cypher");
         writer = new ChangelogFileWriter(
-            conditionPrinter,
+        conditionPrinter,
+            null,
             outputFile
         );
     }
@@ -101,6 +103,26 @@ public class ChangelogFileWriterTest {
                 "//Liquigraph changeset[author: mgazanayi, id: identifier2]\n" +
                 "//Liquigraph changeset[executionContexts: preprod,prod]\n" +
                 "CREATE (n2: SomeNode {text:'yeah'})"
+        );
+    }
+
+    @Test
+    public void persists_extra_header_when_custom_db_instance_is_configured() throws IOException {
+        ChangelogWriter writer = new ChangelogFileWriter(
+            conditionPrinter,
+            "some-custom-instance",
+            outputFile
+        );
+        Collection<Changeset> changesets = singletonList(changeset("identifier", "fbiville", "CREATE (n)"));
+
+        writer.write(changesets);
+
+        String fileContents = String.join("\n", Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8));
+        assertThat(fileContents).isEqualTo(
+            "//Liquigraph (instance: some-custom-instance)\n" +
+                "//Liquigraph changeset[author: fbiville, id: identifier]\n" +
+                "//Liquigraph changeset[executionContexts: none declared]\n" +
+                "CREATE (n)"
         );
     }
 

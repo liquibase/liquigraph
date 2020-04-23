@@ -180,15 +180,4 @@ public class ConfigurationBuilderTest {
                 .withRunMode()
                 .build();
     }
-
-    @Test
-    public void should_not_fail_with_both_username_and_password_provided() {
-        new ConfigurationBuilder()
-                .withMasterChangelogLocation("changelog/changelog.xml")
-                .withUri("jdbc:neo4j:http://localhost:7474")
-                .withUsername("steve")
-                .withPassword("password")
-                .withRunMode()
-                .build();
-    }
 }

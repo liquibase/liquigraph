@@ -55,6 +55,13 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
     String jdbcUri;
 
     /**
+     * Graph connection database.
+     * Default instance is targeted if an explicit database name is not provided.
+     */
+    @Parameter(property = "database")
+    String database;
+
+    /**
      * Graph connection username.
      */
     @Parameter(property = "username")
@@ -76,7 +83,7 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
     String executionContexts = "";
 
     @Override
-    public final void execute() throws MojoExecutionException, MojoFailureException {
+    public final void execute() throws MojoExecutionException {
         String directory = project.getBuild().getDirectory();
 
         try {
@@ -84,6 +91,7 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
                 .withClassLoader(ProjectClassLoader.getClassLoader(project))
                 .withExecutionContexts(executionContexts(executionContexts))
                 .withMasterChangelogLocation(changelog)
+                .withDatabase(database)
                 .withUsername(username)
                 .withPassword(password)
                 .withUri(jdbcUri))

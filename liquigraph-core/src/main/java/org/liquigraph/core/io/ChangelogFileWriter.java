@@ -39,10 +39,12 @@ public class ChangelogFileWriter implements ChangelogWriter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogFileWriter.class);
 
     private final ConditionPrinter conditionPrinter;
+    private final String database;
     private final File outputFile;
 
-    public ChangelogFileWriter(ConditionPrinter conditionPrinter, File outputFile) {
+    public ChangelogFileWriter(ConditionPrinter conditionPrinter, String database, File outputFile) {
         this.conditionPrinter = conditionPrinter;
+        this.database = database;
         this.outputFile = outputFile;
     }
 
@@ -56,6 +58,7 @@ public class ChangelogFileWriter implements ChangelogWriter {
                 writeNothingToPersist(path);
                 return;
             }
+            writeHeaderMaybe(path);
             for (Changeset changeset : changelogsToInsert) {
                 writeChangeset(changeset, path);
             }
@@ -70,7 +73,20 @@ public class ChangelogFileWriter implements ChangelogWriter {
     }
 
     private void writeNothingToPersist(Path path) throws IOException {
-        Files.write(path, Collections.singletonList("//Liquigraph: nothing to persist!"), StandardCharsets.UTF_8);
+        String nothingToDoMessage = String.format("//Liquigraph%s: nothing to persist!", databaseInstanceOrEmpty());
+        Files.write(path, Collections.singletonList(nothingToDoMessage), StandardCharsets.UTF_8);
+    }
+
+    private void writeHeaderMaybe(Path path) throws IOException {
+        if (database == null) {
+            return;
+        }
+        String header = String.format("//Liquigraph (instance: %s)", database);
+        Files.write(path, Collections.singletonList(header), StandardCharsets.UTF_8);
+    }
+
+    private String databaseInstanceOrEmpty() {
+        return database == null ? "" : " (instance " + database + ")";
     }
 
     private void writeChangeset(Changeset changeset, Path path) throws IOException {

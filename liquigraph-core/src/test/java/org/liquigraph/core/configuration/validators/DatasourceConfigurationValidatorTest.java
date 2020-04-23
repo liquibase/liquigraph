@@ -26,14 +26,14 @@ import static org.mockito.Mockito.mock;
 
 public class DatasourceConfigurationValidatorTest {
 
-    private DatasourceConfigurationValidator datasourceConfigurationValidator = new DatasourceConfigurationValidator();
+    private final DatasourceConfigurationValidator datasourceConfigurationValidator = new DatasourceConfigurationValidator();
 
     @Test
     public void validates_proper_configuration_by_uri() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
             Optional.of("jdbc:neo4j:bolt://localhost:666"),
-            Optional.empty()
-        );
+            Optional.empty(),
+            Optional.empty());
 
         assertThat(errors).isEmpty();
     }
@@ -42,8 +42,8 @@ public class DatasourceConfigurationValidatorTest {
     public void validates_proper_configuration_by_datasource() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
             Optional.empty(),
-            Optional.of(mock(DataSource.class))
-        );
+            Optional.of(mock(DataSource.class)),
+            Optional.empty());
 
         assertThat(errors).isEmpty();
     }
@@ -52,8 +52,8 @@ public class DatasourceConfigurationValidatorTest {
     public void returns_error_if_both_uri_and_datasource_are_provided() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
             Optional.of("jdbc:neo4j:bolt://localhost:666"),
-            Optional.of(mock(DataSource.class))
-        );
+            Optional.of(mock(DataSource.class)),
+            Optional.empty());
 
         assertThat(errors).containsExactly("Exactly one of JDBC URI or DataSource need to be configured");
     }
@@ -62,18 +62,28 @@ public class DatasourceConfigurationValidatorTest {
     public void returns_error_if_both_uri_and_datasource_are_not_provided() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
             Optional.empty(),
-            Optional.empty()
-        );
+            Optional.empty(),
+            Optional.empty());
 
         assertThat(errors).containsExactly("Exactly one of JDBC URI or DataSource need to be configured");
+    }
+
+    @Test
+    public void returns_error_if_both_database_instance_and_datasource_are_provided() {
+        Collection<String> errors = datasourceConfigurationValidator.validate(
+            Optional.empty(),
+            Optional.of(mock(DataSource.class)),
+            Optional.of("some-instance"));
+
+        assertThat(errors).containsExactly("Database instance cannot be configured when configuring a DataSource");
     }
 
     @Test
     public void returns_error_if_uri_is_invalid() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
             Optional.of("not:a:valid:jdbc:uri"),
-            Optional.empty()
-        );
+            Optional.empty(),
+            Optional.empty());
 
         assertThat(errors).containsExactly(String.format(
             "Invalid JDBC URI. Supported configurations:%n" +
@@ -81,6 +91,5 @@ public class DatasourceConfigurationValidatorTest {
                 "\t - jdbc:neo4j:bolt://<host>:<port>/%n" +
                 "Given: not:a:valid:jdbc:uri"
         ));
-
     }
 }

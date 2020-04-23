@@ -22,6 +22,7 @@ import org.liquigraph.core.configuration.ConnectionConfigurationByUri.UriConnect
 
 import java.sql.Connection;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,8 +40,9 @@ public class ConnectionConfigurationByUriTest {
         Connection expectedConnection = mock(Connection.class);
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByUri(
             "jdbc:neo4j:mem:mydb",
-            Optional.<String>empty(),
-            Optional.<String>empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
             new MockedConnectionSupplier(expectedConnection)
         );
 
@@ -54,8 +56,9 @@ public class ConnectionConfigurationByUriTest {
         RuntimeException failure = new RuntimeException("oopsie");
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByUri(
             "jdbc:neo4j:mem:mydb",
-            Optional.<String>empty(),
-            Optional.<String>empty(),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
             new ThrowingConnectionSupplier(failure)
         );
 
@@ -73,14 +76,10 @@ public class ConnectionConfigurationByUriTest {
         }
 
         @Override
-        public Connection getConnection(String uri) {
+        public Connection getConnection(String uri, Properties properties) {
             throw exception;
         }
 
-        @Override
-        public Connection getConnection(String uri, String username, String password) {
-            throw exception;
-        }
     }
 
     private static class MockedConnectionSupplier implements UriConnectionSupplier {
@@ -91,13 +90,9 @@ public class ConnectionConfigurationByUriTest {
         }
 
         @Override
-        public Connection getConnection(String uri) {
+        public Connection getConnection(String uri, Properties properties) {
             return connection;
         }
 
-        @Override
-        public Connection getConnection(String uri, String username, String password) {
-            return connection;
-        }
     }
 }
