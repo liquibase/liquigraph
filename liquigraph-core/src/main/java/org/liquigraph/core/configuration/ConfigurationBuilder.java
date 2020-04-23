@@ -90,7 +90,7 @@ public final class ConfigurationBuilder {
     /**
      * Specifies the database to run changes on.
      *
-     * @param database username
+     * @param database database
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withDatabase(String database) {
