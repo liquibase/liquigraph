@@ -46,7 +46,7 @@ public class UserCredentialsOptionValidator {
      * @return a collection of Strings describing possible errors, an empty
      * collection if no errors
      */
-    public Collection<String> validateWithDatabase(Optional<String> username, Optional<String> password) {
+    public Collection<String> validate(Optional<String> username, Optional<String> password) {
         if (username.isPresent() && password.isPresent()) {
             return Collections.emptyList();
         }

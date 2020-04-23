@@ -212,7 +212,7 @@ public final class ConfigurationBuilder {
         errors.addAll(datasourceConnectionValidator.validate(uri, dataSource));
         errors.addAll(executionModeValidator.validate(executionMode));
         if (database.isPresent()) {
-            errors.addAll(userCredentialsOptionValidator.validateWithDatabase(username, password));
+            errors.addAll(userCredentialsOptionValidator.validate(username, password));
         }
         else {
             errors.addAll(userCredentialsOptionValidator.validate(username.orElse(null), password.orElse(null)));

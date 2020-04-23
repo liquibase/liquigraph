@@ -74,7 +74,7 @@ public class LiquigraphCli {
     private String graphDbUri;
 
     @Parameter(
-            names = {"--database", "-u"},
+            names = {"--database", "-db"},
             description = "Graph DB database (remote only)"
     )
     private String database;
