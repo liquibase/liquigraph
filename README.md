@@ -2,9 +2,9 @@
 
 This is Liquigraph for Neo4j 2.x.
 
-Please proceed to [this page](https://github.com/liquigraph/liquigraph/) for Neo4j 3.x.
+Please proceed to [this page](https://github.com/liquigraph/liquigraph/tree/3.x) for Neo4j 3.x.
 
-Please proceed to [this page](https://github.com/liquigraph/liquigraph/tree/4.x) for Neo4j 4.x.
+Please proceed to [this page](https://github.com/liquigraph/liquigraph/) for Neo4j 4.x.
 
 ## Build status
 
