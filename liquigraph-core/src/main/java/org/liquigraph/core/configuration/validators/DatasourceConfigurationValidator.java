@@ -38,10 +38,11 @@ public class DatasourceConfigurationValidator {
 
     private static Collection<String> validateConnectionString(String uri) {
         Collection<String> errors = new LinkedList<>();
-        if (!uri.startsWith("jdbc:neo4j:http") && !uri.startsWith("jdbc:neo4j:bolt")) {
+        if (!(uri.startsWith("jdbc:neo4j:http") || uri.startsWith("jdbc:neo4j:bolt") || uri.startsWith("jdbc:neo4j:neo4j"))) {
             errors.add(format("Invalid JDBC URI. Supported configurations:%n" +
                 "\t - jdbc:neo4j:http(s)://<host>:<port>/%n" +
                 "\t - jdbc:neo4j:bolt://<host>:<port>/%n" +
+                "\t - jdbc:neo4j:neo4j://<host>:<port>/%n" +
                 "Given: %s", uri
             ));
         }
