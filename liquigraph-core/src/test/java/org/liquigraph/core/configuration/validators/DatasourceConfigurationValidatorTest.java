@@ -29,11 +29,41 @@ public class DatasourceConfigurationValidatorTest {
     private final DatasourceConfigurationValidator datasourceConfigurationValidator = new DatasourceConfigurationValidator();
 
     @Test
-    public void validates_proper_configuration_by_uri() {
+    public void validates_proper_configuration_by_bolt_uri() {
         Collection<String> errors = datasourceConfigurationValidator.validate(
             Optional.of("jdbc:neo4j:bolt://localhost:666"),
             Optional.empty(),
             Optional.empty());
+
+        assertThat(errors).isEmpty();
+    }
+
+    @Test
+    public void validates_proper_configuration_by_http_uri() {
+        Collection<String> errors = datasourceConfigurationValidator.validate(
+        Optional.of("jdbc:neo4j:http://localhost:666"),
+        Optional.empty(),
+        Optional.empty());
+
+        assertThat(errors).isEmpty();
+    }
+
+    @Test
+    public void validates_proper_configuration_by_https_uri() {
+        Collection<String> errors = datasourceConfigurationValidator.validate(
+        Optional.of("jdbc:neo4j:https://localhost:666"),
+        Optional.empty(),
+        Optional.empty());
+
+        assertThat(errors).isEmpty();
+    }
+
+    @Test
+    public void validates_proper_configuration_by_neo4j_uri() {
+        Collection<String> errors = datasourceConfigurationValidator.validate(
+        Optional.of("jdbc:neo4j:neo4j://localhost:666"),
+        Optional.empty(),
+        Optional.empty());
 
         assertThat(errors).isEmpty();
     }
@@ -89,6 +119,7 @@ public class DatasourceConfigurationValidatorTest {
             "Invalid JDBC URI. Supported configurations:%n" +
                 "\t - jdbc:neo4j:http(s)://<host>:<port>/%n" +
                 "\t - jdbc:neo4j:bolt://<host>:<port>/%n" +
+                "\t - jdbc:neo4j:neo4j://<host>:<port>/%n" +
                 "Given: not:a:valid:jdbc:uri"
         ));
     }
