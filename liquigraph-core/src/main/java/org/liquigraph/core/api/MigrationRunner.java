@@ -20,7 +20,9 @@ import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ChangelogWriter;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
+import org.liquigraph.core.io.ConnectionSupplier;
 import org.liquigraph.core.io.GraphJdbcConnector;
+import org.liquigraph.core.io.ReplaceChecksumWriter;
 import org.liquigraph.core.io.xml.ChangelogLoader;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.model.Changeset;
@@ -33,7 +35,9 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-class MigrationRunner {
+import static org.liquigraph.core.configuration.RunMode.RUN_MODE;
+
+class MigrationRunner implements Runner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationRunner.class);
     private final ChangelogParser changelogParser;
@@ -58,12 +62,16 @@ class MigrationRunner {
         this.persistedChangesetValidator = persistedChangesetValidator;
     }
 
-
+    @Override
     public void runMigrations(Configuration configuration) {
         Collection<Changeset> declaredChangesets = parseChangesets(configuration.changelogLoader(), configuration.masterChangelog());
         Supplier<Connection> connectionSupplier = new ConnectionSupplier(new GraphJdbcConnector(configuration));
         try (Connection writeConnection = connectionSupplier.get()) {
             Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, writeConnection);
+
+            if (configuration.executionMode() == RUN_MODE) {
+                replaceChecksum(configuration, writeConnection, persistedChangesets, declaredChangesets);
+            }
 
             Collection<Changeset> changelog = changelogDiffMaker.computeChangesetsToInsert(
                 configuration.executionContexts(),
@@ -90,6 +98,22 @@ class MigrationRunner {
         return persistedChangesets;
     }
 
+    private void replaceChecksum(Configuration configuration,
+                                     Connection writeConnection,
+                                     Collection<Changeset> persistedChangesets,
+                                     Collection<Changeset> declaredChangesets) {
+
+        ChangelogReplaceChecksumMaker reader = new ChangelogReplaceChecksumMaker();
+        Collection<Changeset> changesets = reader.computeChangesetsToUpdate(
+            configuration.executionContexts(),
+            declaredChangesets,
+            persistedChangesets
+        );
+
+        ReplaceChecksumWriter writer = new ReplaceChecksumWriter(writeConnection);
+        writer.write(changesets);
+    }
+
     private void writeApplicableChangesets(Configuration configuration,
                                            Connection writeConnection,
                                            Supplier<Connection> connectionSupplier,
@@ -106,19 +130,5 @@ class MigrationRunner {
     private String formatErrorMessage(Collection<String> errors) {
         String separator = "\n\t";
         return separator + String.join(separator, errors);
-    }
-
-    private static class ConnectionSupplier implements Supplier<Connection> {
-
-        private final GraphJdbcConnector connector;
-
-        public ConnectionSupplier(GraphJdbcConnector connector) {
-            this.connector = connector;
-        }
-
-        @Override
-        public Connection get() {
-            return connector.connect();
-        }
     }
 }

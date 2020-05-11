@@ -75,7 +75,6 @@ public class Changeset {
     }
 
     public void setChecksum(String checksum) {
-        checkArgument(checksum != null, "Checksum cannot be null");
         this.checksum = checksum;
     }
 
@@ -134,7 +133,7 @@ public class Changeset {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, author, checksum);
+        return Objects.hash(id, author);
     }
 
     @Override
@@ -147,8 +146,7 @@ public class Changeset {
         }
         final Changeset other = (Changeset) obj;
         return Objects.equals(this.id, other.id) &&
-            Objects.equals(this.author, other.author) &&
-            Objects.equals(this.checksum, other.checksum);
+            Objects.equals(this.author, other.author);
     }
 
     @Override

@@ -30,6 +30,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.liquigraph.core.configuration.ClearChecksumMode.CLEAR_CHECKSUM_MODE;
 
 abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 
@@ -153,6 +154,63 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
         ))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Changeset with ID <second-changelog> and author <team> has conflicted checksums");
+    }
+
+    @Test
+    public void migrations_with_empty_checksum_should_be_updated_and_not_executed() throws SQLException {
+        liquigraph.runMigrations(
+            new ConfigurationBuilder()
+                .withRunMode()
+                .withMasterChangelogLocation("changelog/changelog-with-2-nodes.xml")
+                .withUri(graphDatabase().uri())
+                .build()
+        );
+        try (Connection connection = graphDatabase().newConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (h:Human) RETURN count(h)")) {
+
+            assertThat(resultSet.next()).isTrue();
+            assertThat(resultSet.getInt(1)).isEqualTo(2);
+            connection.rollback();
+        }
+
+        liquigraph.runMigrations(
+            new ConfigurationBuilder()
+                .withExecutionMode(CLEAR_CHECKSUM_MODE)
+                .withMasterChangelogLocation("changelog/changelog-with-2-nodes.xml")
+                .withUri(graphDatabase().uri())
+                .build()
+        );
+        try (Connection connection = graphDatabase().newConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (h:Human) RETURN count(h)");
+             ResultSet changesetResultSet = statement.executeQuery("MATCH (changeset:__LiquigraphChangeset) WHERE NOT EXISTS(changeset.checksum) RETURN count(changeset)")) {
+
+            assertThat(resultSet.next()).isTrue();
+            assertThat(resultSet.getInt(1)).isEqualTo(2);
+            assertThat(changesetResultSet.next()).isTrue();
+            assertThat(changesetResultSet.getInt(1)).isEqualTo(2);
+            connection.rollback();
+        }
+
+        liquigraph.runMigrations(
+            new ConfigurationBuilder()
+                .withRunMode()
+                .withMasterChangelogLocation("changelog/changelog-with-2-nodes.xml")
+                .withUri(graphDatabase().uri())
+                .build()
+        );
+        try (Connection connection = graphDatabase().newConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("MATCH (h:Human) RETURN count(h)");
+             ResultSet changesetResultSet = statement.executeQuery("MATCH (changeset:__LiquigraphChangeset) WHERE NOT EXISTS(changeset.checksum) RETURN count(changeset)")) {
+
+            assertThat(resultSet.next()).isTrue();
+            assertThat(resultSet.getInt(1)).isEqualTo(2);
+            assertThat(changesetResultSet.next()).isTrue();
+            assertThat(changesetResultSet.getInt(1)).isEqualTo(0);
+            connection.rollback();
+        }
     }
 
     @Test

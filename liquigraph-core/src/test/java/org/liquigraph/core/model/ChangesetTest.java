@@ -34,9 +34,12 @@ public class ChangesetTest {
         new Changeset().setQueries(Collections.<String>emptyList());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void should_fail_with_null_checksum() {
-        new Changeset().setChecksum(null);
+    @Test
+    public void should_accept_null_checksum() {
+        Changeset changeset = new Changeset();
+        changeset.setChecksum(null);
+
+        assertThat(changeset.getChecksum()).isNull();
     }
 
     @Test
@@ -63,10 +66,10 @@ public class ChangesetTest {
     }
 
     @Test
-    public void should_have_equality_on_id_author_and_checksum() {
+    public void should_have_equality_on_id_author() {
         assertThat(changeset("identifier", "author", "CREATE (n)"))
             .isEqualTo(changeset("identifier", "author", "CREATE (n)"))
-            .isNotEqualTo(changeset("identifier", "author", "MATCH (n) RETURN n"))
+            .isEqualTo(changeset("identifier", "author", "MATCH (n) RETURN n"))
             .isNotEqualTo(changeset("identifier", "author2", "CREATE (n)"))
             .isNotEqualTo(changeset("identifier2", "author", "CREATE (n)"));
     }

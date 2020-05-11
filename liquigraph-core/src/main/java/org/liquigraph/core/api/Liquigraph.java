@@ -15,32 +15,42 @@
  */
 package org.liquigraph.core.api;
 
+import org.liquigraph.core.configuration.ClearChecksumMode;
 import org.liquigraph.core.configuration.Configuration;
+import org.liquigraph.core.configuration.DryRunMode;
+import org.liquigraph.core.configuration.ExecutionMode;
+import org.liquigraph.core.configuration.RunMode;
 import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
-import org.liquigraph.core.io.GraphJdbcConnector;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.io.xml.ChangelogPreprocessor;
 import org.liquigraph.core.io.xml.ImportResolver;
 import org.liquigraph.core.io.xml.XmlSchemaValidator;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Liquigraph facade in charge of migration execution.
  */
 public final class Liquigraph {
 
-    private final MigrationRunner migrationRunner;
+    private final Map<Class<? extends ExecutionMode>, Runner> runners = new HashMap<>();
 
     public Liquigraph() {
-        migrationRunner = migrationRunner(
+        MigrationRunner migrationRunner = migrationRunner(
             changelogParser(xmlSchemaValidator(), changelogPreprocessor(importResolver())),
             changelogGraphReader(),
             changelogDiffMaker(),
             conditionExecutor(),
             conditionPrinter()
         );
+        runners.put(RunMode.class, migrationRunner);
+        runners.put(DryRunMode.class, migrationRunner);
+        ClearChecksumRunner clearChecksumRunner = clearChecksumRunner();
+        runners.put(ClearChecksumMode.class, clearChecksumRunner);
     }
 
     private static MigrationRunner migrationRunner(ChangelogParser changelogParser, ChangelogGraphReader changelogGraphReader, ChangelogDiffMaker changelogDiffMaker, ConditionExecutor conditionExecutor, ConditionPrinter conditionPrinter) {
@@ -52,6 +62,10 @@ public final class Liquigraph {
             conditionPrinter,
             persistedChangesetValidator()
         );
+    }
+
+    private static ClearChecksumRunner clearChecksumRunner() {
+        return new ClearChecksumRunner();
     }
 
     private static PersistedChangesetValidator persistedChangesetValidator() {
@@ -98,6 +112,14 @@ public final class Liquigraph {
      * @see org.liquigraph.core.configuration.ConfigurationBuilder to create {@link org.liquigraph.core.configuration.Configuration instances}
      */
     public void runMigrations(Configuration configuration) {
-        migrationRunner.runMigrations(configuration);
+        getRunner(configuration.executionMode()).runMigrations(configuration);
+    }
+
+    private Runner getRunner(ExecutionMode executionMode) {
+        Runner runner = runners.get(executionMode.getClass());
+        if (runner == null) {
+            throw new IllegalArgumentException("Execution mode " + executionMode + " has no configured runner");
+        }
+        return runner;
     }
 }

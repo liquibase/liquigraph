@@ -35,10 +35,21 @@ public class ChangesetChecksumHasChanged implements Predicate<Changeset> {
         return new ChangesetChecksumHasChanged(persistedChangesets);
     }
 
+    /**
+     * Returns true if persistedChangesets contains input changeset and if their checksum is different.
+     *
+     * Note: this method returns false if either of the checksum have been cleared.
+     */
     @Override
     public boolean test(Changeset input) {
         Optional<Changeset> persistedChangeset =
             persistedChangesets.stream().filter(BY_ID(input.getId(), input.getAuthor())).findFirst();
-        return persistedChangeset.isPresent() && !input.getChecksum().equals(persistedChangeset.get().getChecksum());
+        if (!persistedChangeset.isPresent()) {
+            return false;
+        }
+        if (persistedChangeset.get().getChecksum() == null || input.getChecksum() == null) {
+            return false;
+        }
+        return !input.getChecksum().equals(persistedChangeset.get().getChecksum());
     }
 }

@@ -94,7 +94,8 @@ public class ChangelogGraphReader {
         changeset.setAuthor(String.valueOf(node.get("author")));
         changeset.setId(String.valueOf(node.get("id")));
         changeset.setQueries(adaptQueries(node.get("query")));
-        changeset.setChecksum(String.valueOf(node.get("checksum")));
+        Object checksum = node.get("checksum");
+        changeset.setChecksum(checksum != null ? String.valueOf(checksum) : null);
         return changeset;
     }
 

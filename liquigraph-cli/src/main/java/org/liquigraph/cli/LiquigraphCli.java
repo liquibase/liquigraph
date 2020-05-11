@@ -18,6 +18,7 @@ package org.liquigraph.cli;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import org.liquigraph.core.api.Liquigraph;
+import org.liquigraph.core.configuration.ClearChecksumMode;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +106,13 @@ public class LiquigraphCli {
     )
     private String dryRunOutputDirectory;
 
+    @Parameter(
+    names = {"--clear-checksum"},
+    description = "Removes current checksums from database. " +
+        "On next update changesets that have already been deployed will have their checksums recomputed, " +
+        "and changesets that have not been deployed will be deployed."
+    )
+    private boolean clearChecksum;
 
 
     public static void main(String[] args) {
@@ -137,6 +145,9 @@ public class LiquigraphCli {
         }
         else {
             builder.withRunMode();
+        }
+        if (cli.clearChecksum) {
+            builder.withExecutionMode(ClearChecksumMode.CLEAR_CHECKSUM_MODE);
         }
 
         new Liquigraph().runMigrations(

@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.liquigraph.core.model.predicates.ChangesetById.BY_ID;
+import static org.liquigraph.core.model.predicates.ChangesetChecksumIsEmpty.CHECKSUM_IS_EMPTY;
 import static org.liquigraph.core.model.predicates.ChangesetRunOnChange.RUN_ON_CHANGE;
 
 public class PersistedChangesetValidator {
@@ -32,6 +33,7 @@ public class PersistedChangesetValidator {
     public Collection<String> validate(Collection<Changeset> declaredChangesets, Collection<Changeset> persistedChangesets) {
         List<Changeset> changesets = declaredChangesets.stream()
             .filter(RUN_ON_CHANGE.negate())
+            .filter(CHECKSUM_IS_EMPTY.negate())
             .collect(Collectors.toList());
 
         return validateChecksums(changesets, persistedChangesets);
@@ -51,7 +53,7 @@ public class PersistedChangesetValidator {
             Changeset persistedChangeset = maybePersistedChangeset.get();
             String declaredChecksum = declaredChangeset.getChecksum();
             String persistedChecksum = persistedChangeset.getChecksum();
-            if (!persistedChecksum.equals(declaredChecksum)) {
+            if (persistedChecksum != null && !persistedChecksum.equals(declaredChecksum)) {
                 errors.add(
                     checksumMismatchError(declaredChangeset, persistedChangeset)
                 );
