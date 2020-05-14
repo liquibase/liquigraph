@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.configuration;
+package org.liquigraph.core.io;
 
-/**
- * Removes current checksums from database.
- *
- * On next update changesets that have already been deployed will have their checksums
- * recomputed, and changesets that have not been deployed will be deployed.
- */
-public enum ClearChecksumMode implements ExecutionMode {
+import org.junit.Rule;
+import org.liquigraph.core.BoltGraphDatabaseRule;
+import org.liquigraph.core.GraphDatabaseRule;
 
-    CLEAR_CHECKSUM_MODE
+public class ReplaceChecksumWriterBoltTest extends ReplaceChecksumWriterTestSuite {
+
+    @Rule
+    public GraphDatabaseRule graph = new BoltGraphDatabaseRule();
+
+    @Override
+    public GraphDatabaseRule graphDatabase() {
+        return graph;
+    }
 }

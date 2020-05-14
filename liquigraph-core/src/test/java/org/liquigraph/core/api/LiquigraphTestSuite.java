@@ -30,7 +30,6 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.liquigraph.core.configuration.ClearChecksumMode.CLEAR_CHECKSUM_MODE;
 
 abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
 
@@ -174,9 +173,8 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
             connection.rollback();
         }
 
-        liquigraph.runMigrations(
+        liquigraph.clearChecksums(
             new ConfigurationBuilder()
-                .withExecutionMode(CLEAR_CHECKSUM_MODE)
                 .withMasterChangelogLocation("changelog/changelog-with-2-nodes.xml")
                 .withUri(graphDatabase().uri())
                 .build()

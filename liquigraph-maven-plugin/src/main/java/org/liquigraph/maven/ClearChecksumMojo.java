@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.api;
+package org.liquigraph.maven;
 
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
+import org.liquigraph.core.configuration.ConfigurationBuilder;
 
 /**
- * Runs a migration
- *
- * Runner concrete subclass will implement the actions for a given
- * executionMode.
+ * Clears all the checksum for the persisted changelog.
  */
-public interface Runner {
+@Mojo(name = "clear-checksum", defaultPhase = LifecyclePhase.PROCESS_RESOURCES, threadSafe = true)
+public class ClearChecksumMojo extends LiquigraphMojoBase {
 
-    /**
-     * Execute the migrations specified by configuration parameter
-     *
-     * @param configuration contains all the configuration data needed for running this migration
-     */
-    void runMigrations(Configuration configuration);
+    @Override
+    protected void run(Configuration configuration) {
+        new Liquigraph().clearChecksums(configuration);
+    }
 }

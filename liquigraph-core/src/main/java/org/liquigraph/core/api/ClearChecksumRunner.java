@@ -26,12 +26,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
-public class ClearChecksumRunner implements Runner {
+public class ClearChecksumRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClearChecksumRunner.class);
 
-    @Override
-    public void runMigrations(Configuration configuration) {
+    public void run(Configuration configuration) {
         Supplier<Connection> connectionSupplier = new ConnectionSupplier(new GraphJdbcConnector(configuration));
         try (Connection writeConnection = connectionSupplier.get()) {
             new ClearChecksumWriter(writeConnection).write();

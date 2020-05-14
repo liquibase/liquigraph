@@ -17,8 +17,8 @@ package org.liquigraph.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import org.liquigraph.core.api.Liquigraph;
-import org.liquigraph.core.configuration.ClearChecksumMode;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +31,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static org.liquigraph.core.exception.Throwables.propagate;
@@ -106,18 +108,19 @@ public class LiquigraphCli {
     )
     private String dryRunOutputDirectory;
 
-    @Parameter(
-    names = {"--clear-checksum"},
-    description = "Removes current checksums from database. " +
-        "On next update changesets that have already been deployed will have their checksums recomputed, " +
-        "and changesets that have not been deployed will be deployed."
+    @Parameter(description = "[action] \n" +
+            "  action: Action to be executed. " +
+            "Accepted values are: " +
+            "run (default if --dry-run-output-directory is not set), " +
+            "dry-run (default if --dry-run-output-directory is set), " +
+            "clear-checksum"
     )
-    private boolean clearChecksum;
-
+    private List<String> parameters = new ArrayList<>();
 
     public static void main(String[] args) {
         LiquigraphCli cli = new LiquigraphCli();
-        JCommander commander = new JCommander(cli, args);
+        JCommander commander = new JCommander(cli);
+        commander.parse(args);
         commander.setProgramName("liquigraph");
 
         if (cli.help) {
@@ -139,20 +142,18 @@ public class LiquigraphCli {
                 .withExecutionContexts(executionContexts(cli.executionContexts))
                 .withClassLoader(classloader(parentFolder(cli.changelog), cli.dryRunOutputDirectory));
 
-        String outputDirectory = cli.dryRunOutputDirectory;
-        if (outputDirectory != null) {
-            builder.withDryRunMode(Paths.get(outputDirectory));
-        }
-        else {
-            builder.withRunMode();
-        }
-        if (cli.clearChecksum) {
-            builder.withExecutionMode(ClearChecksumMode.CLEAR_CHECKSUM_MODE);
-        }
+        Action action = action(cli);
 
-        new Liquigraph().runMigrations(
-                builder.build()
-        );
+        if (action == Action.CLEAR_CHECKSUM) {
+            new Liquigraph().clearChecksums(builder.build());
+        } else {
+            if (action == Action.DRY_RUN) {
+                builder.withDryRunMode(Paths.get(cli.dryRunOutputDirectory));
+            } else if (action == Action.RUN) {
+                builder.withRunMode();
+            }
+            new Liquigraph().runMigrations(builder.build());
+        }
     }
 
     private static void printVersion() {
@@ -212,5 +213,53 @@ public class LiquigraphCli {
 
     private static URL toUrl(String location) throws MalformedURLException {
         return new File(location).toURI().toURL();
+    }
+
+    private static Action action(LiquigraphCli cli) {
+        List<String> actionNames = cli.parameters.stream()
+            .filter(it -> !it.startsWith("--"))
+            .collect(Collectors.toList());
+        if (actionNames.size() == 1) {
+            String actionName = actionNames.get(0);
+            return Action.fromName(actionName)
+            .orElseThrow(
+                () -> new ParameterException(
+                    String.format("Parameter action '%s' " +
+                        "is invalid, must be one of %s",
+                        actionName,
+                        Action.actions().stream().collect(Collectors.joining(",")))
+                    )
+            );
+        } else if (actionNames.isEmpty()) {
+            return cli.dryRunOutputDirectory != null ? Action.DRY_RUN : Action.RUN;
+        } else {
+            throw new ParameterException(
+                "Multiple actions where found: " +
+                cli.parameters +
+                " Please specify only one action."
+            );
+        }
+    }
+
+    enum Action {
+        DRY_RUN("dry-run"),
+        RUN("run"),
+        CLEAR_CHECKSUM("clear-checksum");
+
+        private String name;
+
+        Action(String name) {
+            this.name = name;
+        }
+
+        public static List<String> actions() {
+            return Arrays.stream(Action.values()).map(Action::name).collect(Collectors.toList());
+        }
+
+        public static Optional<Action> fromName(String name) {
+            return Arrays.stream(Action.values())
+                    .filter(it -> it.name.equals(name))
+                    .findAny();
+        }
     }
 }

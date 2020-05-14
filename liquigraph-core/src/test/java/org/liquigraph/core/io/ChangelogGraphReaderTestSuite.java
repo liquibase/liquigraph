@@ -39,7 +39,7 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
         SLF4JBridgeHandler.removeHandlersForRootLogger();
     }
 
-    private ChangelogGraphReader reader = new ChangelogGraphReader();
+    private ChangelogGraphReaderImpl reader = new ChangelogGraphReaderImpl();
 
     @Test
     public void reads_changelog_from_graph_database() throws SQLException {

@@ -98,14 +98,20 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
                 .build();
 
             getLog().info("Generating Cypher output file in directory: " + directory);
-            new Liquigraph().runMigrations(configuration);
+            run(configuration);
 
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }
 
-    protected abstract ConfigurationBuilder withExecutionMode(ConfigurationBuilder configurationBuilder);
+    protected void run(Configuration configuration) {
+        new Liquigraph().runMigrations(configuration);
+    }
+
+    protected ConfigurationBuilder withExecutionMode(ConfigurationBuilder configurationBuilder) {
+        return configurationBuilder;
+    }
 
     private Collection<String> executionContexts(String executionContexts) {
         if (executionContexts.isEmpty()) {

@@ -15,15 +15,17 @@
  */
 package org.liquigraph.core.io;
 
-import org.liquigraph.core.model.Changeset;
+import org.junit.Rule;
+import org.liquigraph.core.GraphDatabaseRule;
+import org.liquigraph.core.HttpGraphDatabaseRule;
 
-import java.sql.Connection;
-import java.util.Collection;
+public class ReplaceChecksumWriterHttpTest extends ReplaceChecksumWriterTestSuite {
 
-/**
- * Interface to retrieve the persisted changelog from neo4j db.
- */
-public interface ChangelogGraphReader {
+    @Rule
+    public GraphDatabaseRule graph = new HttpGraphDatabaseRule();
 
-    Collection<Changeset> read(Connection connection);
+    @Override
+    public GraphDatabaseRule graphDatabase() {
+        return graph;
+    }
 }

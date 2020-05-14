@@ -22,10 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.liquigraph.core.exception.Throwables.propagate;
 
@@ -62,16 +59,5 @@ public class ReplaceChecksumWriter {
             throw propagate(e);
         }
         LOGGER.info("Checksum ID {} by {} was just replaced", changeset.getId(), changeset.getAuthor());
-    }
-
-    private void executeChangesetQueries(Collection<String> queries) throws SQLException {
-        try (Statement statement = writeConnection.createStatement()) {
-            for (String query : queries) {
-                statement.execute(query);
-                LOGGER.debug("Executing query: {}", query);
-            }
-            writeConnection.commit();
-            LOGGER.debug("Committing transaction");
-        }
     }
 }

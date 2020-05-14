@@ -15,7 +15,6 @@
  */
 package org.liquigraph.core.configuration.validators;
 
-import org.liquigraph.core.configuration.ClearChecksumMode;
 import org.liquigraph.core.configuration.DryRunMode;
 import org.liquigraph.core.configuration.ExecutionMode;
 import org.liquigraph.core.configuration.RunMode;
@@ -32,9 +31,7 @@ import static java.lang.String.format;
 public class ExecutionModeValidator {
 
     public Collection<String> validate(ExecutionMode executionMode) {
-        if (executionMode == null
-            || executionMode == RunMode.RUN_MODE
-            || executionMode == ClearChecksumMode.CLEAR_CHECKSUM_MODE) {
+        if (executionMode == null || executionMode == RunMode.RUN_MODE) {
             return Collections.emptyList();
         }
         if (!(executionMode instanceof DryRunMode)) {
