@@ -20,7 +20,6 @@
         <dependency>
             <groupId>org.liquigraph</groupId>
             <artifactId>liquigraph-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.beust</groupId>
@@ -30,7 +29,6 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
         </dependency>
     </dependencies>
 

@@ -15,6 +15,10 @@
  */
 package org.liquigraph.examples.spring;
 
+import java.util.logging.LogManager;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.neo4j.harness.junit.Neo4jRule;
 import org.neo4j.jdbc.http.HttpDriver;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -36,13 +41,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SampleControllerTest {
-
-    static {
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-    }
 
     @ClassRule
     public static Neo4jRule neo4jRule = new Neo4jRule();

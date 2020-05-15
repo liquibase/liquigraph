@@ -65,9 +65,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.liquigraph</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>liquigraph-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -121,7 +120,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
-            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
