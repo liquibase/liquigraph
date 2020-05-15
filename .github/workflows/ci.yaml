@@ -36,13 +36,11 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Build against Neo4j v${{ matrix.neo4j_version }} (${{ matrix.os }})
-        run: mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
-  remote-testing:
+      - name: Unit tests on ${{ matrix.os }} | Neo4j v${{ matrix.neo4j_version }}, JDBC v${{ matrix.jdbc_driver_version }}
+        run: mvn --quiet --batch-mode --show-version package -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
+  container-tests:
     needs: build
     runs-on: ubuntu-latest
-    env:
-      WITH_DOCKER: true
     strategy:
       fail-fast: false
       max-parallel: 60 # OS * neo4j * jdbc
@@ -58,20 +56,6 @@ jobs:
           - 3.1.0
           - 3.3.1
           - 3.4.0
-    services:
-      neo4j:
-        image: neo4j:${{ matrix.neo4j_version }}
-        ports:
-          - 7474:7474
-        env:
-          NEO4J_AUTH: neo4j/j4oen
-        volumes:
-          - $HOME/neo4j/data:/data
-        options: >-
-          --health-cmd "wget --quiet --tries=1 --spider http://localhost:7474/ || exit 1"
-          --health-interval 5s
-          --health-timeout 60s
-          --health-retries 12
     steps:
       - uses: actions/checkout@v2
       - name: Cache ~/.m2/repository
@@ -81,15 +65,11 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Setup Java
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-      - name: Run remote tests against Neo4j v${{ matrix.neo4j_version }}
-        run: mvn --quiet --batch-mode --show-version --also-make --projects liquigraph-core test -Dneo4j.version=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
+      - name: Containerized tests | Neo4j v${{ matrix.neo4j_version }}, JDBC v${{ matrix.jdbc_driver_version }}
+        run: mvn --quiet --batch-mode --show-version --also-make --projects liquigraph-core verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
   deploy-snapshot:
     if: github.ref == 'refs/heads/3.x' && github.repository == 'liquigraph/liquigraph'
-    needs: remote-testing
+    needs: container-tests
     runs-on: ubuntu-latest
     env:
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
@@ -109,4 +89,3 @@ jobs:
           java-version: 1.8
       - name: Deploy SNAPSHOT to Maven Central
         run: mvn clean deploy -DskipTests --settings ./deploy-settings.xml
-

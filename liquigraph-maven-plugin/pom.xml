@@ -18,9 +18,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.liquigraph</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>liquigraph-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>

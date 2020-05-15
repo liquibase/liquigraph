@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.api;
+package org.liquigraph.testing;
 
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.liquigraph.core.GraphDatabaseRule;
-import org.liquigraph.core.HttpGraphDatabaseRule;
+import java.util.Objects;
 
-@Ignore
-public class LiquigraphHttpTest extends LiquigraphTestSuite {
+@FunctionalInterface
+public interface ThrowingConsumer<T, E extends Exception> {
+    void accept(T t) throws E;
 
-    @Rule
-    public GraphDatabaseRule graph = new HttpGraphDatabaseRule();
-
-    @Override
-    public GraphDatabaseRule graphDatabase() {
-        return graph;
+    default ThrowingConsumer<T, E> andThen(ThrowingConsumer<T, E> after) {
+        Objects.requireNonNull(after);
+        return (T t) -> {
+            accept(t); after.accept(t);
+        };
     }
 }

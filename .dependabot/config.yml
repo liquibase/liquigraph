@@ -5,7 +5,7 @@ update_configs:
     update_schedule: "daily" # live not supported yet for java/mvn
     default_reviewers:
       - "fbiville"
-    target_branch: "master"
+    target_branch: "3.x"
     ignored_updates:
       - match:
           dependency_name: "org.neo4j:neo4j*"
