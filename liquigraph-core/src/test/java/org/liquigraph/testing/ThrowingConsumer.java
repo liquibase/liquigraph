@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core;
+package org.liquigraph.testing;
 
-import org.junit.rules.TestRule;
+import java.util.Objects;
 
-import java.sql.Connection;
-import java.util.Optional;
+@FunctionalInterface
+public interface ThrowingConsumer<T, E extends Exception> {
+    void accept(T t) throws E;
 
-public interface GraphDatabaseRule extends TestRule {
+    default ThrowingConsumer<T, E> andThen(ThrowingConsumer<T, E> after) {
+        Objects.requireNonNull(after);
+        return (T t) -> {
+            accept(t); after.accept(t);
+        };
+    }
 
-    Connection newConnection();
-    String uri();
-    Optional<String> database();
-    Optional<String> username();
-    Optional<String> password();
 }
