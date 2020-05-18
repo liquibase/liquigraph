@@ -8,7 +8,7 @@ Please proceed to [this page](https://github.com/liquigraph/liquigraph/) for Neo
 
 ## Build status
 
-![Build Status](https://github.com/liquigraph/liquigraph/workflows/CI/badge.svg)
+![Build Status](https://github.com/liquigraph/liquigraph/workflows/CI/badge.svg?branch=3.x)
 
 ## Getting started
 
