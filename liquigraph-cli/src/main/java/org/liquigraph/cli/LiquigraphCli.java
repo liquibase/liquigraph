@@ -15,6 +15,7 @@
  */
 package org.liquigraph.cli;
 
+import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
@@ -113,9 +114,10 @@ public class LiquigraphCli {
             "Accepted values are: " +
             "run (default if --dry-run-output-directory is not set), " +
             "dry-run (default if --dry-run-output-directory is set), " +
-            "clear-checksum"
+            "clear-checksum",
+            converter = ActionConverter.class
     )
-    private List<String> parameters = new ArrayList<>();
+    private List<Action> actions = new ArrayList<>();
 
     public static void main(String[] args) {
         LiquigraphCli cli = new LiquigraphCli();
@@ -148,9 +150,9 @@ public class LiquigraphCli {
             new Liquigraph().clearChecksums(builder.build());
         } else {
             if (action == Action.DRY_RUN) {
-                builder.withDryRunMode(Paths.get(cli.dryRunOutputDirectory));
+                builder = builder.withDryRunMode(Paths.get(cli.dryRunOutputDirectory));
             } else if (action == Action.RUN) {
-                builder.withRunMode();
+                builder = builder.withRunMode();
             }
             new Liquigraph().runMigrations(builder.build());
         }
@@ -216,26 +218,14 @@ public class LiquigraphCli {
     }
 
     private static Action action(LiquigraphCli cli) {
-        List<String> actionNames = cli.parameters.stream()
-            .filter(it -> !it.startsWith("--"))
-            .collect(Collectors.toList());
-        if (actionNames.size() == 1) {
-            String actionName = actionNames.get(0);
-            return Action.fromName(actionName)
-            .orElseThrow(
-                () -> new ParameterException(
-                    String.format("Parameter action '%s' " +
-                        "is invalid, must be one of %s",
-                        actionName,
-                        Action.actions().stream().collect(Collectors.joining(",")))
-                    )
-            );
-        } else if (actionNames.isEmpty()) {
+        if (cli.actions.size() == 1) {
+            return cli.actions.get(0);
+        } else if (cli.actions.isEmpty()) {
             return cli.dryRunOutputDirectory != null ? Action.DRY_RUN : Action.RUN;
         } else {
             throw new ParameterException(
                 "Multiple actions where found: " +
-                cli.parameters +
+                cli.actions +
                 " Please specify only one action."
             );
         }
@@ -260,6 +250,24 @@ public class LiquigraphCli {
             return Arrays.stream(Action.values())
                     .filter(it -> it.name.equals(name))
                     .findAny();
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    private static class ActionConverter implements IStringConverter<Action> {
+        @Override
+        public Action convert(String value) {
+            return Action.fromName(value).orElseThrow(() -> new ParameterException(
+                    String.format("Parameter action '%s' " +
+                        "is invalid, must be one of %s",
+                        value,
+                        String.join(", ", Action.actions()))
+                    )
+            );
         }
     }
 }

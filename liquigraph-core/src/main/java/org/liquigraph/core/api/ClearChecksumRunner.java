@@ -17,22 +17,20 @@ package org.liquigraph.core.api;
 
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.io.ClearChecksumWriter;
-import org.liquigraph.core.io.ConnectionSupplier;
 import org.liquigraph.core.io.GraphJdbcConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.function.Supplier;
 
 public class ClearChecksumRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClearChecksumRunner.class);
 
     public void run(Configuration configuration) {
-        Supplier<Connection> connectionSupplier = new ConnectionSupplier(new GraphJdbcConnector(configuration));
-        try (Connection writeConnection = connectionSupplier.get()) {
+        GraphJdbcConnector graphJdbcConnector = new GraphJdbcConnector(configuration);
+        try (Connection writeConnection = graphJdbcConnector.connect()) {
             new ClearChecksumWriter(writeConnection).write();
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);

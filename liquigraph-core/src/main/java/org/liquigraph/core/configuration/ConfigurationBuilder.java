@@ -152,7 +152,8 @@ public final class ConfigurationBuilder {
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withRunMode() {
-        return withExecutionMode(RunMode.RUN_MODE);
+        this.executionMode = RunMode.RUN_MODE;
+        return this;
     }
 
     /**
@@ -164,19 +165,7 @@ public final class ConfigurationBuilder {
      * @return itself for chaining purposes
      */
     public ConfigurationBuilder withDryRunMode(Path outputDirectory) {
-        return withExecutionMode(new DryRunMode(outputDirectory));
-    }
-
-    /**
-     * Manually sets execution mode of liquigraph.
-     *
-     * This cas be RunMode, DryRunMode or any other kind of executionMode
-     *
-     * @param executionMode the execution mode to run
-     * @return itself for chaining purposes
-     */
-    public ConfigurationBuilder withExecutionMode(ExecutionMode executionMode) {
-        this.executionMode = executionMode;
+        this.executionMode = new DryRunMode(outputDirectory);
         return this;
     }
 

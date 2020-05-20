@@ -20,7 +20,6 @@ import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ChangelogWriter;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
-import org.liquigraph.core.io.ConnectionSupplier;
 import org.liquigraph.core.io.GraphJdbcConnector;
 import org.liquigraph.core.io.xml.ChangelogLoader;
 import org.liquigraph.core.io.xml.ChangelogParser;
@@ -110,5 +109,19 @@ class MigrationRunner {
     private String formatErrorMessage(Collection<String> errors) {
         String separator = "\n\t";
         return separator + String.join(separator, errors);
+    }
+
+    private static class ConnectionSupplier implements Supplier<Connection> {
+
+        private final GraphJdbcConnector connector;
+
+        public ConnectionSupplier(GraphJdbcConnector connector) {
+            this.connector = connector;
+        }
+
+        @Override
+        public Connection get() {
+            return connector.connect();
+        }
     }
 }
