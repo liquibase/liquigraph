@@ -17,13 +17,11 @@ package org.liquigraph.core.api;
 
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.io.ChangelogGraphReader;
-import org.liquigraph.core.io.ChangelogGraphReaderImpl;
 import org.liquigraph.core.io.ChangelogWriter;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
 import org.liquigraph.core.io.ConnectionSupplier;
 import org.liquigraph.core.io.GraphJdbcConnector;
-import org.liquigraph.core.io.ReplaceChecksumGraphReader;
 import org.liquigraph.core.io.xml.ChangelogLoader;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.model.Changeset;
@@ -34,27 +32,28 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 class MigrationRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationRunner.class);
     private final ChangelogParser changelogParser;
-    private final ChangelogGraphReaderImpl changelogReader;
     private final ChangelogDiffMaker changelogDiffMaker;
     private final ConditionExecutor conditionExecutor;
     private final ConditionPrinter conditionPrinter;
     private final PersistedChangesetValidator persistedChangesetValidator;
+    private final Function<Collection<Changeset>, ChangelogGraphReader> changelogReaderSupplier;
 
     public MigrationRunner(ChangelogParser changelogParser,
-                           ChangelogGraphReaderImpl changelogGraphReader,
+                           Function<Collection<Changeset>, ChangelogGraphReader> changelogGraphReaderSupplier,
                            ChangelogDiffMaker changelogDiffMaker,
                            ConditionExecutor conditionExecutor,
                            ConditionPrinter conditionPrinter,
                            PersistedChangesetValidator persistedChangesetValidator) {
 
         this.changelogParser = changelogParser;
-        this.changelogReader = changelogGraphReader;
+        this.changelogReaderSupplier = changelogGraphReaderSupplier;
         this.changelogDiffMaker = changelogDiffMaker;
         this.conditionExecutor = conditionExecutor;
         this.conditionPrinter = conditionPrinter;
@@ -86,7 +85,7 @@ class MigrationRunner {
 
     private Collection<Changeset> readPersistedChangesets(Collection<Changeset> declaredChangesets, Connection writeConnection) {
 
-        ChangelogGraphReader reader = new ReplaceChecksumGraphReader(changelogReader, declaredChangesets);
+        ChangelogGraphReader reader = changelogReaderSupplier.apply(declaredChangesets);
         Collection<Changeset> persistedChangesets = reader.read(writeConnection);
         Collection<String> errors = persistedChangesetValidator.validate(declaredChangesets, persistedChangesets);
         if (!errors.isEmpty()) {

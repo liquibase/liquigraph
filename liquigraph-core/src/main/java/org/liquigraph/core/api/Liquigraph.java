@@ -16,14 +16,18 @@
 package org.liquigraph.core.api;
 
 import org.liquigraph.core.configuration.Configuration;
-import org.liquigraph.core.io.ChangelogGraphReaderImpl;
+import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
 import org.liquigraph.core.io.xml.ChangelogParser;
 import org.liquigraph.core.io.xml.ChangelogPreprocessor;
 import org.liquigraph.core.io.xml.ImportResolver;
 import org.liquigraph.core.io.xml.XmlSchemaValidator;
+import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
+
+import java.util.Collection;
+import java.util.function.Function;
 
 /**
  * Liquigraph facade in charge of migration execution.
@@ -35,17 +39,17 @@ public final class Liquigraph {
     public Liquigraph() {
         migrationRunner = migrationRunner(
             changelogParser(xmlSchemaValidator(), changelogPreprocessor(importResolver())),
-            changelogGraphReader(),
+            changelogGraphReaderSupplier(),
             changelogDiffMaker(),
             conditionExecutor(),
             conditionPrinter()
         );
     }
 
-    private static MigrationRunner migrationRunner(ChangelogParser changelogParser, ChangelogGraphReaderImpl changelogGraphReader, ChangelogDiffMaker changelogDiffMaker, ConditionExecutor conditionExecutor, ConditionPrinter conditionPrinter) {
+    private static MigrationRunner migrationRunner(ChangelogParser changelogParser, Function<Collection<Changeset>, ChangelogGraphReader> changelogGraphReaderSupplier, ChangelogDiffMaker changelogDiffMaker, ConditionExecutor conditionExecutor, ConditionPrinter conditionPrinter) {
         return new MigrationRunner(
             changelogParser,
-            changelogGraphReader,
+            changelogGraphReaderSupplier,
             changelogDiffMaker,
             conditionExecutor,
             conditionPrinter,
@@ -69,8 +73,8 @@ public final class Liquigraph {
         return new ChangelogDiffMaker();
     }
 
-    private static ChangelogGraphReaderImpl changelogGraphReader() {
-        return new ChangelogGraphReaderImpl();
+    private static Function<Collection<Changeset>, ChangelogGraphReader> changelogGraphReaderSupplier() {
+        return ChangelogGraphReader::new;
     }
 
     private static ChangelogParser changelogParser(XmlSchemaValidator validator, ChangelogPreprocessor preprocessor) {

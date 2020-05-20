@@ -15,8 +15,10 @@
  */
 package org.liquigraph.core.io;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Iterator;
 import org.junit.Test;
 import org.liquigraph.core.GraphIntegrationTestSuite;
@@ -26,9 +28,11 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.List;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.liquigraph.core.model.Checksums.checksum;
@@ -39,7 +43,7 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
         SLF4JBridgeHandler.removeHandlersForRootLogger();
     }
 
-    private ChangelogGraphReaderImpl reader = new ChangelogGraphReaderImpl();
+    private ChangelogGraphReader reader = new ChangelogGraphReader(emptyList());
 
     @Test
     public void reads_changelog_from_graph_database() throws SQLException {
@@ -154,10 +158,120 @@ abstract class ChangelogGraphReaderTestSuite implements GraphIntegrationTestSuit
         }
     }
 
+    @Test
+    public void persisted_changesets_have_empty_checksum_then_verify_db_updated() throws SQLException {
+        List<Changeset> declaredChangesets = new ArrayList<>();
+        declaredChangesets.add(changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})"));
+        declaredChangesets.add(changeset("identifier2", "fbiville2", "CREATE (n: SomeNode {text:'yeah2'})"));
+        reader = new ChangelogGraphReader(declaredChangesets);
+        try (Connection connection = graphDatabase().newConnection()) {
+            Changeset missingChecksumChangeset = changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})", null);
+            List<Changeset> persistedChangesets = asList(
+                missingChecksumChangeset,
+                changeset("identifier2", "fbiville2", "CREATE (n: SomeNode {text:'yeah2'})")
+            );
+            create(persistedChangesets, connection);
+
+            Collection<Changeset> result = reader.read(connection);
+
+            verifyChecksumInDatabase(declaredChangesets.get(0), connection);
+            assertThat(result).filteredOn(it -> it.equals(missingChecksumChangeset))
+                .extracting("checksum")
+                .isNotNull();
+        }
+    }
+
+    @Test
+    public void persisted_changesets_have_empty_checksum_but_do_not_match_declared_changesets_then_verify_db_not_updated() throws SQLException {
+
+        List<Changeset> persistedChangesets = singletonList(
+            changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})", null)
+        );
+        try (Connection connection = graphDatabase().newConnection()) {
+            create(persistedChangesets, connection);
+
+            Collection<Changeset> result = reader.read(connection);
+            verifyChecksumInDatabase(persistedChangesets.get(0), connection);
+        }
+    }
+
+    private void verifyChecksumInDatabase(Changeset changeset, Connection connection) throws SQLException {
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(format(
+                 "MATCH (c:__LiquigraphChangeset {id:'%s'})" +
+                 "RETURN c.checksum"
+                 , changeset.getId()
+             ))) {
+
+            assertThat(resultSet.next()).isTrue();
+            assertThat(resultSet.getString(1)).isEqualTo(changeset.getChecksum());
+        }
+    }
+
+    private void create(List<Changeset> changesetsToPersist, Connection connection) throws SQLException {
+        for (Changeset changeset : changesetsToPersist) {
+            if (changeset.getQueries().size() != 1) {
+                throw new IllegalArgumentException("Changesets with multiple queries are not implemented in this test");
+            }
+            String query = changeset.getQueries().iterator().next();
+            if (changeset.getChecksum() != null) {
+                given_inserted_data(
+                    "CREATE (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
+                    "(:__LiquigraphChangeset {" +
+                    "   author: ?," +
+                    "   id: ?," +
+                    "   checksum: ?" +
+                    "})<-[:EXECUTED_WITHIN_CHANGESET]-(:__LiquigraphQuery {query: ?})",
+                    asList(changeset.getAuthor(), changeset.getId(), changeset.getChecksum(), query),
+                    connection
+                );
+            } else {
+                given_inserted_data(
+                    "CREATE (:__LiquigraphChangelog)<-[:EXECUTED_WITHIN_CHANGELOG {time:1}]-" +
+                    "(:__LiquigraphChangeset {" +
+                    "   author: ?," +
+                    "   id:?" +
+                    "})<-[:EXECUTED_WITHIN_CHANGESET]-(:__LiquigraphQuery {query: ?})",
+                    asList(changeset.getAuthor(), changeset.getId(), query),
+                    connection
+                );
+            }
+        }
+    }
+
     private void given_inserted_data(String query, Connection connection) throws SQLException {
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
             return;
         }
+    }
+
+    private void given_inserted_data(String query, List<Object> params, Connection connection) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            for (int i=0; i< params.size(); i++) {
+                statement.setObject(i + 1, params.get(i));
+            }
+            statement.executeUpdate();
+        }
+    }
+
+    private Changeset changeset(String identifier, String author, String query) {
+        Collection<String> queries = singletonList(query);
+        return changeset(identifier, author, queries);
+    }
+
+    private Changeset changeset(String identifier, String author, String query, String checksum) {
+        Collection<String> queries = singletonList(query);
+        Changeset changeset = changeset(identifier, author, queries);
+        changeset.setChecksum(checksum);
+        return changeset;
+    }
+
+    private Changeset changeset(String identifier, String author, Collection<String> queries) {
+        Changeset changeset = new Changeset();
+        changeset.setId(identifier);
+        changeset.setAuthor(author);
+        changeset.setQueries(queries);
+        return changeset;
     }
 }
