@@ -14,7 +14,7 @@
     <name>Dagger 2 - Integration Example</name>
 
     <properties>
-        <dagger.version>2.27</dagger.version>
+        <dagger.version>2.28</dagger.version>
         <jacoco.skip>true</jacoco.skip>
         <coveralls.skip>true</coveralls.skip>
     </properties>
