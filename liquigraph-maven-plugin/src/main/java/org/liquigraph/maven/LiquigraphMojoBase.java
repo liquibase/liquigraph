@@ -17,7 +17,6 @@ package org.liquigraph.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.liquigraph.core.api.Liquigraph;
@@ -27,10 +26,12 @@ import org.liquigraph.core.configuration.ConfigurationBuilder;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 public abstract class LiquigraphMojoBase extends AbstractMojo {
+
+    private static final String WILDCARD = "*";
 
     /**
      * Current maven project
@@ -82,6 +83,15 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
     @Parameter(property = "executionContexts", defaultValue = "")
     String executionContexts = "";
 
+    /**
+     * ChangesetIds used by clear-checksum.
+     *
+     * If set, then only the given changesets will have their checksum cleared.
+     * If empty, then all changesets will have their checksum cleared.
+     */
+    @Parameter(property = "includes")
+    String includes = "";
+
     @Override
     public final void execute() throws MojoExecutionException {
         String directory = project.getBuild().getDirectory();
@@ -95,6 +105,7 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
                 .withUsername(username)
                 .withPassword(password)
                 .withUri(jdbcUri))
+                .withIncludeChangesets(includeChangesets(includes))
                 .build();
 
             getLog().info("Generating Cypher output file in directory: " + directory);
@@ -114,11 +125,21 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
     }
 
     private Collection<String> executionContexts(String executionContexts) {
-        if (executionContexts.isEmpty()) {
+        return toCollection(executionContexts);
+    }
+
+    private Collection<String> includeChangesets(String includes) {
+        return toCollection(includes).stream()
+            .filter(it -> !WILDCARD.equals(it))
+            .collect(toList());
+    }
+
+    private Collection<String> toCollection(String values) {
+        if (values.isEmpty()) {
             return emptyList();
         }
         Collection<String> result = new ArrayList<>();
-        for (String context : asList(executionContexts.split(","))) {
+        for (String context : values.split(",")) {
             result.add(context.trim());
         }
         return result;

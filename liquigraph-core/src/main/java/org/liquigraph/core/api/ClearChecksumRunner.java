@@ -31,7 +31,7 @@ public class ClearChecksumRunner {
     public void run(Configuration configuration) {
         GraphJdbcConnector graphJdbcConnector = new GraphJdbcConnector(configuration);
         try (Connection writeConnection = graphJdbcConnector.connect()) {
-            new ClearChecksumWriter(writeConnection).write();
+            new ClearChecksumWriter(writeConnection).write(configuration.includeChangesets());
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
         }

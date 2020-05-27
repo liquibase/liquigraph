@@ -34,12 +34,13 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class LiquigraphCli {
@@ -109,6 +110,17 @@ public class LiquigraphCli {
     )
     private String dryRunOutputDirectory;
 
+    @Parameter(
+    names = {"--include"},
+    description = "Changeset Ids. " +
+        "The clear-checksum command will only clear the checksum of the given changeset. +" +
+        "Syntax: <changesetId1>,<changesetId2>" +
+        "Default value: *",
+        converter = TrimStringConverter.class,
+        listConverter = WildcardListConverter.class
+    )
+    private List<String> includeChangesets = Collections.emptyList();
+
     @Parameter(description = "[action] \n" +
             "  action: Action to be executed. " +
             "Accepted values are: " +
@@ -142,6 +154,7 @@ public class LiquigraphCli {
                 .withUsername(cli.username)
                 .withPassword(cli.password)
                 .withExecutionContexts(executionContexts(cli.executionContexts))
+                .withIncludeChangesets(cli.includeChangesets)
                 .withClassLoader(classloader(parentFolder(cli.changelog), cli.dryRunOutputDirectory));
 
         Action action = action(cli);
@@ -243,7 +256,7 @@ public class LiquigraphCli {
         }
 
         public static List<String> actions() {
-            return Arrays.stream(Action.values()).map(Action::name).collect(Collectors.toList());
+            return Arrays.stream(Action.values()).map(Action::name).collect(toList());
         }
 
         public static Optional<Action> fromName(String name) {
@@ -255,6 +268,29 @@ public class LiquigraphCli {
         @Override
         public String toString() {
             return name;
+        }
+    }
+
+    private static class TrimStringConverter implements IStringConverter<String> {
+        @Override
+        public String convert(String value) {
+            return value != null ? value.trim() : null;
+        }
+    }
+
+    private static class WildcardListConverter implements IStringConverter<List<String>> {
+        private static final String WILDCARD = "*";
+        private TrimStringConverter converter = new TrimStringConverter();
+
+        @Override
+        public List<String> convert(String value) {
+            if (value == null) {
+                return Collections.emptyList();
+            }
+            return Arrays.stream(value.split(","))
+                    .map(converter::convert)
+                    .filter(it -> !WILDCARD.equals(it))
+                    .collect(toList());
         }
     }
 

@@ -156,6 +156,47 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
     }
 
     @Test
+    public void clear_checksum_should_reset_all_migrations() throws SQLException {
+        liquigraph.runMigrations(
+        new ConfigurationBuilder()
+            .withRunMode()
+            .withMasterChangelogLocation("changelog/changelog-with-2-nodes.xml")
+            .withUri(graphDatabase().uri())
+            .build()
+        );
+
+        liquigraph.clearChecksums(
+            new ConfigurationBuilder()
+            .withMasterChangelogLocation("changelog/changelog-with-2-nodes.xml")
+            .withUri(graphDatabase().uri())
+            .build()
+        );
+
+        verifyCountOfChangesetsWithClearedChecksum(2);
+    }
+
+    @Test
+    public void clear_checksum_with_include_should_reset_only_included_migrations() throws SQLException {
+        liquigraph.runMigrations(
+            new ConfigurationBuilder()
+            .withRunMode()
+            .withMasterChangelogLocation("changelog/changelog-with-2-nodes.xml")
+            .withUri(graphDatabase().uri())
+            .build()
+        );
+
+        liquigraph.clearChecksums(
+            new ConfigurationBuilder()
+            .withMasterChangelogLocation("changelog/changelog-with-2-nodes.xml")
+            .withUri(graphDatabase().uri())
+            .withIncludeChangesets("insert-fbiville")
+            .build()
+        );
+
+        verifyCountOfChangesetsWithClearedChecksum(1);
+    }
+
+    @Test
     public void migrations_with_empty_checksum_should_be_updated_and_not_executed() throws SQLException {
         liquigraph.runMigrations(
             new ConfigurationBuilder()
@@ -181,15 +222,13 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
         );
         try (Connection connection = graphDatabase().newConnection();
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery("MATCH (h:Human) RETURN count(h)");
-             ResultSet changesetResultSet = statement.executeQuery("MATCH (changeset:__LiquigraphChangeset) WHERE NOT EXISTS(changeset.checksum) RETURN count(changeset)")) {
+             ResultSet resultSet = statement.executeQuery("MATCH (h:Human) RETURN count(h)")) {
 
             assertThat(resultSet.next()).isTrue();
             assertThat(resultSet.getInt(1)).isEqualTo(2);
-            assertThat(changesetResultSet.next()).isTrue();
-            assertThat(changesetResultSet.getInt(1)).isEqualTo(2);
             connection.rollback();
         }
+        verifyCountOfChangesetsWithClearedChecksum(2);
 
         liquigraph.runMigrations(
             new ConfigurationBuilder()
@@ -200,15 +239,13 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
         );
         try (Connection connection = graphDatabase().newConnection();
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery("MATCH (h:Human) RETURN count(h)");
-             ResultSet changesetResultSet = statement.executeQuery("MATCH (changeset:__LiquigraphChangeset) WHERE NOT EXISTS(changeset.checksum) RETURN count(changeset)")) {
+             ResultSet resultSet = statement.executeQuery("MATCH (h:Human) RETURN count(h)")) {
 
             assertThat(resultSet.next()).isTrue();
             assertThat(resultSet.getInt(1)).isEqualTo(2);
-            assertThat(changesetResultSet.next()).isTrue();
-            assertThat(changesetResultSet.getInt(1)).isEqualTo(0);
             connection.rollback();
         }
+        verifyCountOfChangesetsWithClearedChecksum(0);
     }
 
     @Test
@@ -231,6 +268,16 @@ abstract class LiquigraphTestSuite implements GraphIntegrationTestSuite {
              ResultSet resultSet = statement.executeQuery("MATCH (lock:__LiquigraphLock) RETURN lock")) {
 
             assertThat(resultSet.next()).isFalse();
+            connection.rollback();
+        }
+    }
+
+    private void verifyCountOfChangesetsWithClearedChecksum(int expected) throws SQLException {
+        try (Connection connection = graphDatabase().newConnection();
+             Statement statement = connection.createStatement();
+             ResultSet changesetResultSet = statement.executeQuery("MATCH (changeset:__LiquigraphChangeset) WHERE NOT EXISTS(changeset.checksum) RETURN count(changeset)")) {
+            assertThat(changesetResultSet.next()).isTrue();
+            assertThat(changesetResultSet.getInt(1)).isEqualTo(expected);
             connection.rollback();
         }
     }

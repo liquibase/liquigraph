@@ -24,6 +24,7 @@ import org.liquigraph.core.io.xml.ChangelogLoader;
 import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
 
 import java.sql.Connection;
+import java.util.Collection;
 import java.util.function.Supplier;
 
 /**
@@ -42,13 +43,15 @@ public final class Configuration {
     private final ExecutionContexts executionContexts;
     private final ExecutionMode executionMode;
     private final String database;
+    private Collection<String> includeChangesets;
 
     Configuration(ChangelogLoader changelogLoader,
                   String masterChangelog,
                   ConnectionConfiguration connectionConfiguration,
                   ExecutionContexts executionContexts,
                   ExecutionMode executionMode,
-                  String database) {
+                  String database,
+                  Collection<String> includeChangesets) {
 
         this.changelogLoader = changelogLoader;
         this.masterChangelog = masterChangelog;
@@ -56,6 +59,7 @@ public final class Configuration {
         this.executionContexts = executionContexts;
         this.executionMode = executionMode;
         this.database = database;
+        this.includeChangesets = includeChangesets;
     }
 
     /**
@@ -104,5 +108,9 @@ public final class Configuration {
             return new ChangelogFileWriter(conditionPrinter, database, dryRunMode.getOutputFile());
         }
         throw new IllegalStateException("Unsupported <executionMode>: " + executionMode);
+    }
+
+    public Collection<String> includeChangesets() {
+        return includeChangesets;
     }
 }

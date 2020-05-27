@@ -15,19 +15,24 @@
  */
 package org.liquigraph.core.io;
 
+import org.neo4j.jdbc.impl.ListArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
 
+import static java.sql.Types.VARCHAR;
 import static org.liquigraph.core.exception.Throwables.propagate;
 
 public class ClearChecksumWriter {
 
     private static final String CLEAR_CHECKSUM_QUERY =
         "MATCH (changeset:__LiquigraphChangeset) " +
+            "WHERE ? = true OR changeset.id IN (?) " +
             "SET  changeset.checksum = null ";
     private final Connection writeConnection;
 
@@ -37,9 +42,11 @@ public class ClearChecksumWriter {
         this.writeConnection = writeConnection;
     }
 
-    public void write() {
-        try (Statement statement = writeConnection.createStatement()) {
-            statement.execute(CLEAR_CHECKSUM_QUERY);
+    public void write(Collection<String> changesets) {
+        try (PreparedStatement statement = writeConnection.prepareStatement(CLEAR_CHECKSUM_QUERY)) {
+            statement.setBoolean(1, changesets.isEmpty());
+            statement.setArray(2, new ListArray(new ArrayList<>(changesets), VARCHAR));
+            statement.execute();
             LOGGER.debug("Executing query: {}", CLEAR_CHECKSUM_QUERY);
             writeConnection.commit();
             LOGGER.debug("Committing transaction");

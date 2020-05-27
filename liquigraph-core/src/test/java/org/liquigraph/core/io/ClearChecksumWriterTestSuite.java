@@ -29,6 +29,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.function.Supplier;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,13 +40,13 @@ public abstract class ClearChecksumWriterTestSuite implements GraphIntegrationTe
     }
 
     private ConnectionSupplier connectionSupplier = new ConnectionSupplier();
-    private ChangelogGraphWriter writer;
+    private ClearChecksumWriter writer;
     private Connection connection;
 
     @Before
     public void prepare() {
         connection = connectionSupplier.get();
-        writer = new ChangelogGraphWriter(connection, connectionSupplier, new ConditionExecutor());
+        writer = new ClearChecksumWriter(connection);
     }
 
     @After
@@ -54,39 +55,64 @@ public abstract class ClearChecksumWriterTestSuite implements GraphIntegrationTe
     }
 
     @Test
-    public void persists_changesets_in_graph() throws SQLException {
+    public void all_checksum_should_be_cleared() throws SQLException {
 
         Changeset changeset = changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})");
-        persistWithoutChecksum(changeset);
+        persist(changeset);
 
-        writer.write(singletonList(changeset));
+        writer.write(emptyList());
 
-        assertThatPersistedChangesetHasChecksum(changeset);
+        assertThatChecksumIsEmpty(changeset);
     }
 
-    private void assertThatPersistedChangesetHasChecksum(Changeset changeset) throws SQLException {
+    @Test
+    public void given_included_changeset_when_clear_then_verify_checksum_cleared_on_included_changeset_only() throws SQLException {
+
+        Changeset changeset1 = changeset("identifier", "fbiville", "CREATE (n: SomeNode {text:'yeah'})");
+        persist(changeset1);
+        Changeset changeset2 = changeset("identifier2", "fbiville2", "CREATE (n: SomeNode {text:'yeah'})");
+        persist(changeset2);
+
+        writer.write(singletonList(changeset1.getId()));
+
+        assertThatChecksumIsEmpty(changeset1);
+        assertThatChecksumIsEqualTo(changeset2);
+    }
+
+    private void assertThatChecksumIsEmpty(Changeset changeset) throws SQLException {
+        assertThat(getChecksumFromDatabase(changeset)).as("Checksum should be cleared").isNull();
+    }
+
+    private void assertThatChecksumIsEqualTo(Changeset changeset) throws SQLException {
+        assertThat(getChecksumFromDatabase(changeset)).as("Checksum should be cleared").isEqualTo(changeset.getChecksum());
+    }
+
+    private String getChecksumFromDatabase(Changeset changeset) throws SQLException {
         try (Connection connection = connectionSupplier.get();
              PreparedStatement statement = connection.prepareStatement(
-                 "MATCH (changeset:__LiquigraphChangeset {id: ?, author: ?}) " +
-                 "RETURN changeset.checksum"
-             );
+             "MATCH (changeset:__LiquigraphChangeset {id: ?, author: ?}) " +
+             "RETURN changeset.checksum"
+             )
         ) {
             statement.setString(1, changeset.getId());
             statement.setString(2, changeset.getAuthor());
             statement.execute();
             try (ResultSet resultSet = statement.getResultSet()) {
                 assertThat(resultSet.next()).as("No such changeset in database").isTrue();
-                assertThat(resultSet.getString("changeset.checksum")).as("Invalid checksum in database").isEqualTo(changeset.getChecksum());
+                return resultSet.getString("changeset.checksum");
             }
         }
     }
 
-    private void persistWithoutChecksum(Changeset changeset) throws SQLException {
+    private void persist(Changeset changeset) throws SQLException {
         try (Connection connection = connectionSupplier.get();
-             PreparedStatement statement = connection.prepareStatement("CREATE  (cs: __LiquigraphChangeset) {id: ?, author: ?}");
+             PreparedStatement statement = connection.prepareStatement("CREATE (cs:__LiquigraphChangeset {id: ?, author: ?, checksum: ?})")
         ) {
             statement.setString(1, changeset.getId());
             statement.setString(2, changeset.getAuthor());
+            statement.setString(3, changeset.getChecksum());
+            statement.execute();
+            connection.commit();
         }
     }
 

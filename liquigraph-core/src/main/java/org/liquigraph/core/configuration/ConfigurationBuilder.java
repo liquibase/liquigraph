@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -42,6 +43,7 @@ public final class ConfigurationBuilder {
     private Optional<String> database = Optional.empty();
     private Optional<String> username = Optional.empty();
     private Optional<String> password = Optional.empty();
+    private Collection<String> includeChangesets = Collections.emptyList();
     private ExecutionContexts executionContexts = ExecutionContexts.DEFAULT_CONTEXT;
     private ExecutionMode executionMode;
 
@@ -147,6 +149,34 @@ public final class ConfigurationBuilder {
     }
 
     /**
+     * @param changesets 0 or more changeset ids those changeset ids are used by the clear-checksum
+     *                   command
+     * @return itself for chaining purposes
+     * @see ConfigurationBuilder#withIncludeChangesets(java.util.Collection)
+     */
+    public ConfigurationBuilder withIncludeChangesets(String... changesets) {
+        return withIncludeChangesets(Arrays.asList(changesets));
+    }
+
+    /**
+     * Specifies one or more changeset id.
+     * <br>
+     * Those changesets are used by the clear checksum command. If this list is
+     * not empty then only the checksum for the given changeset are clear.
+     * Otherwise all checksum are cleared
+     *
+     * @param changesets 0 or more changeset ids those changeset ids are used by the clear-checksum
+     *                   command
+     * @return itself for chaining purposes
+     */
+    public ConfigurationBuilder withIncludeChangesets(Collection<String> changesets) {
+        if (!changesets.isEmpty()) {
+            this.includeChangesets = changesets;
+        }
+        return this;
+    }
+
+    /**
      * Sets Liquigraph to execute changesets against the configured graph database.
      *
      * @return itself for chaining purposes
@@ -224,7 +254,8 @@ public final class ConfigurationBuilder {
             dataSourceConfiguration(),
             executionContexts,
             executionMode,
-            database.orElse(null)
+            database.orElse(null),
+            includeChangesets
         );
     }
 
