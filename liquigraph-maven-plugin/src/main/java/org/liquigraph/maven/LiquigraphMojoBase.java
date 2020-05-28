@@ -89,8 +89,8 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
      * If set, then only the given changesets will have their checksum cleared.
      * If empty, then all changesets will have their checksum cleared.
      */
-    @Parameter(property = "includes")
-    String includes = "";
+    @Parameter(property = "include")
+    String include = "";
 
     @Override
     public final void execute() throws MojoExecutionException {
@@ -105,7 +105,7 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
                 .withUsername(username)
                 .withPassword(password)
                 .withUri(jdbcUri))
-                .withIncludeChangesets(includeChangesets(includes))
+                .withIncludeChangesets(includeChangesets(include))
                 .build();
 
             getLog().info("Generating Cypher output file in directory: " + directory);
@@ -128,8 +128,8 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
         return toCollection(executionContexts);
     }
 
-    private Collection<String> includeChangesets(String includes) {
-        return toCollection(includes).stream()
+    private Collection<String> includeChangesets(String include) {
+        return toCollection(include).stream()
             .filter(it -> !WILDCARD.equals(it))
             .collect(toList());
     }
