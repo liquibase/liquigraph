@@ -25,8 +25,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class JdbcAwareGraphDatabase {
 
     private final Collection<Connection> connections = new ArrayList<>();
@@ -118,7 +116,10 @@ public class JdbcAwareGraphDatabase {
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        assertThat(openConnections).as("Connections remaining open").isEqualTo(0);
+
+        if (openConnections != 0) {
+            throw new RuntimeException(String.format("Connections remaining open: %d", openConnections));
+        }
     }
 
     private void emptyDatabase() throws SQLException {

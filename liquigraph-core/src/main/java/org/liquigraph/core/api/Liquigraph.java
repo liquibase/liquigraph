@@ -29,7 +29,7 @@ import org.liquigraph.core.validation.PersistedChangesetValidator;
 /**
  * Liquigraph facade in charge of migration execution.
  */
-public final class Liquigraph {
+public final class Liquigraph implements LiquigraphApi {
 
     private final MigrationRunner migrationRunner;
 
@@ -90,13 +90,7 @@ public final class Liquigraph {
         return new XmlSchemaValidator();
     }
 
-    /**
-     * Triggers migration execution, according to the specified {@link org.liquigraph.core.configuration.Configuration}
-     * instance.
-     *
-     * @param configuration configuration of the changelog location and graph connection parameters
-     * @see org.liquigraph.core.configuration.ConfigurationBuilder to create {@link org.liquigraph.core.configuration.Configuration instances}
-     */
+    @Override
     public void runMigrations(Configuration configuration) {
         migrationRunner.runMigrations(configuration);
     }

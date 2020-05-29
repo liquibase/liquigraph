@@ -18,6 +18,7 @@ package org.liquigraph.cli;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import org.liquigraph.core.api.Liquigraph;
+import org.liquigraph.core.api.LiquigraphApi;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,33 +106,42 @@ public class LiquigraphCli {
     )
     private String dryRunOutputDirectory;
 
+    private final LiquigraphApi liquigraph;
 
+    public LiquigraphCli(LiquigraphApi liquigraph) {
+        this.liquigraph = liquigraph;
+    }
 
     public static void main(String[] args) {
-        LiquigraphCli cli = new LiquigraphCli();
-        JCommander commander = new JCommander(cli, args);
+        LiquigraphCli cli = new LiquigraphCli(new Liquigraph());
+        cli.execute(args);
+    }
+
+    public void execute(String[] args) {
+        JCommander commander = new JCommander(this);
+        commander.parse(args);
         commander.setProgramName("liquigraph");
 
-        if (cli.help) {
+        if (this.help) {
             commander.usage();
             return;
         }
 
-        if (cli.version) {
+        if (this.version) {
             printVersion();
             return;
         }
 
         ConfigurationBuilder builder = new ConfigurationBuilder()
-                .withMasterChangelogLocation(fileName(cli.changelog))
-                .withUri(cli.graphDbUri)
-                .withDatabase(cli.database)
-                .withUsername(cli.username)
-                .withPassword(cli.password)
-                .withExecutionContexts(executionContexts(cli.executionContexts))
-                .withClassLoader(classloader(parentFolder(cli.changelog), cli.dryRunOutputDirectory));
+                .withMasterChangelogLocation(fileName(this.changelog))
+                .withUri(this.graphDbUri)
+                .withDatabase(this.database)
+                .withUsername(this.username)
+                .withPassword(this.password)
+                .withExecutionContexts(executionContexts(this.executionContexts))
+                .withClassLoader(classloader(parentFolder(this.changelog), this.dryRunOutputDirectory));
 
-        String outputDirectory = cli.dryRunOutputDirectory;
+        String outputDirectory = this.dryRunOutputDirectory;
         if (outputDirectory != null) {
             builder.withDryRunMode(Paths.get(outputDirectory));
         }
@@ -139,9 +149,7 @@ public class LiquigraphCli {
             builder.withRunMode();
         }
 
-        new Liquigraph().runMigrations(
-                builder.build()
-        );
+        this.liquigraph.runMigrations(builder.build());
     }
 
     private static void printVersion() {
