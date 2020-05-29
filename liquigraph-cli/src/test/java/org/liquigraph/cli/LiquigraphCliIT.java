@@ -38,6 +38,7 @@ public class LiquigraphCliIT extends ParameterizedDatabaseIT {
     @Test
     public void dry_runs_migration() {
         LiquigraphCli.main(new String[] {
+            "dry-run",
             "--changelog", "changelog.xml",
             "--graph-db-uri", uri,
             "--username", graphDb.username().get(),
@@ -58,6 +59,7 @@ public class LiquigraphCliIT extends ParameterizedDatabaseIT {
     @Test
     public void executes_migration() {
         LiquigraphCli.main(new String[] {
+            "run",
             "--changelog", "changelog.xml",
             "--graph-db-uri", uri,
             "--username", graphDb.username().get(),

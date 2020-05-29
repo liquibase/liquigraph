@@ -32,6 +32,7 @@ import org.liquigraph.core.configuration.DryRunMode;
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.liquigraph.core.configuration.RunMode.RUN_MODE;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,7 +53,7 @@ public class LiquigraphCliTest {
     private final LiquigraphCli cli = new LiquigraphCli(liquigraph);
 
     @Before
-    public void prepare() throws Exception {
+    public void prepare() {
         System.setOut(customStdout);
     }
 
@@ -99,11 +100,19 @@ public class LiquigraphCliTest {
     }
 
     @Test
+    public void fails_with_both_version_and_help_flag() {
+        assertThatThrownBy(() -> cli.execute(new String[] {"--help", "--version"}))
+            .hasMessage("Either --version or --help must be set, not both")
+            .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
     public void executes_minimal_migration() {
         String uri = "jdbc:neo4j:bolt://example.com";
         String masterChangelog = "changelog.xml";
 
         cli.execute(new String[] {
+            "run",
             "--graph-db-uri", uri,
             "--changelog", masterChangelog
         });
@@ -121,6 +130,7 @@ public class LiquigraphCliTest {
         String masterChangelog = "changelog.xml";
 
         cli.execute(new String[] {
+            "run",
             "-g", uri,
             "-c", masterChangelog
         });
@@ -139,6 +149,7 @@ public class LiquigraphCliTest {
         File dryRunDirectory = temporaryFolder.getRoot();
 
         cli.execute(new String[] {
+            "dry-run",
             "--dry-run-output-directory", dryRunDirectory.getPath(),
             "--graph-db-uri", uri,
             "--changelog", masterChangelog
@@ -158,6 +169,7 @@ public class LiquigraphCliTest {
         File dryRunDirectory = temporaryFolder.getRoot();
 
         cli.execute(new String[] {
+            "dry-run",
             "-d", dryRunDirectory.getPath(),
             "-g", uri,
             "-c", masterChangelog
