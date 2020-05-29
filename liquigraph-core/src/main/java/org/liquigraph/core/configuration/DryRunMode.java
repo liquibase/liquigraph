@@ -17,6 +17,7 @@ package org.liquigraph.core.configuration;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Objects;
 
 public final class DryRunMode implements ExecutionMode {
 
@@ -28,5 +29,25 @@ public final class DryRunMode implements ExecutionMode {
 
     public File getOutputFile() {
         return outputFile;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DryRunMode that = (DryRunMode) o;
+        return Objects.equals(outputFile, that.outputFile);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(outputFile);
+    }
+
+    @Override
+    public String toString() {
+        return "DryRunMode{" +
+            "outputFile=" + outputFile +
+            '}';
     }
 }

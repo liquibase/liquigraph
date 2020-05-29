@@ -56,7 +56,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Containerized tests | Neo4j v${{ matrix.neo4j_version }}, JDBC v${{ matrix.jdbc_driver_version }}
-        run: mvn --quiet --batch-mode --show-version --also-make --projects liquigraph-core verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
+        run: mvn --quiet --batch-mode --show-version --also-make --projects liquigraph-core,liquigraph-cli verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
   deploy-snapshot:
     if: github.ref == 'refs/heads/master' && github.repository == 'liquigraph/liquigraph'
     needs: container-tests
