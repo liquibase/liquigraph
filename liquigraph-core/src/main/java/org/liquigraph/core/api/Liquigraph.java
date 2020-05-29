@@ -29,7 +29,7 @@ import org.liquigraph.core.validation.PersistedChangesetValidator;
 /**
  * Liquigraph facade in charge of migration execution.
  */
-public final class Liquigraph {
+public class Liquigraph {
 
     private final MigrationRunner migrationRunner;
 

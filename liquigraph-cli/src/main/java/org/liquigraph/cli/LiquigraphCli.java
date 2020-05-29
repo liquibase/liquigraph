@@ -15,184 +15,37 @@
  */
 package org.liquigraph.cli;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
+import org.liquigraph.cli.commands.DryRun;
+import org.liquigraph.cli.commands.Run;
 import org.liquigraph.core.api.Liquigraph;
-import org.liquigraph.core.configuration.ConfigurationBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.Arrays;
 
-import static java.util.Collections.emptyList;
-import static org.liquigraph.core.exception.Throwables.propagate;
+public final class LiquigraphCli {
 
-public class LiquigraphCli {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LiquigraphCli.class);
+    private final Liquigraph liquigraph;
 
-    @Parameter(
-            names = {"--help", "-h"},
-            description = "Get this help",
-            help = true
-    )
-    private boolean help;
+    private final LiquigraphCommandRegistry registry;
 
-    @Parameter(
-            names = {"--version", "-v"},
-            description = "Show the version",
-            help = true
-    )
-    private boolean version;
-
-    @Parameter(
-            names = {"--changelog", "-c"},
-            description = "Master Liquigraph changelog location.\n" +
-                    "\t Prefix with 'classpath:' if location is in classpath",
-            required = true
-    )
-    private String changelog;
-
-    @Parameter(
-            names = {"--graph-db-uri", "-g"},
-            description = "Graph JDBC URI:\n" +
-                    "\t- jdbc:neo4j:http://host:port/\n" +
-                    "\t- jdbc:neo4j:https://host:port/\n" +
-                    "\t- jdbc:neo4j:bolt://host:port/\n",
-            required = true
-    )
-    private String graphDbUri;
-
-    @Parameter(
-            names = {"--username", "-u"},
-            description = "Graph DB username (remote only)"
-    )
-    private String username;
-
-    @Parameter(
-            names = {"--password", "-p"},
-            description = "Graph DB password (remote only)",
-            password = true
-    )
-    private String password;
-
-    @Parameter(
-            names = {"--execution-contexts", "-x"},
-            description = "Comma-separated list of Liquigraph execution contexts"
-    )
-    private String executionContexts = "";
-
-    @Parameter(
-            names = {"--dry-run-output-directory", "-d"},
-            description = "Output directory path into which changeset queries will be written. " +
-                    "Not setting this option will trigger RUN mode."
-    )
-    private String dryRunOutputDirectory;
-
-
+    public LiquigraphCli(Liquigraph liquigraph) {
+        this.liquigraph = liquigraph;
+        this.registry = new LiquigraphCommandRegistry()
+        .registerCommand("dry-run", new DryRun())
+        .registerCommand("run", new Run());
+    }
 
     public static void main(String[] args) {
-        LiquigraphCli cli = new LiquigraphCli();
-        JCommander commander = new JCommander(cli, args);
-        commander.setProgramName("liquigraph");
-
-        if (cli.help) {
-            commander.usage();
-            return;
-        }
-
-        if (cli.version) {
-            printVersion();
-            return;
-        }
-
-        ConfigurationBuilder builder = new ConfigurationBuilder()
-                .withMasterChangelogLocation(fileName(cli.changelog))
-                .withUri(cli.graphDbUri)
-                .withUsername(cli.username)
-                .withPassword(cli.password)
-                .withExecutionContexts(executionContexts(cli.executionContexts))
-                .withClassLoader(classloader(parentFolder(cli.changelog), cli.dryRunOutputDirectory));
-
-        String outputDirectory = cli.dryRunOutputDirectory;
-        if (outputDirectory != null) {
-            builder.withDryRunMode(Paths.get(outputDirectory));
-        }
-        else {
-            builder.withRunMode();
-        }
-
-        new Liquigraph().runMigrations(
-                builder.build()
-        );
+        LiquigraphCli cli = new LiquigraphCli(new Liquigraph());
+        cli.execute(args);
     }
 
-    private static void printVersion() {
-        Optional<String> version = getVersion();
-        System.out.println(version.orElse("Unknown version!"));
-    }
-
-    private static Optional<String> getVersion() {
-        try (InputStream propsIs = LiquigraphCli.class.getResourceAsStream("/liquigraph-cli.properties")) {
-            if (propsIs != null) {
-                Properties props = new Properties();
-                props.load(propsIs);
-                return Optional.ofNullable(props.getProperty("liquigraph.version"));
-            }
-        } catch (IOException e) {
-            LOGGER.error("An exception occurred while loading the properties", e);
-        }
-        return Optional.empty();
-    }
-
-    private static String fileName(String changelog) {
-        return new File(changelog).getName();
-    }
-
-    private static String parentFolder(String changelog) {
-        try {
-            return new File(changelog).getCanonicalFile().getParent();
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private static Collection<String> executionContexts(String executionContexts) {
-        if (executionContexts.isEmpty()) {
-            return emptyList();
-        }
-        Collection<String> result = new ArrayList<>();
-        for (String context : executionContexts.split(",")) {
-            result.add(context.trim());
-        }
-        return result;
-    }
-
-    private static ClassLoader classloader(String changelog, String dryRunOutputDirectory) {
-        List<URL> resources = new ArrayList<>();
-        try {
-            resources.add(toUrl(changelog));
-            if (dryRunOutputDirectory != null) {
-                resources.add(toUrl(dryRunOutputDirectory));
-            }
-        } catch (MalformedURLException e) {
-            throw propagate(e);
-        }
-
-        return new URLClassLoader(resources.toArray(new URL[0]));
-    }
-
-    private static URL toUrl(String location) throws MalformedURLException {
-        return new File(location).toURI().toURL();
+    // visible for testing
+    void execute(String[] args) {
+        registry
+        .resolve(args)
+        .orElseThrow(() -> new RuntimeException(
+        String.format("Could not resolve command. Given args: %s%n", Arrays.toString(args))
+        ))
+        .accept(this.liquigraph);
     }
 }

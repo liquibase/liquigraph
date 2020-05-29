@@ -53,7 +53,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>liquigraph-testing</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -85,16 +84,6 @@
             <groupId>io.sniffy</groupId>
             <artifactId>sniffy-junit</artifactId>
             <version>3.1.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>neo4j</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

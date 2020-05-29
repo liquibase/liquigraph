@@ -15,6 +15,14 @@
  */
 package org.liquigraph.testing;
 
+import okhttp3.Credentials;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.assertj.core.api.Assertions;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -25,15 +33,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
-
-import okhttp3.Credentials;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class JdbcAwareGraphDatabase {
 
@@ -135,7 +134,7 @@ public class JdbcAwareGraphDatabase {
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        assertThat(openConnections).as("Connections remaining open").isEqualTo(0);
+        Assertions.assertThat(openConnections).as("Connections remaining open").isEqualTo(0);
     }
 
     private void emptyDatabase() {
@@ -146,7 +145,7 @@ public class JdbcAwareGraphDatabase {
             .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
-            assertThat(response.isSuccessful())
+            Assertions.assertThat(response.isSuccessful())
                 .describedAs(String.format("Expected to successfully call unmanaged extension at URL: %s but got status: %d", url, response.code()))
                 .isTrue();
         }
