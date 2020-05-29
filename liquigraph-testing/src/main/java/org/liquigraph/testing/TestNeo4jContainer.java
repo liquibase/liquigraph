@@ -17,12 +17,14 @@ package org.liquigraph.testing;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jetbrains.annotations.Nullable;
 import org.liquigraph.testing.extensions.ClearDatabaseExtension;
 import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.utility.MountableFile;
@@ -85,11 +87,7 @@ public class TestNeo4jContainer implements AutoCloseable {
     }
 
     private static String imageCoordinates(boolean enterprise) {
-        return String.format("neo4j:%s%s", projectNeo4jVersion(), enterprise ? "-enterprise" : "");
-    }
-
-    private static String projectNeo4jVersion() {
-        return readSingleLine("/neo4j.version");
+        return String.format("neo4j:3.5%s", enterprise ? "-enterprise" : "");
     }
 
     private static String readSingleLine(String filteredClasspathResource) {
@@ -103,13 +101,15 @@ public class TestNeo4jContainer implements AutoCloseable {
     }
 
     private static List<String> readLines(String classpathResource) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(TestNeo4jContainer.class
-        .getResourceAsStream(classpathResource)))) {
-
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(fromClasspath(classpathResource)))) {
             return reader.lines().collect(Collectors.toList());
         }
         catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static InputStream fromClasspath(String classpathResource) {
+        return TestNeo4jContainer.class.getResourceAsStream(classpathResource);
     }
 }

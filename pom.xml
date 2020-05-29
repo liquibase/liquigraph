@@ -227,7 +227,6 @@
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
                 <version>3.14.9</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
@@ -240,6 +239,12 @@
                 <artifactId>neo4j-jdbc-driver</artifactId>
                 <version>${neo4j-jdbc.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>liquigraph-testing</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
