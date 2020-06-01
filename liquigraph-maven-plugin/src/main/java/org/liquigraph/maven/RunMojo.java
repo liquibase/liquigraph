@@ -23,7 +23,7 @@ import org.liquigraph.core.configuration.ConfigurationBuilder;
  * Triggers Liquigraph execution.
  */
 @Mojo(name = "run", defaultPhase = LifecyclePhase.PROCESS_RESOURCES, threadSafe = true)
-public class RunMojo extends LiquigraphMojoBase {
+public class RunMojo extends ChangelogExecutionMojoBase {
 
     @Override
     protected ConfigurationBuilder withExecutionMode(ConfigurationBuilder configurationBuilder) {

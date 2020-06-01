@@ -15,63 +15,24 @@
  */
 package org.liquigraph.maven;
 
-import org.apache.maven.plugin.AbstractMojo;
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-public abstract class LiquigraphMojoBase extends AbstractMojo {
-
-    /**
-     * Current maven project
-     */
-    @Parameter(property = "project", required = true, readonly = true)
-    MavenProject project;
+abstract class ChangelogExecutionMojoBase extends JdbcConnectionMojoBase {
 
     /**
      * Classpath location of the master changelog file
      */
     @Parameter(property = "changelog", required = true)
     String changelog;
-
-    /**
-     * Graph JDBC URI
-     * <ul>
-     *  <li>jdbc:neo4j:http(s)://&lt;host&gt;:&lt;port&gt;/</li>
-     *  <li>jdbc:neo4j:bolt://&lt;host&gt;:&lt;port&gt;/</li>
-     * </ul>
-     */
-    @Parameter(property = "jdbcUri", required = true)
-    String jdbcUri;
-
-    /**
-     * Graph connection database.
-     * Default instance is targeted if an explicit database name is not provided.
-     */
-    @Parameter(property = "database")
-    String database;
-
-    /**
-     * Graph connection username.
-     */
-    @Parameter(property = "username")
-    String username;
-
-    /**
-     * Graph connection password.
-     */
-    @Parameter(property = "password")
-    String password;
 
     /**
      * Comma-separated execution context list.
@@ -84,11 +45,9 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
 
     @Override
     public final void execute() throws MojoExecutionException {
-        String directory = project.getBuild().getDirectory();
-
         try {
             Configuration configuration = withExecutionMode(new ConfigurationBuilder()
-                .withClassLoader(ProjectClassLoader.getClassLoader(project))
+                .withChangelogLoader(ProjectChangelogLoader.getChangelogLoader(project))
                 .withExecutionContexts(executionContexts(executionContexts))
                 .withMasterChangelogLocation(changelog)
                 .withDatabase(database)
@@ -97,10 +56,9 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
                 .withUri(jdbcUri))
                 .build();
 
-            getLog().info("Generating Cypher output file in directory: " + directory);
             new Liquigraph().runMigrations(configuration);
-
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }
@@ -112,7 +70,7 @@ public abstract class LiquigraphMojoBase extends AbstractMojo {
             return emptyList();
         }
         Collection<String> result = new ArrayList<>();
-        for (String context : asList(executionContexts.split(","))) {
+        for (String context : executionContexts.split(",")) {
             result.add(context.trim());
         }
         return result;
