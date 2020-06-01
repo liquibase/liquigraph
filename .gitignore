@@ -6,3 +6,4 @@ dependency-reduced-pom.xml
 *.iws
 .java-version
 .scannerwork
+!liquigraph-maven-plugin/src/test/projects/*/target

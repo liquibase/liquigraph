@@ -15,22 +15,23 @@
  */
 package org.liquigraph.maven;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Simulates Liquigraph execution and persists results in ${project.build.directory}/output.cypher.
  */
 @Mojo(name = "dry-run", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
-public class DryRunMojo extends LiquigraphMojoBase {
+public class DryRunMojo extends ChangelogExecutionMojoBase {
 
     @Override
     protected ConfigurationBuilder withExecutionMode(ConfigurationBuilder configurationBuilder) {
         Path outputDirectory = Paths.get(project.getBuild().getDirectory());
+        getLog().info(String.format("Generating Cypher output file in directory: %s", outputDirectory));
         return configurationBuilder.withDryRunMode(outputDirectory);
     }
 }
