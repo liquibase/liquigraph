@@ -32,6 +32,7 @@ abstract class JdbcConnectionMojoBase extends AbstractMojo {
      * <ul>
      *  <li>jdbc:neo4j:http(s)://&lt;host&gt;:&lt;port&gt;/</li>
      *  <li>jdbc:neo4j:bolt://&lt;host&gt;:&lt;port&gt;/</li>
+     *  <li>jdbc:neo4j:neo4j://&lt;host&gt;:&lt;port&gt;/</li>
      * </ul>
      */
     @Parameter(property = "jdbcUri", required = true)
