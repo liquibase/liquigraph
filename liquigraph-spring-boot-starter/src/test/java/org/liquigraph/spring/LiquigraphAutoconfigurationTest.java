@@ -15,10 +15,9 @@
  */
 package org.liquigraph.spring;
 
-import java.util.HashMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import java.util.HashMap;
 import javax.sql.DataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
@@ -26,8 +25,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.liquigraph.spring.starter.LiquigraphAutoConfiguration;
 import org.liquigraph.spring.starter.LiquigraphDataSource;
+import org.liquigraph.testing.JdbcAwareGraphDatabase;
+import org.liquigraph.testing.ParameterizedDatabaseIT;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Result;
 import org.neo4j.harness.junit.rule.Neo4jRule;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.boot.test.util.EnvironmentTestUtils;
@@ -35,10 +35,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class LiquigraphAutoconfigurationTest {
+public class LiquigraphAutoconfigurationTest extends ParameterizedDatabaseIT {
 
     static {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -46,6 +46,10 @@ public class LiquigraphAutoconfigurationTest {
 
     @ClassRule
     public static final Neo4jRule neo4j = new Neo4jRule();
+
+    public LiquigraphAutoconfigurationTest(String ignored, JdbcAwareGraphDatabase graphDb, String uri) {
+        super(ignored, graphDb, uri);
+    }
 
     @After
     public void prepare() {
