@@ -59,7 +59,7 @@ public class LiquigraphAutoconfigurationTest extends ParameterizedDatabaseIT {
     @Test
     public void runs_migrations_with_bean_configured_by_properties() {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-            loadContext(context, "liquigraph.url=" + jdbcUrl());
+            loadContext(context, "liquigraph.url=" + uri);
 
             assertThat(context.getBeansOfType(SpringLiquigraph.class))
                 .as("SpringLiquigraph is configured through properties and default settings")
@@ -73,7 +73,7 @@ public class LiquigraphAutoconfigurationTest extends ParameterizedDatabaseIT {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
             loadContext(
                 context,
-                "liquigraph.url=" + jdbcUrl(),
+                "liquigraph.url=" + uri,
                 "liquigraph.changelog=classpath:/db/liquigraph/changelog.xml"
             );
 
@@ -127,7 +127,7 @@ public class LiquigraphAutoconfigurationTest extends ParameterizedDatabaseIT {
                 context,
                 "liquigraph.changelog=classpath:/db/liquigraph/changelog-with-contexts.xml",
                 "liquigraph.executionContexts=foo,bar",
-                "liquigraph.url=" + jdbcUrl());
+                "liquigraph.url=" + uri);
 
             assertThatMigrationsHaveRun();
         }
@@ -171,10 +171,6 @@ public class LiquigraphAutoconfigurationTest extends ParameterizedDatabaseIT {
 
     private static GraphDatabaseService graphDb() {
         return neo4j.defaultDatabaseService();
-    }
-
-    private static String jdbcUrl() {
-        return "jdbc:neo4j:" + neo4j.httpURI().toString();
     }
 
     @Configuration
