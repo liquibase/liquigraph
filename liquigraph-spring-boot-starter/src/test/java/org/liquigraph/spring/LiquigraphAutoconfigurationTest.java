@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.After;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.liquigraph.spring.starter.LiquigraphAutoConfiguration;
 import org.liquigraph.spring.starter.LiquigraphDataSource;
@@ -38,6 +39,7 @@ import org.springframework.context.annotation.Primary;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+@Ignore
 public class LiquigraphAutoconfigurationTest extends ParameterizedDatabaseIT {
 
     static {
