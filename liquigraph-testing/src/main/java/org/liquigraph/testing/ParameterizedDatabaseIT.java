@@ -15,15 +15,14 @@
  */
 package org.liquigraph.testing;
 
-import java.util.Collection;
+import static java.util.Arrays.asList;
 
+import java.util.Collection;
 import org.junit.After;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-
-import static java.util.Arrays.asList;
 
 @RunWith(Parameterized.class)
 public abstract class ParameterizedDatabaseIT {
@@ -63,7 +62,7 @@ public abstract class ParameterizedDatabaseIT {
 
     @After
     public void cleanUp() {
-        communityGraphDatabase.cleanUp();
-        enterpriseGraphDatabase.cleanUp();
+        //communityGraphDatabase.cleanUp();
+        //enterpriseGraphDatabase.cleanUp();
     }
 }

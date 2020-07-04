@@ -77,6 +77,7 @@ public class TestNeo4jContainer implements AutoCloseable {
         return new Neo4jContainer<>(coordinates)
             .withAdminPassword(adminPassword)
             .withEnv("NEO4J_ACCEPT_LICENSE_AGREEMENT", "yes")
+            .withoutAuthentication()
             .withPlugins(MountableFile.forHostPath(extensionJarPath));
     }
 
