@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - 4.x
   pull_request: {}
 jobs:
   build:
@@ -58,7 +58,7 @@ jobs:
       - name: Containerized tests | Neo4j v${{ matrix.neo4j_version }}, JDBC v${{ matrix.jdbc_driver_version }}
         run: mvn --quiet --batch-mode --show-version --also-make --projects liquigraph-core,liquigraph-cli,liquigraph-maven-plugin verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
   deploy-snapshot:
-    if: github.ref == 'refs/heads/master' && github.repository == 'liquigraph/liquigraph'
+    if: github.ref == 'refs/heads/4.x' && github.repository == 'liquigraph/liquigraph'
     needs: container-tests
     runs-on: ubuntu-latest
     env:
