@@ -15,22 +15,20 @@
  */
 package org.liquigraph.core.io;
 
-import org.liquigraph.core.exception.ConditionExecutionException;
-import org.liquigraph.core.model.CompoundQuery;
-import org.liquigraph.core.model.Condition;
-import org.liquigraph.core.model.Query;
-import org.liquigraph.core.model.SimpleQuery;
-import org.neo4j.driver.exceptions.ClientException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.lang.String.format;
+import static org.liquigraph.core.exception.Preconditions.checkArgument;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import static java.lang.String.format;
-import static org.liquigraph.core.exception.Preconditions.checkArgument;
+import org.liquigraph.core.exception.ConditionExecutionException;
+import org.liquigraph.core.model.CompoundQuery;
+import org.liquigraph.core.model.Condition;
+import org.liquigraph.core.model.Query;
+import org.liquigraph.core.model.SimpleQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConditionExecutor {
 
@@ -63,7 +61,7 @@ public class ConditionExecutor {
             resultSet.next();
             return resultSet.getBoolean("result");
         }
-        catch (SQLException | ClientException e) {
+        catch (SQLException e) {
             throw new ConditionExecutionException(e, "\nError executing condition:\n" +
                "\tMake sure your query <%s> yields exactly one column named or aliased 'result'.\n" +
                "\tActual cause: %s", query, e.getMessage());

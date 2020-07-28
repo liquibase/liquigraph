@@ -37,6 +37,7 @@
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-jdbc-driver</artifactId>
             <version>${neo4j-jdbc.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
