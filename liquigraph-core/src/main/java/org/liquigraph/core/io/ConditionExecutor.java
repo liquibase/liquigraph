@@ -20,7 +20,6 @@ import org.liquigraph.core.model.CompoundQuery;
 import org.liquigraph.core.model.Condition;
 import org.liquigraph.core.model.Query;
 import org.liquigraph.core.model.SimpleQuery;
-import org.neo4j.driver.v1.exceptions.ClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +62,7 @@ public class ConditionExecutor {
             resultSet.next();
             return resultSet.getBoolean("result");
         }
-        catch (SQLException | ClientException e) {
+        catch (SQLException e) {
             throw new ConditionExecutionException(e, "\nError executing condition:\n" +
                "\tMake sure your query <%s> yields exactly one column named or aliased 'result'.\n" +
                "\tActual cause: %s", query, e.getMessage());

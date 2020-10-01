@@ -44,6 +44,7 @@
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-jdbc-http</artifactId>
             <version>${neo4j-jdbc.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
