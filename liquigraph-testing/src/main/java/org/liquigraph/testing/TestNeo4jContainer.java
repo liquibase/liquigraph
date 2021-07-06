@@ -15,6 +15,9 @@
  */
 package org.liquigraph.testing;
 
+import org.testcontainers.containers.Neo4jContainer;
+import org.testcontainers.utility.MountableFile;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,9 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.testcontainers.containers.Neo4jContainer;
-import org.testcontainers.utility.MountableFile;
 
 public class TestNeo4jContainer implements AutoCloseable {
 
@@ -81,11 +81,19 @@ public class TestNeo4jContainer implements AutoCloseable {
     }
 
     private static String imageCoordinates(boolean enterprise) {
-        return String.format("neo4j:%s%s", projectNeo4jVersion(), enterprise ? "-enterprise" : "");
+        String version = projectNeo4jVersion();
+        if (version.equals("latest") || version.equals("community")) {
+            if (enterprise) {
+                return "neo4j:enterprise";
+            }
+            return String.format("neo4j:%s", version);
+        }
+        return String.format("neo4j:%s%s", version, enterprise ? "-enterprise" : "");
     }
 
     private static String projectNeo4jVersion() {
-        return readSingleLine("/neo4j.version");
+        String neo4jVersion = System.getenv("NEO4J_VERSION");
+        return neo4jVersion == null ? "latest" : neo4jVersion;
     }
 
     private static String readSingleLine(String filteredClasspathResource) {
@@ -93,18 +101,15 @@ public class TestNeo4jContainer implements AutoCloseable {
         int lineCount = lines.size();
         if (lineCount != 1) {
             throw new RuntimeException(String
-            .format("%s (filtered) resource should contain exactly 1 line, found: %d", filteredClasspathResource, lineCount));
+                .format("%s (filtered) resource should contain exactly 1 line, found: %d", filteredClasspathResource, lineCount));
         }
         return lines.iterator().next();
     }
 
     private static List<String> readLines(String classpathResource) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(TestNeo4jContainer.class
-        .getResourceAsStream(classpathResource)))) {
-
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(TestNeo4jContainer.class.getResourceAsStream(classpathResource)))) {
             return reader.lines().collect(Collectors.toList());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

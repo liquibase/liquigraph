@@ -15,47 +15,53 @@
  */
 package org.liquigraph.examples.spring;
 
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Session;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-import javax.sql.DataSource;
 
 @SpringBootApplication
 @RestController
 public class SampleController {
 
-    private final DataSource dataSource;
+    private final Driver driver;
 
-    public SampleController(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public SampleController(Driver driver) {
+        this.driver = driver;
     }
 
     @GetMapping(value = "/", produces = "text/plain")
-    String home() throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            if (!statement.execute("MATCH (n:Sentence) RETURN n.text AS result")) {
-                throw new RuntimeException("Could not execute query");
-            }
-            return extract("result", statement.getResultSet());
-        }
-    }
-
-    private String extract(String columnLabel, ResultSet results) throws SQLException {
-        try (ResultSet resultSet = results) {
-            resultSet.next();
-            return resultSet.getString(columnLabel);
+    String home() {
+        try (Session session = driver.session()) {
+            return session.readTransaction(tx -> {
+                Result result = tx.run("MATCH (n:Sentence) RETURN n.text AS result");
+                return result.single().get("result").asString();
+            });
         }
     }
 
     public static void main(String[] args) {
         SpringApplication.run(SampleController.class, args);
+    }
+
+
+    @Configuration
+    static class DriverConfig {
+
+        @Bean
+        public Driver driver(@Value("${neo4j.url}") String uri,
+                             @Value("${neo4j.username}") String username,
+                             @Value("${neo4j.password}") String password) {
+
+            return GraphDatabase.driver(uri, AuthTokens.basic(username, password));
+        }
     }
 }
