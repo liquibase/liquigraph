@@ -28,8 +28,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
@@ -57,14 +55,11 @@ public class ChangelogGraphWriter implements ChangelogWriter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogGraphWriter.class);
 
-    private final Connection writeConnection;
     private final Supplier<Connection> connectionSupplier;
     private final ConditionExecutor conditionExecutor;
 
-    public ChangelogGraphWriter(Connection writeConnection,
-                                Supplier<Connection> connectionSupplier,
+    public ChangelogGraphWriter(Supplier<Connection> connectionSupplier,
                                 ConditionExecutor conditionExecutor) {
-        this.writeConnection = writeConnection;
         this.connectionSupplier = connectionSupplier;
         this.conditionExecutor = conditionExecutor;
     }
@@ -113,12 +108,12 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     }
 
     private void executeChangesetQueries(Collection<String> queries) throws SQLException {
-        try (Statement statement = writeConnection.createStatement()) {
+        try (Connection connection = connectionSupplier.get(); Statement statement = connection.createStatement()) {
             for (String query : queries) {
                 statement.execute(query);
                 LOGGER.debug("Executing query: {}", query);
             }
-            writeConnection.commit();
+            connection.commit();
             LOGGER.debug("Committing transaction");
         }
     }
@@ -166,8 +161,8 @@ public class ChangelogGraphWriter implements ChangelogWriter {
     }
 
     private void insertChangeset(Changeset changeset) {
-        try (PreparedStatement changesetUpsertStatement = writeConnection.prepareStatement(CHANGESET_UPSERT);
-             PreparedStatement queryUpsertStatement = writeConnection.prepareStatement(QUERY_UPSERT)) {
+        try (Connection connection = connectionSupplier.get(); PreparedStatement changesetUpsertStatement = connection.prepareStatement(CHANGESET_UPSERT);
+             PreparedStatement queryUpsertStatement = connection.prepareStatement(QUERY_UPSERT)) {
 
             String id = changeset.getId();
             String author = changeset.getAuthor();
@@ -187,7 +182,7 @@ public class ChangelogGraphWriter implements ChangelogWriter {
                 queryUpsertStatement.execute();
             }
 
-            writeConnection.commit();
+            connection.commit();
         } catch (SQLException e) {
             throw propagate(e);
         }
