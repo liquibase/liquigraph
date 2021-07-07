@@ -33,6 +33,8 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.function.Supplier;
 
+import static java.util.Collections.emptyList;
+
 class MigrationRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationRunner.class);
@@ -62,19 +64,24 @@ class MigrationRunner {
     public void runMigrations(Configuration configuration) {
         Collection<Changeset> declaredChangesets = parseChangesets(configuration.changelogLoader(), configuration.masterChangelog());
         Supplier<Connection> connectionSupplier = new ConnectionSupplier(new GraphJdbcConnector(configuration));
-        try (Connection writeConnection = connectionSupplier.get()) {
-            Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, writeConnection);
+        Collection<Changeset> applicableChangeSets = getChangelog(configuration, connectionSupplier, declaredChangesets);
+        writeApplicableChangesets(configuration, connectionSupplier, applicableChangeSets);
+    }
 
-            Collection<Changeset> changelog = changelogDiffMaker.computeChangesetsToInsert(
-                configuration.executionContexts(),
-                declaredChangesets,
+    private Collection<Changeset> getChangelog(Configuration configuration, Supplier<Connection> connectionSupplier,
+        Collection<Changeset> declaredChangesets) {
+        try (Connection connection = connectionSupplier.get()) {
+            Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, connection);
+
+            return changelogDiffMaker.computeChangesetsToInsert(
+                configuration.executionContexts(), declaredChangesets,
                 persistedChangesets
             );
 
-            writeApplicableChangesets(configuration, writeConnection, connectionSupplier, changelog);
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
         }
+        return emptyList();
     }
 
     private Collection<Changeset> parseChangesets(ChangelogLoader changelogLoader, String masterChangelog) {
@@ -91,11 +98,9 @@ class MigrationRunner {
     }
 
     private void writeApplicableChangesets(Configuration configuration,
-                                           Connection writeConnection,
                                            Supplier<Connection> connectionSupplier,
                                            Collection<Changeset> changelogsToInsert) {
         ChangelogWriter changelogWriter = configuration.resolveWriter(
-          writeConnection,
           connectionSupplier,
           conditionExecutor,
           conditionPrinter

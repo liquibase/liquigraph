@@ -90,14 +90,13 @@ public final class Configuration {
         return executionMode;
     }
 
-    public ChangelogWriter resolveWriter(Connection writeConnection,
-                                         Supplier<Connection> connectionSupplier,
+    public ChangelogWriter resolveWriter(Supplier<Connection> connectionSupplier,
                                          ConditionExecutor conditionExecutor,
                                          ConditionPrinter conditionPrinter) {
 
         ExecutionMode executionMode = executionMode();
         if (executionMode == RunMode.RUN_MODE) {
-            return new ChangelogGraphWriter(writeConnection, connectionSupplier, conditionExecutor);
+            return new ChangelogGraphWriter(connectionSupplier, conditionExecutor);
         }
         if (executionMode instanceof DryRunMode) {
             DryRunMode dryRunMode = (DryRunMode) executionMode;

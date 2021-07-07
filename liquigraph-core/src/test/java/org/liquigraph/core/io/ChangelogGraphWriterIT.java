@@ -46,7 +46,6 @@ public class ChangelogGraphWriterIT extends ParameterizedDatabaseIT {
         graphDb
             .commitNewConnection(uri, connection -> {
                 ChangelogGraphWriter writer = new ChangelogGraphWriter(
-                connection,
                 graphDb.asConnectionSupplier(uri),
                 new ConditionExecutor());
 
@@ -78,7 +77,6 @@ public class ChangelogGraphWriterIT extends ParameterizedDatabaseIT {
         graphDb
             .commitNewConnection(uri, connection -> {
                 ChangelogGraphWriter writer = new ChangelogGraphWriter(
-                connection,
                 graphDb.asConnectionSupplier(uri),
                 new ConditionExecutor());
                 Precondition precondition = precondition(PreconditionErrorPolicy.FAIL, "RETURN true AS result");
@@ -113,7 +111,6 @@ public class ChangelogGraphWriterIT extends ParameterizedDatabaseIT {
         () -> {
             graphDb.commitNewConnection(uri, connection -> {
                 ChangelogGraphWriter writer = new ChangelogGraphWriter(
-                connection,
                 graphDb.asConnectionSupplier(uri),
                 new ConditionExecutor());
 
@@ -132,7 +129,6 @@ public class ChangelogGraphWriterIT extends ParameterizedDatabaseIT {
         graphDb
             .commitNewConnection(uri, connection -> {
                 ChangelogGraphWriter writer = new ChangelogGraphWriter(
-                connection,
                 graphDb.asConnectionSupplier(uri),
                 new ConditionExecutor());
                 Precondition precondition = precondition(PreconditionErrorPolicy.CONTINUE, "RETURN false AS result");
@@ -156,7 +152,6 @@ public class ChangelogGraphWriterIT extends ParameterizedDatabaseIT {
         graphDb
             .commitNewConnection(uri, connection -> {
                 ChangelogGraphWriter writer = new ChangelogGraphWriter(
-                connection,
                 graphDb.asConnectionSupplier(uri),
                 new ConditionExecutor());
                 Precondition precondition = precondition(PreconditionErrorPolicy.MARK_AS_EXECUTED, "RETURN false AS result");
@@ -191,7 +186,6 @@ public class ChangelogGraphWriterIT extends ParameterizedDatabaseIT {
         graphDb
             .commitNewConnection(uri, connection -> {
                 ChangelogGraphWriter writer = new ChangelogGraphWriter(
-                connection,
                 graphDb.asConnectionSupplier(uri),
                 new ConditionExecutor());
                 Changeset changeset = changeset("id", "fbiville", asList("CREATE (n:Human) RETURN n", "MATCH (n:Human) SET n.age = 42 RETURN n"));
@@ -223,7 +217,6 @@ public class ChangelogGraphWriterIT extends ParameterizedDatabaseIT {
         graphDb
             .commitNewConnection(uri, connection -> {
                 ChangelogGraphWriter writer = new ChangelogGraphWriter(
-                connection,
                 graphDb.asConnectionSupplier(uri),
                 new ConditionExecutor());
                 Changeset changeset = changeset("identifier", "fbiville",
@@ -264,7 +257,6 @@ public class ChangelogGraphWriterIT extends ParameterizedDatabaseIT {
         graphDb
             .commitNewConnection(uri, connection -> {
                 ChangelogGraphWriter writer = new ChangelogGraphWriter(
-                connection,
                 graphDb.asConnectionSupplier(uri),
                 new ConditionExecutor());
 
@@ -311,7 +303,8 @@ public class ChangelogGraphWriterIT extends ParameterizedDatabaseIT {
                     "       (n)-[:IS_RELATED_TO]->(n3:OtherNode)");
             })
             .commitNewConnection(uri, connection -> {
-                ChangelogGraphWriter writer = new ChangelogGraphWriter(connection, graphDb.asConnectionSupplier(uri), new ConditionExecutor());
+                ChangelogGraphWriter writer = new ChangelogGraphWriter(
+                graphDb.asConnectionSupplier(uri), new ConditionExecutor());
                 Changeset changeset = changeset("identifier", "fbiville",
                 "MATCH (n:SomeNode)-[r:IS_RELATED_TO]->(n2) " +
                 "WITH n, r, n2 " +
