@@ -112,8 +112,7 @@ public class JdbcAwareGraphDatabase {
                     connection.close();
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
@@ -123,10 +122,14 @@ public class JdbcAwareGraphDatabase {
     }
 
     private void emptyDatabase() throws SQLException {
-        try (Connection connection = newConnection(this.boltJdbcUrl())) {
-            try (Statement statement = connection.createStatement()) {
-                statement.execute("CALL clearDb()");
-            }
+        try (Connection connection = newConnection(this.boltJdbcUrl());
+             Statement statement = connection.createStatement()) {
+            statement.execute("CALL clearDb()");
+            connection.commit();
+        }
+        try (Connection connection = newConnection(this.boltJdbcUrl());
+             Statement statement = connection.createStatement()) {
+            statement.execute("CALL clearSchema()");
             connection.commit();
         }
     }
@@ -135,8 +138,7 @@ public class JdbcAwareGraphDatabase {
         try (Connection connection = newConnection(url)) {
             connectionConsumer.accept(connection);
             return this;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -147,8 +149,7 @@ public class JdbcAwareGraphDatabase {
             connection.setAutoCommit(false);
             connections.add(connection);
             return connection;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
