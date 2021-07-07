@@ -10,12 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        neo4j_version:
-          - 4.0.0
-          - 4.0.6
-        jdbc_driver_version:
-          - 4.0.0
+        os: [ubuntu-latest, windows-latest]
     steps:
       - name: Setup Java
         uses: actions/setup-java@v1
@@ -29,19 +24,21 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Unit tests on ${{ matrix.os }} | Neo4j v${{ matrix.neo4j_version }}, JDBC v${{ matrix.jdbc_driver_version }}
-        run: mvn --quiet --batch-mode --show-version package -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
+      - name: Unit tests on ${{ matrix.os }}
+        run: mvn --quiet --batch-mode --show-version package
+        env:
+          NEO4J_VERSION: ${{ matrix.neo4j_version }}
   container-tests:
     needs: build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        neo4j_version:
-          - 4.0.0
-          - 4.0.6
-        jdbc_driver_version:
-          - 4.0.0
+        neo4j_version: # EE or CE is driven by `org.liquigraph.testing.TestNeo4jContainer`
+          - 4.0.11
+          - 4.1.9
+          - 4.2.9
+          - 4.3.2
     steps:
       - name: Setup Java
         uses: actions/setup-java@v1
@@ -55,8 +52,8 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Containerized tests | Neo4j v${{ matrix.neo4j_version }}, JDBC v${{ matrix.jdbc_driver_version }}
-        run: mvn --quiet --batch-mode --show-version --also-make --projects liquigraph-core,liquigraph-cli,liquigraph-maven-plugin verify -D"neo4j.version"=${{ matrix.neo4j_version }} -D"neo4j-jdbc.version"=${{ matrix.jdbc_driver_version }}
+      - name: Containerized tests | Neo4j v${{ matrix.neo4j_version }}
+        run: mvn --quiet --batch-mode --show-version verify
   deploy-snapshot:
     if: github.ref == 'refs/heads/4.x' && github.repository == 'liquigraph/liquigraph'
     needs: container-tests

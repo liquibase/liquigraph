@@ -6,8 +6,3 @@ update_configs:
     default_reviewers:
       - "fbiville"
     target_branch: "4.x"
-    ignored_updates:
-      - match:
-          dependency_name: "org.neo4j:neo4j*"
-      - match:
-          dependency_name: "org.springframework*"

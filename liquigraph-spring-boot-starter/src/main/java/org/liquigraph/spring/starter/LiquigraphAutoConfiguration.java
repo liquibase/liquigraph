@@ -15,7 +15,6 @@
  */
 package org.liquigraph.spring.starter;
 
-import javax.sql.DataSource;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.spring.SpringChangelogLoader;
 import org.liquigraph.spring.SpringLiquigraph;
@@ -31,6 +30,10 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
+
+import javax.sql.DataSource;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for Liquigraph.
@@ -80,12 +83,20 @@ public class LiquigraphAutoConfiguration {
             if (datasourceUrl != null) {
                 return DataSourceBuilder
                     .create()
-                        .url(datasourceUrl)
-                        .username(properties.getUser())
-                        .password(properties.getPassword())
+                    .url(datasourceUrl)
+                    .username(properties.getUser())
+                    .password(properties.getPassword())
                     .build();
             }
             return dataSource;
+        }
+
+        private String getNeo4jScheme(String datasourceUrl) {
+            try {
+                return new URI(datasourceUrl.replace("jdbc:neo4j:", "")).getScheme();
+            } catch (URISyntaxException e) {
+                throw new RuntimeException("Could not parse data source URL to derive JDBC driver class name", e);
+            }
         }
     }
 }

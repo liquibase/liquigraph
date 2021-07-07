@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<changelog xmlns="http://www.liquigraph.org/schema/1.0/liquigraph.xsd">
+<changelog xmlns="https://www.liquigraph.org/schema/1.0/liquigraph.xsd">
     <changeset id="hello-world" author="you">
         <query>CREATE (n:Sentence {text:'Hello monde!'}) RETURN n</query>
     </changeset>

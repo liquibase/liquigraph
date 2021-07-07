@@ -15,12 +15,12 @@
  */
 package org.liquigraph.testing.extensions;
 
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.ConstraintDefinition;
 import org.neo4j.graphdb.schema.IndexDefinition;
+import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.procedure.Context;
 import org.neo4j.procedure.Mode;
 import org.neo4j.procedure.Procedure;
@@ -28,20 +28,18 @@ import org.neo4j.procedure.Procedure;
 public class ClearDatabaseExtension {
 
     @Context
-    public GraphDatabaseService graphDb;
+    public Transaction currentTransaction;
 
-    @Procedure(name = "clearDb", mode = Mode.SCHEMA)
-    public void clear() {
-        try (Transaction transaction = graphDb.beginTx()) {
-            transaction.getAllRelationships().forEach(Relationship::delete);
-            transaction.getAllNodes().forEach(Node::delete);
-            transaction.commit();
-        }
+    @Procedure(name = "clearDb", mode = Mode.WRITE)
+    public void clearDb() {
+        currentTransaction.getAllRelationships().forEach(Relationship::delete);
+        currentTransaction.getAllNodes().forEach(Node::delete);
+    }
 
-        try (Transaction transaction = graphDb.beginTx()) {
-            transaction.schema().getConstraints().forEach(ConstraintDefinition::drop);
-            transaction.schema().getIndexes().forEach(IndexDefinition::drop);
-            transaction.commit();
-        }
+    @Procedure(name = "clearSchema", mode = Mode.SCHEMA)
+    public void clearSchema() {
+        Schema schema = currentTransaction.schema();
+        schema.getConstraints().forEach(ConstraintDefinition::drop);
+        schema.getIndexes().forEach(IndexDefinition::drop);
     }
 }
