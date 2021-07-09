@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Unit tests on ${{ matrix.os }} | Neo4j v${{ matrix.neo4j_version }}, JDBC v${{ matrix.jdbc_driver_version }}
+      - name: Unit tests on ${{ matrix.os }} | Neo4j v${{ matrix.neo4j_version }}
         shell: bash
         run: |
           mvn --quiet --batch-mode --show-version package -D"neo4j.version"=${{ matrix.neo4j_version }}
@@ -51,7 +51,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Containerized tests | Neo4j v${{ matrix.neo4j_version }}, JDBC v${{ matrix.jdbc_driver_version }}
+      - name: Containerized tests | Neo4j v${{ matrix.neo4j_version }}
         run: |
           mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }}
   deploy-snapshot:
