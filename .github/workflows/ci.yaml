@@ -29,10 +29,7 @@ jobs:
       - name: Unit tests on ${{ matrix.os }} | Neo4j v${{ matrix.neo4j_version }}, JDBC v${{ matrix.jdbc_driver_version }}
         shell: bash
         run: |
-          if [[ "${{ matrix.neo4j_version }}" == 3.5* ]] ; then
-            EXTRA_ARGS='-P!with-jetty-workaround'
-          fi
-          mvn --quiet --batch-mode --show-version package -D"neo4j.version"=${{ matrix.neo4j_version }} ${EXTRA_ARGS}
+          mvn --quiet --batch-mode --show-version package -D"neo4j.version"=${{ matrix.neo4j_version }}
   container-tests:
     needs: build
     runs-on: ubuntu-latest
@@ -52,9 +49,6 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Containerized tests | Neo4j v${{ matrix.neo4j_version }}, JDBC v${{ matrix.jdbc_driver_version }}
         run: |
-          if "${{ matrix.neo4j_version }}" == 3.5* ]] ; then
-            EXTRA_ARGS='-P!with-jetty-workaround'
-          fi
           mvn --quiet --batch-mode --show-version verify -D"neo4j.version"=${{ matrix.neo4j_version }}
   deploy-snapshot:
     if: github.ref == 'refs/heads/3.x' && github.repository == 'liquigraph/liquigraph'
