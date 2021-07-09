@@ -12,7 +12,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         neo4j_version:
-          - 3.5.18
+          - 3.5.29
     steps:
       - uses: actions/checkout@v2
       - name: Cache ~/.m2/repository
@@ -37,7 +37,7 @@ jobs:
       fail-fast: false
       matrix:
         neo4j_version:
-          - 3.5.18
+          - 3.5.29
     steps:
       - uses: actions/checkout@v2
       - name: Cache ~/.m2/repository
