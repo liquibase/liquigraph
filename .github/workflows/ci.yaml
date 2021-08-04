@@ -35,8 +35,8 @@ jobs:
       fail-fast: false
       matrix:
         neo4j_version: # EE or CE is driven by `org.liquigraph.testing.TestNeo4jContainer`
-          - 4.0.11
-          - 4.1.9
+          - 4.0.12
+          - 4.1.10
           - 4.2.9
           - 4.3.2
     steps:
