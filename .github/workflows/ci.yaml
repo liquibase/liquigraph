@@ -37,8 +37,8 @@ jobs:
         neo4j_version: # EE or CE is driven by `org.liquigraph.testing.TestNeo4jContainer`
           - 4.0.12
           - 4.1.10
-          - 4.2.9
-          - 4.3.2
+          - 4.2.11
+          - 4.3.3
     steps:
       - name: Setup Java
         uses: actions/setup-java@v1
