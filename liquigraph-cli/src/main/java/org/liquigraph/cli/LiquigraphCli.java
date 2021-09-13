@@ -22,7 +22,15 @@ import org.liquigraph.cli.commands.Run;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.api.LiquigraphApi;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public final class LiquigraphCli {
+
+    static {
+        Logger root = Logger.getLogger("");
+        root.setLevel(Level.SEVERE);
+    }
 
     private final LiquigraphApi liquigraph;
 
