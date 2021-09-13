@@ -15,7 +15,7 @@
  */
 package org.liquigraph.core.configuration.validators;
 
-import org.liquigraph.core.io.xml.ChangelogLoader;
+import org.liquigraph.core.io.ChangelogLoader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,9 +27,7 @@ import static java.lang.String.format;
 public class MandatoryOptionValidator {
 
     public Collection<String> validate(ChangelogLoader loader, String masterChangelog) {
-        Collection<String> errors = new LinkedList<>();
-        errors.addAll(validateMasterChangelog(masterChangelog, loader));
-        return errors;
+        return new LinkedList<>(validateMasterChangelog(masterChangelog, loader));
     }
 
     private static Collection<String> validateMasterChangelog(String masterChangelog, ChangelogLoader loader) {

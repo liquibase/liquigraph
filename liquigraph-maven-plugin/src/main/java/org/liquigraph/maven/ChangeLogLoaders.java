@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.io;
+package org.liquigraph.maven;
 
-import org.liquigraph.core.model.Changeset;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.project.MavenProject;
+import org.liquigraph.core.io.ChangelogLoader;
 
-import java.util.Collection;
+import java.net.MalformedURLException;
 
-public interface ChangelogWriter {
+class ChangeLogLoaders {
 
-    void write(Collection<Changeset> changelogsToInsert);
+    public static ChangelogLoader changeLogLoader(MavenProject project) throws DependencyResolutionRequiredException, MalformedURLException {
+        return ProjectChangelogLoader.getChangelogLoader(project);
+    }
 }

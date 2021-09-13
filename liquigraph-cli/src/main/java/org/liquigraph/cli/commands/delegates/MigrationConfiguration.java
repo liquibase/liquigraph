@@ -25,8 +25,8 @@ import java.util.Objects;
 import com.beust.jcommander.Parameter;
 import org.liquigraph.cli.io.ClassLoaders;
 import org.liquigraph.cli.io.Files;
-import org.liquigraph.core.io.xml.ChangelogLoader;
-import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
+import org.liquigraph.core.io.ChangelogLoader;
+import org.liquigraph.core.io.ClassLoaderChangelogLoader;
 
 import static java.util.Collections.emptyList;
 

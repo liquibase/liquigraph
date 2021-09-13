@@ -15,13 +15,7 @@
  */
 package org.liquigraph.maven;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.sql.ResultSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
+import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.plugin.testing.resources.TestResources;
 import org.junit.Before;
@@ -29,6 +23,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.liquigraph.testing.JdbcAwareGraphDatabase;
 import org.liquigraph.testing.ParameterizedDatabaseIT;
+
+import java.io.File;
+import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,9 +40,9 @@ public class LiquigraphMavenPluginIT extends ParameterizedDatabaseIT {
     @Rule
     public TestResources resources = new TestResources();
 
-    private ChangelogExecutionMojoBase runMojo;
+    private Mojo runMojo;
 
-    private ChangelogExecutionMojoBase dryRunMojo;
+    private Mojo dryRunMojo;
 
     private File projectBaseDir;
 
@@ -52,7 +52,7 @@ public class LiquigraphMavenPluginIT extends ParameterizedDatabaseIT {
 
     @Before
     public void prepare() throws Exception {
-        projectBaseDir = prepareProject("test-project");
+        projectBaseDir = new ProjectProcessor(resources).process("test-project", "pom.xml.tpl", substitutions());
         runMojo = configureMojo(new RunMojo(), projectBaseDir);
         dryRunMojo = configureMojo(new DryRunMojo(), projectBaseDir);
     }
@@ -85,20 +85,17 @@ public class LiquigraphMavenPluginIT extends ParameterizedDatabaseIT {
                     + "MATCH (n:Sentence {text:'Hello monde!'}) SET n.text='Hello world!' RETURN n");
     }
 
-    private ChangelogExecutionMojoBase configureMojo(ChangelogExecutionMojoBase mojo, File projectBaseDir) throws Exception {
+    private <T extends ProjectAwareMojo> T configureMojo(T mojo, File projectBaseDir) throws Exception {
         mojo.setProject(new ProjectStub(projectBaseDir));
         rule.configureMojo(mojo, "liquigraph-maven-plugin", new File(projectBaseDir, "pom.xml"));
         return mojo;
     }
 
-    private File prepareProject(String projectName) throws IOException {
-        Map<String, String> substitutions = new LinkedHashMap<>();
+    private Map<String, String> substitutions() {
+        Map<String, String> substitutions = new HashMap<>(2);
         substitutions.put("__JDBC_URI__", uri);
         substitutions.put("__JDBC_ADMIN_PASSWORD__", graphDb.password().get());
-        File baseDir = resources.getBasedir(projectName);
-        File template = new File(baseDir, "pom.xml.tpl");
-        PomTemplates.substitute(template, substitutions);
-        return baseDir;
+        return substitutions;
     }
 
 }

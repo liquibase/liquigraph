@@ -15,7 +15,7 @@
  */
 package org.liquigraph.spring;
 
-import org.liquigraph.core.io.xml.ChangelogLoader;
+import org.liquigraph.core.io.ChangelogLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 

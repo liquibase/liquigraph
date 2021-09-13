@@ -15,20 +15,36 @@
  */
 package org.liquigraph.maven;
 
+import org.apache.maven.plugin.testing.resources.TestResources;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.Map;
 
-public class PomTemplates {
+public class ProjectProcessor {
 
-    public static File substitute(File inputFile, Map<String, String> substitutions) {
-        String contents = readInput(inputFile);
-        String updatedContents = substitute(substitutions, contents);
-        File newFile = new File(inputFile.getParent(), "pom.xml");
-        writeOutput(newFile, updatedContents);
-        return newFile;
+    private final TestResources resources;
+
+    public ProjectProcessor(TestResources resources) {
+        this.resources = resources;
+    }
+
+    public File process(String projectName, String templateName) throws IOException {
+        return process(projectName, templateName, Collections.emptyMap());
+    }
+
+    public File process(String projectName, String templateName, Map<String, String> substitutions) throws IOException {
+        File inputFile = new File(resources.getBasedir(projectName), templateName);
+        return substitute(inputFile, substitutions).getParentFile();
+    }
+
+    private static File substitute(File inputFile, Map<String, String> substitutions) {
+        File outputFile = new File(inputFile.getParent(), "pom.xml");
+        writeOutput(outputFile, substitute(substitutions, readInput(inputFile)));
+        return outputFile;
     }
 
     private static String readInput(File inputFile) {

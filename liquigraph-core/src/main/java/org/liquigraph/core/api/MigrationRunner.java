@@ -17,12 +17,12 @@ package org.liquigraph.core.api;
 
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.io.ChangelogGraphReader;
+import org.liquigraph.core.io.ChangelogParser;
 import org.liquigraph.core.io.ChangelogWriter;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
 import org.liquigraph.core.io.GraphJdbcConnector;
-import org.liquigraph.core.io.xml.ChangelogLoader;
-import org.liquigraph.core.io.xml.ChangelogParser;
+import org.liquigraph.core.io.ChangelogLoader;
 import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
 import org.slf4j.Logger;
@@ -69,7 +69,7 @@ class MigrationRunner {
     }
 
     private Collection<Changeset> getChangelog(Configuration configuration, Supplier<Connection> connectionSupplier,
-        Collection<Changeset> declaredChangesets) {
+                                               Collection<Changeset> declaredChangesets) {
         try (Connection connection = connectionSupplier.get()) {
             Collection<Changeset> persistedChangesets = readPersistedChangesets(declaredChangesets, connection);
 
@@ -101,9 +101,9 @@ class MigrationRunner {
                                            Supplier<Connection> connectionSupplier,
                                            Collection<Changeset> changelogsToInsert) {
         ChangelogWriter changelogWriter = configuration.resolveWriter(
-          connectionSupplier,
-          conditionExecutor,
-          conditionPrinter
+            connectionSupplier,
+            conditionExecutor,
+            conditionPrinter
         );
         changelogWriter.write(changelogsToInsert);
     }

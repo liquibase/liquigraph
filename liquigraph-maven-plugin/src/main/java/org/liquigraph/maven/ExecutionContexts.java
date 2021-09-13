@@ -13,13 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.io;
+package org.liquigraph.maven;
 
-import org.liquigraph.core.model.Changeset;
-
+import java.util.ArrayList;
 import java.util.Collection;
 
-public interface ChangelogWriter {
+import static java.util.Collections.emptyList;
 
-    void write(Collection<Changeset> changelogsToInsert);
+class ExecutionContexts {
+
+    public static Collection<String> executionContexts(String executionContexts) {
+        if (executionContexts.isEmpty()) {
+            return emptyList();
+        }
+        Collection<String> result = new ArrayList<>();
+        for (String context : executionContexts.split(",")) {
+            result.add(context.trim());
+        }
+        return result;
+    }
 }

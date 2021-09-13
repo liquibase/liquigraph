@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.io.xml;
+package org.liquigraph.core.io;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -34,7 +33,7 @@ public final class ClassLoaderChangelogLoader implements ChangelogLoader {
   }
 
   @Override
-  public InputStream load(String changelog) throws IOException {
+  public InputStream load(String changelog) {
     return classLoader.getResourceAsStream(changelog);
   }
 

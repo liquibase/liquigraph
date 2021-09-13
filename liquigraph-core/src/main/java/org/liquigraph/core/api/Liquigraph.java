@@ -19,12 +19,16 @@ import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
-import org.liquigraph.core.io.GraphJdbcConnector;
-import org.liquigraph.core.io.xml.ChangelogParser;
+import org.liquigraph.core.io.LiquibaseMigrator;
+import org.liquigraph.core.io.ChangelogLoader;
+import org.liquigraph.core.io.ChangelogParser;
 import org.liquigraph.core.io.xml.ChangelogPreprocessor;
+import org.liquigraph.core.io.xml.ChangelogXmlParser;
 import org.liquigraph.core.io.xml.ImportResolver;
 import org.liquigraph.core.io.xml.XmlSchemaValidator;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
+
+import java.util.Collection;
 
 /**
  * Liquigraph facade in charge of migration execution.
@@ -33,14 +37,18 @@ public final class Liquigraph implements LiquigraphApi {
 
     private final MigrationRunner migrationRunner;
 
+    private final LiquibaseMigrator liquibaseMigrator;
+
     public Liquigraph() {
+        ChangelogParser parser = changelogParser(xmlSchemaValidator(), changelogPreprocessor(importResolver()));
         migrationRunner = migrationRunner(
-            changelogParser(xmlSchemaValidator(), changelogPreprocessor(importResolver())),
+            parser,
             changelogGraphReader(),
             changelogDiffMaker(),
             conditionExecutor(),
             conditionPrinter()
         );
+        liquibaseMigrator = new LiquibaseMigrator(parser);
     }
 
     private static MigrationRunner migrationRunner(ChangelogParser changelogParser, ChangelogGraphReader changelogGraphReader, ChangelogDiffMaker changelogDiffMaker, ConditionExecutor conditionExecutor, ConditionPrinter conditionPrinter) {
@@ -75,7 +83,7 @@ public final class Liquigraph implements LiquigraphApi {
     }
 
     private static ChangelogParser changelogParser(XmlSchemaValidator validator, ChangelogPreprocessor preprocessor) {
-        return new ChangelogParser(validator, preprocessor);
+        return new ChangelogXmlParser(validator, preprocessor);
     }
 
     private static ChangelogPreprocessor changelogPreprocessor(ImportResolver resolver) {
@@ -93,5 +101,10 @@ public final class Liquigraph implements LiquigraphApi {
     @Override
     public void runMigrations(Configuration configuration) {
         migrationRunner.runMigrations(configuration);
+    }
+
+    @Override
+    public void migrateDeclaredChangeSets(String changelog, Collection<String> executionContexts, String targetDirectory, ChangelogLoader changelogLoader) {
+        liquibaseMigrator.migrate(changelog, executionContexts, targetDirectory, changelogLoader);
     }
 }

@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import org.junit.After;
@@ -34,6 +35,8 @@ import org.mockito.ArgumentCaptor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.liquigraph.core.configuration.RunMode.RUN_MODE;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -109,77 +112,97 @@ public class LiquigraphCliTest {
     @Test
     public void executes_minimal_migration() {
         String uri = "jdbc:neo4j:bolt://example.com";
-        String masterChangelog = "changelog.xml";
+        String mainChangelog = "changelog.xml";
 
         cli.execute(new String[] {
             "run",
             "--graph-db-uri", uri,
-            "--changelog", masterChangelog
+            "--changelog", mainChangelog
         });
 
         ArgumentCaptor<Configuration> captor = ArgumentCaptor.forClass(Configuration.class);
         verify(liquigraph).runMigrations(captor.capture());
         Configuration configuration = captor.getValue();
-        assertThat(configuration.masterChangelog()).isEqualTo(masterChangelog);
+        assertThat(configuration.masterChangelog()).isEqualTo(mainChangelog);
         assertThat(configuration.executionMode()).isEqualTo(RUN_MODE);
     }
 
     @Test
     public void executes_minimal_migration_with_short_options() {
         String uri = "jdbc:neo4j:bolt://example.com";
-        String masterChangelog = "changelog.xml";
+        String mainChangelog = "changelog.xml";
 
         cli.execute(new String[] {
             "run",
             "-g", uri,
-            "-c", masterChangelog
+            "-c", mainChangelog
         });
 
         ArgumentCaptor<Configuration> captor = ArgumentCaptor.forClass(Configuration.class);
         verify(liquigraph).runMigrations(captor.capture());
         Configuration configuration = captor.getValue();
-        assertThat(configuration.masterChangelog()).isEqualTo(masterChangelog);
+        assertThat(configuration.masterChangelog()).isEqualTo(mainChangelog);
         assertThat(configuration.executionMode()).isEqualTo(RUN_MODE);
     }
 
     @Test
     public void dry_runs_minimal_migration() {
         String uri = "jdbc:neo4j:bolt://example.com";
-        String masterChangelog = "changelog.xml";
+        String mainChangelog = "changelog.xml";
         File dryRunDirectory = temporaryFolder.getRoot();
 
         cli.execute(new String[] {
             "dry-run",
             "--dry-run-output-directory", dryRunDirectory.getPath(),
             "--graph-db-uri", uri,
-            "--changelog", masterChangelog
+            "--changelog", mainChangelog
         });
 
         ArgumentCaptor<Configuration> captor = ArgumentCaptor.forClass(Configuration.class);
         verify(liquigraph).runMigrations(captor.capture());
         Configuration configuration = captor.getValue();
-        assertThat(configuration.masterChangelog()).isEqualTo(masterChangelog);
+        assertThat(configuration.masterChangelog()).isEqualTo(mainChangelog);
         assertThat(configuration.executionMode()).isEqualTo(new DryRunMode(dryRunDirectory.toPath()));
     }
 
     @Test
     public void dry_runs_minimal_migration_with_short_options() {
         String uri = "jdbc:neo4j:bolt://example.com";
-        String masterChangelog = "changelog.xml";
+        String mainChangelog = "changelog.xml";
         File dryRunDirectory = temporaryFolder.getRoot();
 
         cli.execute(new String[] {
             "dry-run",
             "-d", dryRunDirectory.getPath(),
             "-g", uri,
-            "-c", masterChangelog
+            "-c", mainChangelog
         });
 
         ArgumentCaptor<Configuration> captor = ArgumentCaptor.forClass(Configuration.class);
         verify(liquigraph).runMigrations(captor.capture());
         Configuration configuration = captor.getValue();
-        assertThat(configuration.masterChangelog()).isEqualTo(masterChangelog);
+        assertThat(configuration.masterChangelog()).isEqualTo(mainChangelog);
         assertThat(configuration.executionMode()).isEqualTo(new DryRunMode(dryRunDirectory.toPath()));
+    }
+
+    @Test
+    public void migrates_declared_change_sets_to_Liquibase_format() {
+        String mainChangelog = "changelog.xml";
+        File targetDirectory = temporaryFolder.getRoot();
+
+        cli.execute(new String[] {
+            "migrate-declared-change-sets",
+            "-d", targetDirectory.getPath(),
+            "-x", "foo,bar",
+            "-c", mainChangelog
+        });
+
+        verify(liquigraph).migrateDeclaredChangeSets(
+            eq(mainChangelog),
+            eq(Arrays.asList("foo", "bar")),
+            eq(targetDirectory.getPath()),
+            any()
+        );
     }
 
     private String commandOutput() throws Exception {

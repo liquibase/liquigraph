@@ -15,13 +15,20 @@
  */
 package org.liquigraph.maven;
 
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.liquigraph.core.api.Liquigraph;
-import org.liquigraph.core.configuration.Configuration;
-import org.liquigraph.core.configuration.ConfigurationBuilder;
 
-abstract class ChangelogExecutionMojoBase extends JdbcConnectionMojoBase {
+import java.net.MalformedURLException;
+
+import static org.liquigraph.maven.ChangeLogLoaders.changeLogLoader;
+import static org.liquigraph.maven.ExecutionContexts.executionContexts;
+
+@Mojo(name = "migrate-declared-change-sets", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
+public class MigrateDeclaredChangeSetsMojo extends ProjectAwareMojo {
 
     /**
      * Classpath location of the main change log file
@@ -39,23 +46,18 @@ abstract class ChangelogExecutionMojoBase extends JdbcConnectionMojoBase {
 
     private final Liquigraph liquigraph = new Liquigraph();
 
+
     @Override
-    public final void execute() throws MojoExecutionException {
+    public void execute() throws MojoExecutionException {
         try {
-            liquigraph.runMigrations(withExecutionMode(new ConfigurationBuilder()
-                .withChangelogLoader(ChangeLogLoaders.changeLogLoader(project))
-                .withExecutionContexts(ExecutionContexts.executionContexts(executionContexts))
-                .withMasterChangelogLocation(changelog)
-                .withDatabase(database)
-                .withUsername(username)
-                .withPassword(password)
-                .withUri(jdbcUri))
-                .build());
-        } catch (Exception e) {
-            throw new MojoExecutionException(e.getMessage(), e);
+            liquigraph.migrateDeclaredChangeSets(
+                changelog,
+                executionContexts(executionContexts),
+                project.getBuild().getDirectory(),
+                changeLogLoader(project)
+            );
+        } catch (DependencyResolutionRequiredException | MalformedURLException e) {
+            throw new MojoExecutionException("Could not migrate declared change sets", e);
         }
     }
-
-    protected abstract ConfigurationBuilder withExecutionMode(ConfigurationBuilder configurationBuilder);
-
 }
