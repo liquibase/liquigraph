@@ -19,10 +19,11 @@ import org.assertj.core.api.iterable.Extractor;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.liquigraph.core.io.xml.ChangelogLoader;
-import org.liquigraph.core.io.xml.ChangelogParser;
+import org.liquigraph.core.io.ChangelogLoader;
+import org.liquigraph.core.io.ChangelogParser;
 import org.liquigraph.core.io.xml.ChangelogPreprocessor;
-import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
+import org.liquigraph.core.io.xml.ChangelogXmlParser;
+import org.liquigraph.core.io.ClassLoaderChangelogLoader;
 import org.liquigraph.core.io.xml.ImportResolver;
 import org.liquigraph.core.io.xml.XmlSchemaValidator;
 import org.liquigraph.core.model.AndQuery;
@@ -58,7 +59,7 @@ public class ChangelogParserTest {
     private final ChangelogPreprocessor preprocessor = new ChangelogPreprocessor(new ImportResolver());
     private final ChangelogLoader changelogLoader = ClassLoaderChangelogLoader.currentThreadContextClassLoader();
 
-    private final ChangelogParser parser = new ChangelogParser(validator, preprocessor);
+    private final ChangelogParser parser = new ChangelogXmlParser(validator, preprocessor);
 
     @Test
     public void parses_single_changelog() {
@@ -176,7 +177,7 @@ public class ChangelogParserTest {
         XmlSchemaValidator validator = mock(XmlSchemaValidator.class);
         when(validator.validateSchema(any(Node.class))).thenReturn(errors);
 
-        Field field = ChangelogParser.class.getDeclaredField("validator");
+        Field field = ChangelogXmlParser.class.getDeclaredField("validator");
         field.setAccessible(true);
         field.set(parser, validator);
     }

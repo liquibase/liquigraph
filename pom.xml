@@ -230,6 +230,11 @@
                 <version>4.3.3</version>
             </dependency>
             <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>4.4.3</version>
+            </dependency>
+            <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j-jdbc-bolt</artifactId>
                 <version>${neo4j-jdbc.version}</version>

@@ -15,16 +15,16 @@
  */
 package org.liquigraph.maven;
 
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.project.MavenProject;
+import org.liquigraph.core.io.ChangelogLoader;
+import org.liquigraph.core.io.ClassLoaderChangelogLoader;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
-
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
-import org.apache.maven.project.MavenProject;
-import org.liquigraph.core.io.xml.ChangelogLoader;
-import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
 
 class ProjectChangelogLoader {
 

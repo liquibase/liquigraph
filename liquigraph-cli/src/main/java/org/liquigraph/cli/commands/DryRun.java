@@ -28,8 +28,8 @@ import org.liquigraph.cli.io.Files;
 import org.liquigraph.core.api.LiquigraphApi;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
-import org.liquigraph.core.io.xml.ChangelogLoader;
-import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
+import org.liquigraph.core.io.ChangelogLoader;
+import org.liquigraph.core.io.ClassLoaderChangelogLoader;
 
 @Parameters(commandDescription = "Simulate the execution of Liquigraph migrations")
 public final class DryRun implements LiquigraphCommand {

@@ -15,12 +15,13 @@
  */
 package org.liquigraph.spring;
 
-import javax.sql.DataSource;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.configuration.Configuration;
 import org.liquigraph.core.configuration.ConfigurationBuilder;
-import org.liquigraph.core.io.xml.ChangelogLoader;
+import org.liquigraph.core.io.ChangelogLoader;
 import org.springframework.beans.factory.InitializingBean;
+
+import javax.sql.DataSource;
 
 import static java.util.Arrays.asList;
 

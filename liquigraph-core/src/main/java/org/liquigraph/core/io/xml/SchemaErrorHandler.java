@@ -30,7 +30,7 @@ import java.util.List;
  */
 class SchemaErrorHandler implements ErrorHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangelogXmlParser.class);
     private final List<String> errors = new ArrayList<>();
 
     public Collection<String> getErrors() {

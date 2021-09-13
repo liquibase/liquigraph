@@ -17,11 +17,11 @@ package org.liquigraph.core.configuration;
 
 import org.liquigraph.core.io.ChangelogFileWriter;
 import org.liquigraph.core.io.ChangelogGraphWriter;
+import org.liquigraph.core.io.ChangelogLoader;
 import org.liquigraph.core.io.ChangelogWriter;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
-import org.liquigraph.core.io.xml.ChangelogLoader;
-import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
+import org.liquigraph.core.io.ClassLoaderChangelogLoader;
 
 import java.sql.Connection;
 import java.util.function.Supplier;

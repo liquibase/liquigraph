@@ -15,6 +15,7 @@
  */
 package org.liquigraph.core.configuration;
 
+import org.liquigraph.core.model.Changeset;
 import org.liquigraph.core.model.predicates.ExecutionContextsMatchAnyContext;
 
 import java.util.Collection;
@@ -32,6 +33,10 @@ public class ExecutionContexts {
 
     private ExecutionContexts(Optional<Collection<String>> contexts) {
         anyContext = ExecutionContextsMatchAnyContext.BY_ANY_CONTEXT(contexts);
+    }
+
+    public boolean matches(Changeset changeset) {
+        return matches(Optional.ofNullable(changeset.getExecutionsContexts()));
     }
 
     public boolean matches(Optional<Collection<String>> declaredContexts) {

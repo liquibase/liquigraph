@@ -19,35 +19,16 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-abstract class JdbcConnectionMojoBase extends ProjectAwareMojo {
+public abstract class ProjectAwareMojo extends AbstractMojo {
 
     /**
-     * Graph JDBC URI
-     * <ul>
-     *  <li>jdbc:neo4j:http(s)://&lt;host&gt;:&lt;port&gt;/</li>
-     *  <li>jdbc:neo4j:bolt://&lt;host&gt;:&lt;port&gt;/</li>
-     *  <li>jdbc:neo4j:neo4j://&lt;host&gt;:&lt;port&gt;/</li>
-     * </ul>
+     * Current Maven project
      */
-    @Parameter(property = "jdbcUri", required = true)
-    String jdbcUri;
+    @Parameter(property = "project", required = true, readonly = true)
+    MavenProject project;
 
-    /**
-     * Graph connection database.
-     * Default instance is targeted if an explicit database name is not provided.
-     */
-    @Parameter(property = "database")
-    String database;
-
-    /**
-     * Graph connection username.
-     */
-    @Parameter(property = "username")
-    String username;
-
-    /**
-     * Graph connection password.
-     */
-    @Parameter(property = "password")
-    String password;
+    // visible for testing
+    void setProject(MavenProject project) {
+        this.project = project;
+    }
 }

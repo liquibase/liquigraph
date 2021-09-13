@@ -49,10 +49,10 @@ public abstract class ParameterizedDatabaseIT {
         enterpriseGraphDatabase.ensureStarted();
 
         return asList(new Object[][] {
-//            {"Community Edition - Bolt", communityGraphDatabase, communityGraphDatabase.boltJdbcUrl()},
-//            {"Community Edition - HTTP", communityGraphDatabase, communityGraphDatabase.httpJdbcUrl()},
+            {"Community Edition - Bolt", communityGraphDatabase, communityGraphDatabase.boltJdbcUrl()},
+            {"Community Edition - HTTP", communityGraphDatabase, communityGraphDatabase.httpJdbcUrl()},
             {"Enterprise Edition - Bolt", enterpriseGraphDatabase, enterpriseGraphDatabase.boltJdbcUrl()},
-//            {"Enterprise Edition - HTTP", enterpriseGraphDatabase, enterpriseGraphDatabase.httpJdbcUrl()},
+            {"Enterprise Edition - HTTP", enterpriseGraphDatabase, enterpriseGraphDatabase.httpJdbcUrl()},
         });
     }
 

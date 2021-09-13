@@ -38,6 +38,10 @@
             <artifactId>neo4j-jdbc-driver</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>

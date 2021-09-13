@@ -16,8 +16,8 @@
 package org.liquigraph.core.configuration.validators;
 
 import org.junit.Test;
-import org.liquigraph.core.io.xml.ChangelogLoader;
-import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
+import org.liquigraph.core.io.ChangelogLoader;
+import org.liquigraph.core.io.ClassLoaderChangelogLoader;
 
 import java.util.Collection;
 
@@ -25,9 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MandatoryOptionValidatorTest {
 
-    private MandatoryOptionValidator validator = new MandatoryOptionValidator();
+    private final MandatoryOptionValidator validator = new MandatoryOptionValidator();
 
-    private ChangelogLoader changelogLoader = ClassLoaderChangelogLoader.currentThreadContextClassLoader();
+    private final ChangelogLoader changelogLoader = ClassLoaderChangelogLoader.currentThreadContextClassLoader();
 
     @Test
     public void fails_on_invalid_changelog_location() {

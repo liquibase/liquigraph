@@ -15,11 +15,20 @@
  */
 package org.liquigraph.core.io;
 
-import org.liquigraph.core.model.Changeset;
+import java.io.IOException;
+import java.io.InputStream;
 
-import java.util.Collection;
+/**
+ * Loader for changelog files.
+ */
+public interface ChangelogLoader {
 
-public interface ChangelogWriter {
-
-    void write(Collection<Changeset> changelogsToInsert);
+  /**
+   * Loads the given changelog.
+   *
+   * @param changelog the changelog to load
+   * @return an input stream of the loaded changelog or <code>null</code> if it does not exists
+   * @throws IOException if anything bad happens
+   */
+  InputStream load(String changelog) throws IOException;
 }

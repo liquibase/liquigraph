@@ -15,6 +15,8 @@
  */
 package org.liquigraph.core.io.xml;
 
+import org.liquigraph.core.io.ChangelogLoader;
+import org.liquigraph.core.io.ChangelogParser;
 import org.liquigraph.core.model.Changelog;
 import org.liquigraph.core.model.Changeset;
 import org.w3c.dom.Node;
@@ -26,14 +28,14 @@ import java.util.Collection;
 
 import static java.lang.String.format;
 
-public final class ChangelogParser {
+public final class ChangelogXmlParser implements ChangelogParser {
 
     private static final String SEPARATOR = System.lineSeparator() + "\t";
     private final ChangelogPreprocessor preprocessor;
     private final Unmarshaller unmarshaller;
     private final XmlSchemaValidator validator;
 
-    public ChangelogParser(XmlSchemaValidator validator, ChangelogPreprocessor preprocessor) {
+    public ChangelogXmlParser(XmlSchemaValidator validator, ChangelogPreprocessor preprocessor) {
         this.validator = validator;
         this.preprocessor = preprocessor;
         try {
@@ -48,12 +50,13 @@ public final class ChangelogParser {
      * to a <code>Changelog</code> object.
      *
      * @param changelogLoader The changelog loader which loads the masterChangelog
-     * @param masterChangelog Filename of the master changelog
+     * @param mainChangelogPath Filename of the master changelog
      * @return A <code>Changelog</code> object that correspond to the XML file
      * @throws IllegalArgumentException if there is an error during the conversion
      */
-    public Collection<Changeset> parse(ChangelogLoader changelogLoader, String masterChangelog) {
-        return parseChangelog(changelogLoader, masterChangelog).getChangesets();
+    @Override
+    public Collection<Changeset> parse(ChangelogLoader changelogLoader, String mainChangelogPath) {
+        return parseChangelog(changelogLoader, mainChangelogPath).getChangesets();
     }
 
     private Changelog parseChangelog(ChangelogLoader changelogLoader, String masterChangelog) {

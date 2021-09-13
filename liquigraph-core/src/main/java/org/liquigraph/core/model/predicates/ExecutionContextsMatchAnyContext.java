@@ -32,6 +32,13 @@ public class ExecutionContextsMatchAnyContext implements Predicate<String> {
 
     @Override
     public boolean test(String input) {
-        return !contexts.isPresent() || contexts.get().contains(input);
+        if (contexts.isEmpty()) {
+            return true;
+        }
+        Collection<String> contexts = this.contexts.get();
+        if (contexts.isEmpty()) {
+            return true;
+        }
+        return contexts.contains(input);
     }
 }

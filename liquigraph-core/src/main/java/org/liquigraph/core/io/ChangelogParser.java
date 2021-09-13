@@ -13,22 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.liquigraph.core.io.xml;
+package org.liquigraph.core.io;
 
-import java.io.IOException;
-import java.io.InputStream;
+import org.liquigraph.core.model.Changeset;
 
-/**
- * Loader for changelog files.
- */
-public interface ChangelogLoader {
+import java.util.Collection;
 
-  /**
-   * Loads the given changelog.
-   *
-   * @param changelog the changelog to load
-   * @return an input stream of the loaded changelog or <code>null</code> if it does not exists
-   * @throws IOException if anything bad happens
-   */
-  InputStream load(String changelog) throws IOException;
+public interface ChangelogParser {
+
+    Collection<Changeset> parse(ChangelogLoader changelogLoader, String mainChangelogPath);
 }

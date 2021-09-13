@@ -18,25 +18,28 @@ package org.liquigraph.core.io.xml;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.liquigraph.core.io.ChangelogLoader;
+import org.liquigraph.core.io.ClassLoaderChangelogLoader;
 import org.w3c.dom.Node;
-
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ImportResolverTest {
 
     @Rule public ExpectedException thrown = ExpectedException.none();
-    private ImportResolver resolver = new ImportResolver();
-    private ChangelogLoader changelogLoader = ClassLoaderChangelogLoader.currentThreadContextClassLoader();
+
+    private final ImportResolver resolver = new ImportResolver();
+
+    private final ChangelogLoader changelogLoader = ClassLoaderChangelogLoader.currentThreadContextClassLoader();
 
     @Test
     public void yields_same_document_when_no_imports_are_defined() throws Exception {

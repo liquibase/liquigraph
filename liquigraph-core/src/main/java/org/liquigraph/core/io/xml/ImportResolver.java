@@ -15,6 +15,7 @@
  */
 package org.liquigraph.core.io.xml;
 
+import org.liquigraph.core.io.ChangelogLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

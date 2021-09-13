@@ -16,6 +16,9 @@
 package org.liquigraph.core.api;
 
 import org.liquigraph.core.configuration.Configuration;
+import org.liquigraph.core.io.ChangelogLoader;
+
+import java.util.Collection;
 
 public interface LiquigraphApi {
 
@@ -27,4 +30,14 @@ public interface LiquigraphApi {
      * @see org.liquigraph.core.configuration.ConfigurationBuilder to create {@link org.liquigraph.core.configuration.Configuration instances}
      */
     void runMigrations(Configuration configuration);
+
+    /**
+     * Migrates the provided declared change sets to the Liquibase XML format, optionally filtered by the provided execution contexts
+     *
+     * @param changelog configuration of the changelog location
+     * @param executionContexts optional execution contexts, used to filter change sets
+     * @param targetDirectory target directory into which the Liquibase change sets will be serialized
+     * @param changelogLoader changelog loader
+     */
+    void migrateDeclaredChangeSets(String changelog, Collection<String> executionContexts, String targetDirectory, ChangelogLoader changelogLoader);
 }

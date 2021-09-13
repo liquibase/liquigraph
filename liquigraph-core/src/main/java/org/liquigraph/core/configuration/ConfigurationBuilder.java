@@ -20,8 +20,8 @@ import org.liquigraph.core.configuration.validators.DatasourceConfigurationValid
 import org.liquigraph.core.configuration.validators.ExecutionModeValidator;
 import org.liquigraph.core.configuration.validators.MandatoryOptionValidator;
 import org.liquigraph.core.configuration.validators.UserCredentialsOptionValidator;
-import org.liquigraph.core.io.xml.ChangelogLoader;
-import org.liquigraph.core.io.xml.ClassLoaderChangelogLoader;
+import org.liquigraph.core.io.ChangelogLoader;
+import org.liquigraph.core.io.ClassLoaderChangelogLoader;
 
 import javax.sql.DataSource;
 import java.nio.file.Path;
