@@ -22,30 +22,35 @@ import com.beust.jcommander.Parameter;
 public class Connectivity {
 
     @Parameter(
-        names = {"--graph-db-uri", "-g"},
-        description = "Graph JDBC URI:\n" +
+        names = {"--graph-db-uri", "--uri", "--url", "-g"},
+        description = "JDBC URI:\n" +
             "\t- jdbc:neo4j:http://host:port/\n" +
             "\t- jdbc:neo4j:https://host:port/\n" +
-            "\t- jdbc:neo4j:bolt://host:port/\n",
+            "\t- jdbc:neo4j:bolt://host:port/\n" +
+            "\t- jdbc:neo4j:bolt+s://host:port/\n" +
+            "\t- jdbc:neo4j:bolt+ssc://host:port/\n" +
+            "\t- jdbc:neo4j:neo4j://host:port/\n" +
+            "\t- jdbc:neo4j:neo4j+s://host:port/\n" +
+            "\t- jdbc:neo4j:neo4j+ssc://host:port/\n",
         required = true
     )
     private String graphDbUri;
 
     @Parameter(
         names = {"--database", "-db"},
-        description = "Graph DB database (remote only)"
+        description = "Database name"
     )
     private String database;
 
     @Parameter(
         names = {"--username", "-u"},
-        description = "Graph DB username (remote only)"
+        description = "Username"
     )
     private String username;
 
     @Parameter(
         names = {"--password", "-p"},
-        description = "Graph DB password (remote only)",
+        description = "Password",
         password = true
     )
     private String password;

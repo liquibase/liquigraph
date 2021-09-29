@@ -21,14 +21,17 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.liquigraph.core.api.Liquigraph;
+import org.liquigraph.core.configuration.Connections;
 
+import java.io.File;
 import java.net.MalformedURLException;
+import java.util.Optional;
 
 import static org.liquigraph.maven.ChangeLogLoaders.changeLogLoader;
 import static org.liquigraph.maven.ExecutionContexts.executionContexts;
 
-@Mojo(name = "migrate-declared-change-sets", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
-public class MigrateDeclaredChangeSetsMojo extends ProjectAwareMojo {
+@Mojo(name = "migrate-to-liquibase", defaultPhase = LifecyclePhase.PREPARE_PACKAGE, threadSafe = true)
+public class MigrateToLiquibaseMojo extends JdbcConnectionMojoBase {
 
     /**
      * Classpath location of the main change log file
@@ -44,6 +47,18 @@ public class MigrateDeclaredChangeSetsMojo extends ProjectAwareMojo {
     @Parameter(property = "executionContexts", defaultValue = "")
     String executionContexts = "";
 
+    /**
+     * Resulting XML file, where the Liquibase change sets are written to
+     */
+    @Parameter(property = "liquibaseFileName", defaultValue = "liquibase.xml")
+    String liquibaseFileName;
+
+    /**
+     * Whether to delete the Liquigraph graph once the migration to Liquibase is complete
+     */
+    @Parameter(property = "deleteLiquigraphGraph")
+    boolean deleteLiquigraphGraph;
+
     private final Liquigraph liquigraph = new Liquigraph();
 
 
@@ -53,8 +68,19 @@ public class MigrateDeclaredChangeSetsMojo extends ProjectAwareMojo {
             liquigraph.migrateDeclaredChangeSets(
                 changelog,
                 executionContexts(executionContexts),
-                project.getBuild().getDirectory(),
+                new File(project.getBuild().getDirectory(), liquibaseFileName),
                 changeLogLoader(project)
+            );
+            liquigraph.migratePersistedChangeSets(
+                Connections.provide(
+                    Optional.of(jdbcUri),
+                    Optional.ofNullable(database),
+                    Optional.ofNullable(username),
+                    Optional.ofNullable(password),
+                    Optional.empty()
+                ),
+                liquibaseFileName,
+                deleteLiquigraphGraph
             );
         } catch (DependencyResolutionRequiredException | MalformedURLException e) {
             throw new MojoExecutionException("Could not migrate declared change sets", e);

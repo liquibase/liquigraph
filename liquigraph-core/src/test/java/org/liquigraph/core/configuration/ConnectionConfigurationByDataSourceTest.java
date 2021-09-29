@@ -27,10 +27,10 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import static org.junit.rules.ExpectedException.none;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 
 public class ConnectionConfigurationByDataSourceTest {
 
@@ -39,7 +39,7 @@ public class ConnectionConfigurationByDataSourceTest {
 
     @Test
     public void connects_via_the_provided_datasource() throws SQLException {
-        DataSource dataSource = mock(DataSource.class);
+        DataSource dataSource = mock(DataSource.class, RETURNS_DEEP_STUBS);
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByDataSource(
             dataSource,
             Optional.<String>empty(),
@@ -53,7 +53,7 @@ public class ConnectionConfigurationByDataSourceTest {
 
     @Test
     public void connects_via_the_provided_datasource_with_passwordless_authentication() throws SQLException {
-        DataSource dataSource = mock(DataSource.class);
+        DataSource dataSource = mock(DataSource.class, RETURNS_DEEP_STUBS);
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByDataSource(
             dataSource,
             Optional.of("user"),
@@ -67,7 +67,7 @@ public class ConnectionConfigurationByDataSourceTest {
 
     @Test
     public void connects_via_the_provided_datasource_with_authentication() throws SQLException {
-        DataSource dataSource = mock(DataSource.class);
+        DataSource dataSource = mock(DataSource.class, RETURNS_DEEP_STUBS);
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByDataSource(
             dataSource,
             Optional.of("user"),
@@ -81,7 +81,7 @@ public class ConnectionConfigurationByDataSourceTest {
 
     @Test
     public void propagates_any_datasource_access_exceptions() throws SQLException {
-        DataSource dataSource = mock(DataSource.class);
+        DataSource dataSource = mock(DataSource.class, RETURNS_DEEP_STUBS);
         when(dataSource.getConnection()).thenThrow(SQLException.class);
         Supplier<Connection> connectionProvider = new ConnectionConfigurationByDataSource(
             dataSource,
@@ -108,5 +108,22 @@ public class ConnectionConfigurationByDataSourceTest {
 
 
         connectionProvider.get();
+    }
+
+    @Test
+    public void disables_autocommit() throws SQLException {
+        DataSource dataSource = mock(DataSource.class);
+        Connection initialConnection = mock(Connection.class);
+        when(dataSource.getConnection("user", "s3cr3t")).thenReturn(initialConnection);
+        Supplier<Connection> connectionProvider = new ConnectionConfigurationByDataSource(
+            dataSource,
+            Optional.of("user"),
+            Optional.of("s3cr3t")
+        );
+
+        Connection connection = connectionProvider.get();
+
+        // verify works since connection is same instance as initialConnection
+        verify(connection).setAutoCommit(false);
     }
 }

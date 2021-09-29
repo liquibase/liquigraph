@@ -14,6 +14,11 @@
                 <artifactId>liquigraph-maven-plugin</artifactId>
                 <configuration>
                     <changelog>changelog.xml</changelog>
+                    <liquibaseFileName>liquibase.xml</liquibaseFileName>
+                    <deleteLiquigraphGraph>true</deleteLiquigraphGraph>
+                    <jdbcUri>__JDBC_URI__</jdbcUri>
+                    <username>neo4j</username>
+                    <password>__JDBC_ADMIN_PASSWORD__</password>
                 </configuration>
             </plugin>
         </plugins>

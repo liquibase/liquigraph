@@ -16,8 +16,10 @@
 package org.liquigraph.core.api;
 
 import org.liquigraph.core.configuration.Configuration;
+import org.liquigraph.core.configuration.ConnectionConfiguration;
 import org.liquigraph.core.io.ChangelogLoader;
 
+import java.io.File;
 import java.util.Collection;
 
 public interface LiquigraphApi {
@@ -34,10 +36,19 @@ public interface LiquigraphApi {
     /**
      * Migrates the provided declared change sets to the Liquibase XML format, optionally filtered by the provided execution contexts
      *
-     * @param changelog configuration of the changelog location
+     * @param changelog changelog file location
      * @param executionContexts optional execution contexts, used to filter change sets
-     * @param targetDirectory target directory into which the Liquibase change sets will be serialized
+     * @param targetFile target file where the migrated change sets are written to
      * @param changelogLoader changelog loader
      */
-    void migrateDeclaredChangeSets(String changelog, Collection<String> executionContexts, String targetDirectory, ChangelogLoader changelogLoader);
+    void migrateDeclaredChangeSets(String changelog, Collection<String> executionContexts, File targetFile, ChangelogLoader changelogLoader);
+
+    /**
+     * Migrates the stored change log execution history from Liquigraph to Liquibase format.
+     *
+     * @param connectionConfiguration configuration specifying how to connect to the target server
+     * @param changelog changelog file location
+     * @param deleteMigratedGraph whether the existing execution history graph should be deleted after the migration completes
+     */
+    void migratePersistedChangeSets(ConnectionConfiguration connectionConfiguration, String changelog, boolean deleteMigratedGraph);
 }

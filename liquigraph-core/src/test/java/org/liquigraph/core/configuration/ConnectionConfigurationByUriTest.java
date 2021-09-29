@@ -21,6 +21,7 @@ import org.junit.rules.ExpectedException;
 import org.liquigraph.core.configuration.ConnectionConfigurationByUri.UriConnectionSupplier;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
@@ -49,6 +50,22 @@ public class ConnectionConfigurationByUriTest {
         Connection connection = connectionProvider.get();
 
         assertThat(connection).isSameAs(expectedConnection);
+    }
+    @Test
+    public void disables_autocommit() throws SQLException {
+        Connection expectedConnection = mock(Connection.class);
+        Supplier<Connection> connectionProvider = new ConnectionConfigurationByUri(
+            "jdbc:neo4j:mem:mydb",
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty(),
+            new MockedConnectionSupplier(expectedConnection)
+        );
+
+        Connection connection = connectionProvider.get();
+
+        assertThat(connection).isSameAs(expectedConnection);
+        assertThat(connection.getAutoCommit()).isFalse();
     }
 
     @Test

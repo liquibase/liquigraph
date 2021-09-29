@@ -19,6 +19,7 @@ package org.liquigraph.core.configuration;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -70,12 +71,27 @@ public class ConnectionConfigurationByUri implements ConnectionConfiguration {
         @Override
         public Connection getConnection(String uri, Properties properties) {
             try {
-                return DriverManager.getConnection(uri, properties);
+                Connection connection = DriverManager.getConnection(uri, properties);
+                connection.setAutoCommit(false);
+                return connection;
             } catch (SQLException e) {
                 throw propagate(e);
             }
         }
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConnectionConfigurationByUri that = (ConnectionConfigurationByUri) o;
+        return Objects.equals(uri, that.uri) && Objects.equals(properties, that.properties);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uri, properties);
     }
 
     // visible for testing
