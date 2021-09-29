@@ -16,7 +16,7 @@
 package org.liquigraph.cli;
 
 import org.liquigraph.cli.commands.DryRun;
-import org.liquigraph.cli.commands.MigrateDeclaredChangeSets;
+import org.liquigraph.cli.commands.MigrateToLiquibase;
 import org.liquigraph.cli.commands.Run;
 import org.liquigraph.core.api.Liquigraph;
 import org.liquigraph.core.api.LiquigraphApi;
@@ -39,7 +39,7 @@ public final class LiquigraphCli {
     public LiquigraphCli(LiquigraphApi liquigraph) {
         this.liquigraph = liquigraph;
         this.registry = new LiquigraphCommandRegistry()
-            .registerCommand("migrate-declared-change-sets", new MigrateDeclaredChangeSets())
+            .registerCommand("migrate-to-liquibase", new MigrateToLiquibase())
             .registerCommand("dry-run", new DryRun())
             .registerCommand("run", new Run());
     }

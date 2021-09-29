@@ -17,6 +17,7 @@ package org.liquigraph.core.io;
 
 import liquibase.change.core.RawSQLChange;
 import liquibase.changelog.ChangeSet;
+import liquibase.ext.neo4j.changelog.Neo4jChangelogHistoryService;
 import liquibase.precondition.core.AndPrecondition;
 import liquibase.precondition.core.OrPrecondition;
 import liquibase.precondition.core.PreconditionContainer;
@@ -54,13 +55,17 @@ import static org.mockito.Mockito.when;
 
 public class LiquibaseMigratorTest {
 
-    private final ChangelogParser reader = mock(ChangelogParser.class);
+    private final ChangelogParser parser = mock(ChangelogParser.class);
 
-    private final ChangeLogSerializer writer = mock(ChangeLogSerializer.class);
+    private final ChangeLogSerializer fileWriter = mock(ChangeLogSerializer.class);
+
+    private final ChangelogGraphReader graphReader = mock(ChangelogGraphReader.class);
+
+    private final Neo4jChangelogHistoryService graphWriter = mock(Neo4jChangelogHistoryService.class);
 
     private final ChangelogLoader loader = mock(ChangelogLoader.class);
 
-    private final LiquibaseMigrator migrator = new LiquibaseMigrator(reader, writer);
+    private final LiquibaseMigrator migrator = new LiquibaseMigrator(parser, graphReader, fileWriter, graphWriter);
 
     @Rule
     public TemporaryFolder folder = TemporaryFolder.builder().build();
@@ -71,12 +76,12 @@ public class LiquibaseMigratorTest {
         liquigraphChangeSet.setId("id");
         liquigraphChangeSet.setAuthor("author");
         liquigraphChangeSet.setQueries(singletonList("RETURN 42"));
-        when(reader.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
-        List<ChangeSet> expectedChangeSets = singletonList(changeSet("id", "author", false, false, "", "RETURN 42"));
+        when(parser.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
+        List<ChangeSet> expectedChangeSets = singletonList(changeSet("result.xml", "id", "author", false, false, "", "RETURN 42"));
 
-        migrator.migrate("some-changelog.xml", Collections.emptyList(), folder.newFolder().getPath(), loader);
+        migrator.migrateDeclaredChangeSets("some-changelog.xml", Collections.emptyList(), folder.newFile("result.xml"), loader);
 
-        verify(writer).write(argThat(matchesChangeSets(expectedChangeSets)), any());
+        verify(fileWriter).write(argThat(matchesChangeSets(expectedChangeSets)), any());
     }
 
     @Test
@@ -86,12 +91,12 @@ public class LiquibaseMigratorTest {
         liquigraphChangeSet.setAuthor("author");
         liquigraphChangeSet.setQueries(singletonList("RETURN 42"));
         liquigraphChangeSet.setRunAlways(true);
-        when(reader.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
-        List<ChangeSet> expectedChangeSets = singletonList(changeSet("id", "author", true, false, "", "RETURN 42"));
+        when(parser.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
+        List<ChangeSet> expectedChangeSets = singletonList(changeSet("result.xml", "id", "author", true, false, "", "RETURN 42"));
 
-        migrator.migrate("some-changelog.xml", Collections.emptyList(), folder.newFolder().getPath(), loader);
+        migrator.migrateDeclaredChangeSets("some-changelog.xml", Collections.emptyList(), folder.newFile("result.xml"), loader);
 
-        verify(writer).write(argThat(matchesChangeSets(expectedChangeSets)), any());
+        verify(fileWriter).write(argThat(matchesChangeSets(expectedChangeSets)), any());
     }
 
     @Test
@@ -101,12 +106,12 @@ public class LiquibaseMigratorTest {
         liquigraphChangeSet.setAuthor("author");
         liquigraphChangeSet.setQueries(singletonList("RETURN 42"));
         liquigraphChangeSet.setRunOnChange(true);
-        when(reader.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
-        List<ChangeSet> expectedChangeSets = singletonList(changeSet("id", "author", false, true, "", "RETURN 42"));
+        when(parser.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
+        List<ChangeSet> expectedChangeSets = singletonList(changeSet("result.xml", "id", "author", false, true, "", "RETURN 42"));
 
-        migrator.migrate("some-changelog.xml", Collections.emptyList(), folder.newFolder().getPath(), loader);
+        migrator.migrateDeclaredChangeSets("some-changelog.xml", Collections.emptyList(), folder.newFile("result.xml"), loader);
 
-        verify(writer).write(argThat(matchesChangeSets(expectedChangeSets)), any());
+        verify(fileWriter).write(argThat(matchesChangeSets(expectedChangeSets)), any());
     }
 
     @Test
@@ -116,12 +121,12 @@ public class LiquibaseMigratorTest {
         liquigraphChangeSet.setAuthor("author");
         liquigraphChangeSet.setQueries(singletonList("RETURN 42"));
         liquigraphChangeSet.setContexts("foo, bar");
-        when(reader.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
-        List<ChangeSet> expectedChangeSets = singletonList(changeSet("id", "author", false, true, "foo,bar", "RETURN 42"));
+        when(parser.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
+        List<ChangeSet> expectedChangeSets = singletonList(changeSet("result.xml", "id", "author", false, true, "foo,bar", "RETURN 42"));
 
-        migrator.migrate("some-changelog.xml", Collections.emptyList(), folder.newFolder().getPath(), loader);
+        migrator.migrateDeclaredChangeSets("some-changelog.xml", Collections.emptyList(), folder.newFile("result.xml"), loader);
 
-        verify(writer).write(argThat(matchesChangeSets(expectedChangeSets)), any());
+        verify(fileWriter).write(argThat(matchesChangeSets(expectedChangeSets)), any());
     }
 
     @Test
@@ -136,12 +141,12 @@ public class LiquibaseMigratorTest {
         liquigraphChangeSet2.setAuthor("author2");
         liquigraphChangeSet1.setQueries(singletonList("RETURN 42"));
         liquigraphChangeSet2.setContexts("bar, baz");
-        when(reader.parse(loader, "some-changelog.xml")).thenReturn(asList(liquigraphChangeSet1, liquigraphChangeSet2));
-        List<ChangeSet> expectedChangeSets = singletonList(changeSet("id", "author", false, true, "foo,bar", "RETURN 42"));
+        when(parser.parse(loader, "some-changelog.xml")).thenReturn(asList(liquigraphChangeSet1, liquigraphChangeSet2));
+        List<ChangeSet> expectedChangeSets = singletonList(changeSet("result.xml", "id", "author", false, true, "foo,bar", "RETURN 42"));
 
-        migrator.migrate("some-changelog.xml", singletonList("foo"), folder.newFolder().getPath(), loader);
+        migrator.migrateDeclaredChangeSets("some-changelog.xml", singletonList("foo"), folder.newFile("result.xml"), loader);
 
-        verify(writer).write(argThat(matchesChangeSets(expectedChangeSets)), any());
+        verify(fileWriter).write(argThat(matchesChangeSets(expectedChangeSets)), any());
     }
 
     @Test
@@ -161,7 +166,7 @@ public class LiquibaseMigratorTest {
                 query("RETURN 6")
             )
         ));
-        ChangeSet liquibaseChangeSet = changeSet("id", "author", false, true, "foo,bar", "RETURN 42");
+        ChangeSet liquibaseChangeSet = changeSet("result.xml", "id", "author", false, true, "foo,bar", "RETURN 42");
         liquibaseChangeSet.setPreconditions(precondition(
             ErrorOption.MARK_RAN,
             FailOption.MARK_RAN,
@@ -171,11 +176,11 @@ public class LiquibaseMigratorTest {
                     sql("RETURN 4")),
                 sql("RETURN 6")
             )));
-        when(reader.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
+        when(parser.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
 
-        migrator.migrate("some-changelog.xml", Collections.emptyList(), folder.newFolder().getPath(), loader);
+        migrator.migrateDeclaredChangeSets("some-changelog.xml", Collections.emptyList(), folder.newFile("result.xml"), loader);
 
-        verify(writer).write(argThat(matchesChangeSets(singletonList(liquibaseChangeSet))), any());
+        verify(fileWriter).write(argThat(matchesChangeSets(singletonList(liquibaseChangeSet))), any());
     }
 
     @Test
@@ -184,17 +189,17 @@ public class LiquibaseMigratorTest {
         liquigraphChangeSet.setId("id");
         liquigraphChangeSet.setAuthor("author");
         liquigraphChangeSet.setPostcondition(postcondition(query("RETURN 42")));
-        when(reader.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
+        when(parser.parse(loader, "some-changelog.xml")).thenReturn(singletonList(liquigraphChangeSet));
 
-        assertThatThrownBy(() -> migrator.migrate("some-changelog.xml", Collections.emptyList(), folder.newFolder().getPath(), loader))
+        assertThatThrownBy(() -> migrator.migrateDeclaredChangeSets("some-changelog.xml", Collections.emptyList(), folder.newFile("result.xml"), loader))
             .isInstanceOf(MigrationException.class)
             .hasMessageContaining("The following change sets define post-conditions: id by author.\n" +
                 "This is not supported by Liquibase.\n" +
                 "Aborting migration now.");
     }
 
-    private ChangeSet changeSet(String id, String author, boolean alwaysRun, boolean runOnChange, String contexts, String... queries) {
-        ChangeSet changeSet = new ChangeSet(id, author, alwaysRun, runOnChange, null, contexts, null, null);
+    private ChangeSet changeSet(String path, String id, String author, boolean alwaysRun, boolean runOnChange, String contexts, String... queries) {
+        ChangeSet changeSet = new ChangeSet(id, author, alwaysRun, runOnChange, path, contexts, null, null);
         stream(queries).map(RawSQLChange::new).forEach(changeSet::addChange);
         return changeSet;
     }

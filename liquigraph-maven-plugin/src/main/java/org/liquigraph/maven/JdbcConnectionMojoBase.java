@@ -15,26 +15,28 @@
  */
 package org.liquigraph.maven;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 
 abstract class JdbcConnectionMojoBase extends ProjectAwareMojo {
 
     /**
      * Graph JDBC URI
      * <ul>
-     *  <li>jdbc:neo4j:http(s)://&lt;host&gt;:&lt;port&gt;/</li>
+     *  <li>jdbc:neo4j:http://&lt;host&gt;:&lt;port&gt;/</li>
+     *  <li>jdbc:neo4j:https://&lt;host&gt;:&lt;port&gt;/</li>
      *  <li>jdbc:neo4j:bolt://&lt;host&gt;:&lt;port&gt;/</li>
+     *  <li>jdbc:neo4j:bolt+s://&lt;host&gt;:&lt;port&gt;/</li>
+     *  <li>jdbc:neo4j:bolt+ssc://&lt;host&gt;:&lt;port&gt;/</li>
      *  <li>jdbc:neo4j:neo4j://&lt;host&gt;:&lt;port&gt;/</li>
+     *  <li>jdbc:neo4j:neo4j+s://&lt;host&gt;:&lt;port&gt;/</li>
+     *  <li>jdbc:neo4j:neo4j+ssc://&lt;host&gt;:&lt;port&gt;/</li>
      * </ul>
      */
     @Parameter(property = "jdbcUri", required = true)
     String jdbcUri;
 
     /**
-     * Graph connection database.
-     * Default instance is targeted if an explicit database name is not provided.
+     * Graph connection database. Default instance is targeted if an explicit database name is not provided.
      */
     @Parameter(property = "database")
     String database;

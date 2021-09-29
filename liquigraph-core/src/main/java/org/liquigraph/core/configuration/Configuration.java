@@ -60,6 +60,7 @@ public final class Configuration {
 
     /**
      * @deprecated Use {@link #changelogLoader()} for loading any kind of changelog.
+     * @return the class loader to use
      */
     @Deprecated
     public ClassLoader classLoader() {

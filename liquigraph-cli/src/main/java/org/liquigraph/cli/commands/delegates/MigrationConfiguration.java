@@ -33,8 +33,8 @@ import static java.util.Collections.emptyList;
 public class MigrationConfiguration {
 
     @Parameter(
-        names = {"--changelog", "-c"},
-        description = "Master Liquigraph changelog location.\n" +
+        names = {"--changelog", "--change-log", "-c"},
+        description = "Main Liquigraph changelog location.\n" +
             "\t Prefix with 'classpath:' if location is in classpath",
         required = true
     )

@@ -32,7 +32,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LiquigraphMavenPluginIT extends ParameterizedDatabaseIT {
+public class LiquigraphMavenPluginExecutionIT extends ParameterizedDatabaseIT {
 
     @Rule
     public MojoRule rule = new MojoRule();
@@ -46,7 +46,7 @@ public class LiquigraphMavenPluginIT extends ParameterizedDatabaseIT {
 
     private File projectBaseDir;
 
-    public LiquigraphMavenPluginIT(String description, JdbcAwareGraphDatabase graphDb, String uri) {
+    public LiquigraphMavenPluginExecutionIT(String description, JdbcAwareGraphDatabase graphDb, String uri) {
         super(description, graphDb, uri);
     }
 
@@ -84,6 +84,8 @@ public class LiquigraphMavenPluginIT extends ParameterizedDatabaseIT {
                     + "//Liquigraph changeset[executionContexts: none declared]\n"
                     + "MATCH (n:Sentence {text:'Hello monde!'}) SET n.text='Hello world!' RETURN n");
     }
+
+
 
     private <T extends ProjectAwareMojo> T configureMojo(T mojo, File projectBaseDir) throws Exception {
         mojo.setProject(new ProjectStub(projectBaseDir));

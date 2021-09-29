@@ -229,10 +229,7 @@ public final class ConfigurationBuilder {
     }
 
     private ConnectionConfiguration dataSourceConfiguration() {
-        if (uri.isPresent()) {
-            return new ConnectionConfigurationByUri(uri.get(), database, username, password);
-        }
-        return new ConnectionConfigurationByDataSource(dataSource.get(), username, password);
+        return Connections.provide(uri, database, username, password, dataSource);
     }
 
     private String formatErrors(Collection<String> errors) {

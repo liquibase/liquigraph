@@ -16,6 +16,7 @@
 package org.liquigraph.core.api;
 
 import org.liquigraph.core.configuration.Configuration;
+import org.liquigraph.core.configuration.ConnectionConfiguration;
 import org.liquigraph.core.io.ChangelogGraphReader;
 import org.liquigraph.core.io.ConditionExecutor;
 import org.liquigraph.core.io.ConditionPrinter;
@@ -28,6 +29,7 @@ import org.liquigraph.core.io.xml.ImportResolver;
 import org.liquigraph.core.io.xml.XmlSchemaValidator;
 import org.liquigraph.core.validation.PersistedChangesetValidator;
 
+import java.io.File;
 import java.util.Collection;
 
 /**
@@ -41,14 +43,15 @@ public final class Liquigraph implements LiquigraphApi {
 
     public Liquigraph() {
         ChangelogParser parser = changelogParser(xmlSchemaValidator(), changelogPreprocessor(importResolver()));
+        ChangelogGraphReader graphReader = changelogGraphReader();
         migrationRunner = migrationRunner(
             parser,
-            changelogGraphReader(),
+            graphReader,
             changelogDiffMaker(),
             conditionExecutor(),
             conditionPrinter()
         );
-        liquibaseMigrator = new LiquibaseMigrator(parser);
+        liquibaseMigrator = new LiquibaseMigrator(parser, graphReader);
     }
 
     private static MigrationRunner migrationRunner(ChangelogParser changelogParser, ChangelogGraphReader changelogGraphReader, ChangelogDiffMaker changelogDiffMaker, ConditionExecutor conditionExecutor, ConditionPrinter conditionPrinter) {
@@ -104,7 +107,12 @@ public final class Liquigraph implements LiquigraphApi {
     }
 
     @Override
-    public void migrateDeclaredChangeSets(String changelog, Collection<String> executionContexts, String targetDirectory, ChangelogLoader changelogLoader) {
-        liquibaseMigrator.migrate(changelog, executionContexts, targetDirectory, changelogLoader);
+    public void migrateDeclaredChangeSets(String changelog, Collection<String> executionContexts, File targetFile, ChangelogLoader changelogLoader) {
+        liquibaseMigrator.migrateDeclaredChangeSets(changelog, executionContexts, targetFile, changelogLoader);
+    }
+
+    @Override
+    public void migratePersistedChangeSets(ConnectionConfiguration connectionConfiguration, String changelog, boolean deleteMigratedGraph) {
+        liquibaseMigrator.migratePersistedChangeSets(connectionConfiguration, changelog, deleteMigratedGraph);
     }
 }

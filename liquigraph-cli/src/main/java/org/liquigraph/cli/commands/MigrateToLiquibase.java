@@ -18,36 +18,60 @@ package org.liquigraph.cli.commands;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import org.liquigraph.cli.commands.delegates.Connectivity;
 import org.liquigraph.cli.commands.delegates.MigrationConfiguration;
 import org.liquigraph.cli.io.ClassLoaders;
 import org.liquigraph.cli.io.Files;
 import org.liquigraph.core.api.LiquigraphApi;
+import org.liquigraph.core.configuration.Connections;
 import org.liquigraph.core.io.ChangelogLoader;
 import org.liquigraph.core.io.ClassLoaderChangelogLoader;
 
+import java.io.File;
 import java.util.Objects;
+import java.util.Optional;
 
-@Parameters(commandDescription = "Migrates the given declared change sets to Liquibase XML format")
-public final class MigrateDeclaredChangeSets implements LiquigraphCommand {
+@Parameters(commandDescription = "Migrates the change sets to Liquibase")
+public final class MigrateToLiquibase implements LiquigraphCommand {
 
     @ParametersDelegate
     private final MigrationConfiguration migrationConfiguration = new MigrationConfiguration();
 
+    @ParametersDelegate
+    private final Connectivity connectivity = new Connectivity();
+
     @Parameter(
-        names = {"--target-directory", "-d"},
+        names = {"--delete-migrated-graph", "--delete"},
+        description = "Whether the Liquigraph execution history graph should be deleted after the migration completes"
+    )
+    private boolean deleteAfterMigration;
+
+    @Parameter(
+        names = {"--target-file", "--file", "-f"},
         description = "Output directory path into which the Liquibase change sets will be written. " +
             "The output file will be named <basename>.liquibase.xml",
         required = true
     )
-    private String targetDirectory;
+    private File targetFile;
 
     @Override
     public void accept(LiquigraphApi liquigraphApi) {
         liquigraphApi.migrateDeclaredChangeSets(
             migrationConfiguration.getChangelog(),
             migrationConfiguration.getExecutionContexts(),
-            targetDirectory,
+            targetFile,
             getChangelogLoader()
+        );
+        liquigraphApi.migratePersistedChangeSets(
+            Connections.provide(
+                Optional.ofNullable(connectivity.getGraphDbUri()),
+                Optional.ofNullable(connectivity.getDatabase()),
+                Optional.ofNullable(connectivity.getUsername()),
+                Optional.ofNullable(connectivity.getPassword()),
+                Optional.empty()
+            ),
+            targetFile.getName(),
+            deleteAfterMigration
         );
     }
 
@@ -55,21 +79,20 @@ public final class MigrateDeclaredChangeSets implements LiquigraphCommand {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MigrateDeclaredChangeSets migrateLiquibase = (MigrateDeclaredChangeSets) o;
-        return Objects.equals(migrationConfiguration, migrateLiquibase.migrationConfiguration) &&
-            Objects.equals(targetDirectory, migrateLiquibase.targetDirectory);
+        MigrateToLiquibase that = (MigrateToLiquibase) o;
+        return deleteAfterMigration == that.deleteAfterMigration && Objects.equals(migrationConfiguration, that.migrationConfiguration) && Objects.equals(connectivity, that.connectivity) && Objects.equals(targetFile, that.targetFile);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(migrationConfiguration, targetDirectory);
+        return Objects.hash(migrationConfiguration, connectivity, deleteAfterMigration, targetFile);
     }
 
     private ChangelogLoader getChangelogLoader() {
         return new ClassLoaderChangelogLoader(
             ClassLoaders.urlClassLoader(
                 migrationConfiguration.getResourceUrl(),
-                Files.toUrl(targetDirectory)
+                Files.toUrl(targetFile.getParentFile())
             )
         );
     }

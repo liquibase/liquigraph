@@ -39,7 +39,9 @@ public class ConnectionConfigurationByDataSource implements ConnectionConfigurat
     @Override
     public Connection get() {
         try {
-            return connection();
+            Connection connection = connection();
+            connection.setAutoCommit(false);
+            return connection;
         } catch (SQLException e) {
             throw propagate(e);
         }

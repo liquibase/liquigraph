@@ -76,7 +76,7 @@ public class ConditionExecutorIT extends ParameterizedDatabaseIT {
             graphDb.rollbackNewConnection(uri, connection ->
                 executor.executeCondition(connection, simplePrecondition("toto"))))
         .isInstanceOf(ConditionExecutionException.class)
-        .hasMessageContaining("Invalid input 't'");
+        .hasMessageContaining("Invalid input");
     }
 
     @Test

@@ -31,4 +31,13 @@ public class Files {
             throw propagate(e);
         }
     }
+
+    public static URL toUrl(File file) {
+        try {
+            return file.toURI().toURL();
+        }
+        catch (MalformedURLException e) {
+            throw propagate(e);
+        }
+    }
 }
