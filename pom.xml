@@ -245,12 +245,12 @@
             <dependency>
                 <groupId>org.neo4j.driver</groupId>
                 <artifactId>neo4j-java-driver</artifactId>
-                <version>4.3.3</version>
+                <version>4.4.2</version>
             </dependency>
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>4.7.0</version>
+                <version>4.7.1</version>
             </dependency>
             <dependency>
                 <groupId>org.liquibase.ext</groupId>
@@ -284,19 +284,19 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13.1</version>
+                <version>4.13.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.16.1</version>
+                <version>3.22.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>3.3.3</version>
+                <version>4.2.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
