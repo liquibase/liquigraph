@@ -137,7 +137,7 @@
     <licenses>
         <license>
             <name>Apache License</name>
-            <url>https://github.com/liquigraph/liquigraph/raw/master/LICENSE</url>
+            <url>https://github.com/liquigraph/liquigraph/raw/4.x/LICENSE</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
