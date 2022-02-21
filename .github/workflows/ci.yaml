@@ -35,9 +35,9 @@ jobs:
       fail-fast: false
       matrix:
         neo4j_version: # EE or CE is driven by `org.liquigraph.testing.TestNeo4jContainer`
-          - 4.2.14
+          - 4.2.15
           - 4.3.10
-          - 4.4.3
+          - 4.4.4
     steps:
       - name: Setup Java
         uses: actions/setup-java@v1
