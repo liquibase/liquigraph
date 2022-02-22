@@ -113,7 +113,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.9.0</version>
+                <version>3.11.0</version>
                 <configuration>
                     <skipDeploy>true</skipDeploy>
                 </configuration>
