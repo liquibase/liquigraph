@@ -12,10 +12,6 @@
     <name>liquigraph-core</name>
     <packaging>jar</packaging>
 
-    <properties>
-        <test-containers.version>1.14.1</test-containers.version>
-    </properties>
-
     <build>
         <testResources>
             <testResource>
@@ -41,7 +37,17 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-jdbc-driver</artifactId>
-            <version>${neo4j-jdbc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.5</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -83,13 +89,8 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>${test-containers.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
             <artifactId>neo4j</artifactId>
-            <version>${test-containers.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>

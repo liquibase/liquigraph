@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,37 +17,50 @@ package org.liquigraph.spring;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import javax.sql.DataSource;
 import org.h2.jdbcx.JdbcDataSource;
-import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.liquigraph.spring.starter.LiquigraphAutoConfiguration;
 import org.liquigraph.spring.starter.LiquigraphDataSource;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Result;
-import org.neo4j.harness.junit.Neo4jRule;
+import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.v1.Session;
+import org.neo4j.driver.v1.StatementResult;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.springframework.boot.test.util.EnvironmentTestUtils;
+import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.testcontainers.containers.Neo4jContainer;
+
+import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LiquigraphAutoconfigurationTest {
+public class LiquigraphAutoconfigurationIT {
 
     static {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
     }
 
     @ClassRule
-    public static final Neo4jRule neo4j = new Neo4jRule();
+    public static final Neo4jContainer<?> CONTAINER = new Neo4jContainer<>("neo4j:3.5").withoutAuthentication();
 
-    @After
+    private static Driver driver;
+
+    @BeforeClass
+    public static void prepareAll() {
+        driver = GraphDatabase.driver(CONTAINER.getBoltUrl());
+    }
+
+    @Before
     public void prepare() {
-        try (Result ignored = graphDb().execute("MATCH (n) DETACH DELETE n")) { }
+        try (Session session = driver.session()) {
+            session.run("MATCH (n) DETACH DELETE n");
+        }
     }
 
     @Test
@@ -65,15 +78,14 @@ public class LiquigraphAutoconfigurationTest {
     @Test
     public void runs_migrations_with_changelog_property_alias() {
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-            loadContext(
-                context,
+            loadContext(context,
                 "liquigraph.url=" + jdbcUrl(),
                 "liquigraph.changelog=classpath:/db/liquigraph/changelog.xml"
             );
 
             assertThat(context.getBeansOfType(SpringLiquigraph.class))
-            .as("SpringLiquigraph is configured through properties and default settings")
-            .isNotEmpty();
+                .as("SpringLiquigraph is configured through properties and default settings")
+                .isNotEmpty();
             assertThatMigrationsHaveRun();
         }
     }
@@ -139,44 +151,39 @@ public class LiquigraphAutoconfigurationTest {
     }
 
     private static void setUpEnvironment(AnnotationConfigApplicationContext baseContext, String... properties) {
-        for (String property : properties) {
-            EnvironmentTestUtils.addEnvironment(baseContext, property);
-        }
+        TestPropertyValues.of(properties).applyTo(baseContext);
         baseContext.register(LiquigraphAutoConfiguration.class);
     }
 
     private static void assertThatMigrationsHaveRun() {
-        try (Result result = graphDb().execute("MATCH (n:Sentence {text:'Hello world!'}) RETURN COUNT(n) AS count")) {
+        try (Session session = driver.session()) {
+            StatementResult result = session.run("MATCH (n:Sentence {text:'Hello world!'}) RETURN COUNT(n) AS count");
             assertThat(result.hasNext()).as("Query returns a count").isTrue();
-            assertThat(result.next().get("count")).as("There is only 1 sentence in the graph").isEqualTo(1L);
+            assertThat(result.next().get("count").asLong()).as("There is only 1 sentence in the graph").isEqualTo(1L);
             assertThat(result.hasNext()).as("No more counts are returned").isFalse();
         }
     }
 
     private static void assertThatMigrationsHaveNotRun() {
-        try (Result result = graphDb().execute("MATCH (n) RETURN COUNT(n) AS count")) {
+        try (Session session = driver.session()) {
+            StatementResult result = session.run("MATCH (n) RETURN COUNT(n) AS count");
             assertThat(result.hasNext()).as("Query returns a count").isTrue();
-            assertThat(result.next().get("count")).as("The graph is empty").isEqualTo(0L);
+            assertThat(result.next().get("count").asLong()).as("The graph is empty").isEqualTo(0L);
             assertThat(result.hasNext()).as("No more counts are returned").isFalse();
         }
     }
 
-    private static GraphDatabaseService graphDb() {
-        return neo4j.getGraphDatabaseService();
-    }
-
     private static String jdbcUrl() {
-        return "jdbc:neo4j:" + neo4j.httpURI().toString();
+        return "jdbc:neo4j:" + CONTAINER.getBoltUrl();
     }
 
     @Configuration
     static class SingleDataSource {
 
-
         @Bean
         public DataSource dataSource() {
             HikariConfig configuration = new HikariConfig();
-            configuration.setJdbcUrl("jdbc:neo4j:" + neo4j.httpURI());
+            configuration.setJdbcUrl("jdbc:neo4j:" + CONTAINER.getBoltUrl());
             return new HikariDataSource(configuration);
         }
     }
@@ -194,7 +201,7 @@ public class LiquigraphAutoconfigurationTest {
         @Bean
         public DataSource liquigraphDataSource() {
             HikariConfig configuration = new HikariConfig();
-            configuration.setJdbcUrl("jdbc:neo4j:" + neo4j.httpURI());
+            configuration.setJdbcUrl("jdbc:neo4j:" + CONTAINER.getBoltUrl());
             return new HikariDataSource(configuration);
         }
     }
