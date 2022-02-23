@@ -22,7 +22,7 @@
         <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <neo4j.version>4.4.3</neo4j.version>
+        <neo4j.version>4.4.4</neo4j.version>
         <slf4j.version>1.7.36</slf4j.version>
         <logback.version>1.2.10</logback.version>
         <argLine>-Duser.language=en -Xmx1024m</argLine>
