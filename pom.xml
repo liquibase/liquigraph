@@ -23,15 +23,14 @@
         <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <neo4j.version>3.0.0</neo4j.version>
+        <neo4j.version>3.5.30</neo4j.version>
         <slf4j.version>1.7.30</slf4j.version>
         <logback.version>1.2.3</logback.version>
-        <!-- JaCoCo needs this as a property -->
-        <argLine>-Duser.language=en -Xmx1024m</argLine>
         <generateBackupPoms>false</generateBackupPoms>
         <spring-boot.version>2.0.0.RELEASE</spring-boot.version>
         <jetty.version>9.2.9.v20150224</jetty.version>
-        <neo4j-jdbc.version>3.0.3</neo4j-jdbc.version>
+        <neo4j-jdbc.version>3.5.2</neo4j-jdbc.version>
+        <test-containers.version>1.16.3</test-containers.version>
     </properties>
 
     <modules>
@@ -40,9 +39,6 @@
         <module>liquigraph-maven-plugin</module>
         <module>liquigraph-cli</module>
         <module>liquigraph-spring-boot-starter</module>
-        <!-- Liquigraph integration examples -->
-        <module>liquigraph-examples/dagger2</module>
-        <module>liquigraph-examples/spring-boot</module>
     </modules>
 
     <build>
@@ -76,24 +72,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.5</version>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <version>4.3.0</version>
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -141,7 +119,7 @@
     <licenses>
         <license>
             <name>Apache License</name>
-            <url>https://github.com/liquigraph/liquigraph/raw/master/LICENSE</url>
+            <url>https://github.com/liquibase/liquigraph/raw/3.x/LICENSE</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -250,6 +228,18 @@
                 <artifactId>okhttp</artifactId>
                 <version>3.14.9</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>neo4j</artifactId>
+                <version>${test-containers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.neo4j</groupId>
+                <artifactId>neo4j-jdbc-driver</artifactId>
+                <version>${neo4j-jdbc.version}</version>
+                <scope>runtime</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
