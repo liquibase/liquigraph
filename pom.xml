@@ -228,7 +228,7 @@
             <dependency>
                 <groupId>org.neo4j.driver</groupId>
                 <artifactId>neo4j-java-driver</artifactId>
-                <version>4.4.3</version>
+                <version>4.4.4</version>
             </dependency>
             <dependency>
                 <groupId>org.liquibase</groupId>
