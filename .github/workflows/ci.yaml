@@ -19,7 +19,7 @@ jobs:
           java-version: 11
       - uses: actions/checkout@v3
       - name: Cache ~/.m2/repository
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.2
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -47,7 +47,7 @@ jobs:
           java-version: 11
       - uses: actions/checkout@v3
       - name: Cache ~/.m2/repository
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.2
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -70,7 +70,7 @@ jobs:
           java-version: 11
       - uses: actions/checkout@v3
       - name: Cache ~/.m2/repository
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v3.0.2
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
